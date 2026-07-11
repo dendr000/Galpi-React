@@ -17,7 +17,7 @@ import Home from './pages/Home';
 import CategoryPage from './pages/CategoryPage';
 import BulkStudioPage from './pages/BulkStudioPage';
 import EditorPage from './pages/EditorPage'; 
-import WorkDetailPage from './pages/WorkDetailPage'; 
+import WorkDetailPage from './pages/WorkDetail/WorkDetailPage'; 
 
 // ============================================================================
 // [임시 껍데기 컴포넌트] (아직 JS 로직이 구현 안 된 것들만 남겨둠)
