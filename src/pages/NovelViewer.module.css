@@ -4,9 +4,8 @@
 .headerGroup { display: flex; align-items: center; gap: 15px; }
 .title { font-size: 16px; font-weight: bold; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
 
-.btn { background: transparent; border: none; color: inherit; cursor: pointer; padding: 8px; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: 0.2s; position: relative; }
+.btn { background: transparent; border: none; color: inherit; cursor: pointer; padding: 8px; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: 0.2s; position: relative; font-size: 20px; }
 .btn:hover { background: rgba(128, 128, 128, 0.1); }
-.btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 .settingsPanel { position: fixed; top: 70px; right: 20px; width: 320px; background: var(--nv-toolbar-bg); border: 1px solid var(--nv-toolbar-border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 20px; box-sizing: border-box; z-index: 1001; display: flex; flex-direction: column; gap: 20px; backdrop-filter: blur(8px); animation: fadeIn 0.2s; }
 .settingGroup { display: flex; flex-direction: column; gap: 10px; }

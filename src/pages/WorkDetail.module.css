@@ -29,3 +29,23 @@
 .infoTable { width: 100%; border-collapse: collapse; font-size: 13px; }
 .infoTable th { width: 100px; background: var(--table-bg-alt); color: var(--text-secondary); padding: 8px 10px; border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); text-align: center; }
 .infoTable td { padding: 8px 10px; border-bottom: 1px solid var(--border-color); color: var(--text-primary); }
+
+/* src/pages/WorkDetail.module.css 에 아래 내용 추가 */
+
+/* 파일 트리 (좌측) */
+.floatingLeftTree { position: fixed; top: 150px; left: 0; z-index: 10000; display: flex; align-items: flex-start; transform: translateX(calc(-100% + 32px)); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+.floatingLeftTree:hover { transform: translateX(0); }
+.treeHandle { width: 32px; background: var(--surface-color); border: 1px solid var(--border-color); border-left: none; border-radius: 0 8px 8px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px 0; gap: 4px; cursor: pointer; box-shadow: 2px 0 5px rgba(0,0,0,0.05); color: var(--text-secondary); }
+.treeHandle:hover { background: var(--table-bg-alt); color: var(--primary-color); }
+.dash { width: 14px; height: 3px; background-color: currentColor; border-radius: 2px; }
+.treeContent { width: 270px; background: var(--surface-color); border: 1px solid var(--border-color); border-left: none; border-radius: 0 8px 8px 0; padding: 20px; box-shadow: 4px 4px 15px rgba(0,0,0,0.1); max-height: 80vh; box-sizing: border-box; display: flex; flex-direction: column; }
+
+/* 목차 (우측) */
+.floatingToc { position: fixed; top: 150px; right: 0; z-index: 10000; display: flex; align-items: flex-start; transform: translateX(calc(100% - 32px)); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+.floatingToc:hover { transform: translateX(0); }
+.tocHandle { width: 32px; background: var(--surface-color); border: 1px solid var(--border-color); border-right: none; border-radius: 8px 0 0 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px 0; gap: 4px; cursor: pointer; box-shadow: -2px 0 5px rgba(0,0,0,0.05); color: var(--text-secondary); }
+.tocHandle:hover { background: var(--table-bg-alt); color: var(--primary-color); }
+.tocContent { width: 270px; background: var(--surface-color); border: 1px solid var(--border-color); border-right: none; border-radius: 0 0 0 8px; padding: 20px; box-shadow: -4px 4px 15px rgba(0,0,0,0.1); max-height: 80vh; box-sizing: border-box; display: flex; flex-direction: column; }
+
+/* 중앙 위키 컨테이너 (하얀 배경 박스 복구) */
+.wikiBox { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-top: 20px; }

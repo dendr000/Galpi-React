@@ -7,7 +7,7 @@ const ModalOverlay = ({ title, onClose, children, width = '500px', actions }) =>
   <div className="modal-overlay" onClick={onClose} style={{ zIndex: 100000, position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(3px)' }}>
     <div className="modal-content" onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-color)', width: '90%', maxWidth: width, maxHeight: '80vh', borderRadius: '12px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 10px 40px rgba(0,0,0,0.3)', border: '1px solid var(--border-color)' }}>
       <div style={{ padding: '15px 20px', background: 'var(--table-bg-alt)', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ margin: 0, color: 'var(--primary-color)' }}>{title}</h3>
+        <h3 style={{ margin: 0, color: 'var(--primary-color)', fontSize: '16px' }}>{title}</h3>
         <div style={{ display: 'flex', gap: '10px' }}>
           {actions}
           <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: 'var(--text-secondary)', lineHeight: 1 }}>&times;</button>
@@ -25,19 +25,16 @@ const FabMenu = () => {
   const { activeModal, openModal, closeModal, clipboardHistory, addClipboard, clearClipboard } = useModalStore();
   const navigate = useNavigate();
   const location = useLocation();
-
   const currentWorkId = new URLSearchParams(location.search).get('workId') || location.pathname.match(/\/work\/(\d+)/)?.[1] || 'global';
 
   const [dictList, setDictList] = useState([]);
-  const [dictWord, setDictWord] = useState('');
-  const [dictTrans, setDictTrans] = useState('');
+  const [dictInput, setDictInput] = useState({ word: '', trans: '' });
   const [dictSearch, setDictSearch] = useState('');
   const [dictBulk, setDictBulk] = useState('');
   const [isDictBulkMode, setIsDictBulkMode] = useState(false);
 
   const [bpList, setBpList] = useState([]);
-  const [bpTitle, setBpTitle] = useState('');
-  const [bpContent, setBpContent] = useState('');
+  const [bpInput, setBpInput] = useState({ title: '', content: '' });
   const [bpBulk, setBpBulk] = useState('');
   const [isBpBulkMode, setIsBpBulkMode] = useState(false);
 
@@ -45,29 +42,23 @@ const FabMenu = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const [recentWorks, setRecentWorks] = useState([]);
-  const [favWorks, setFavWorks] = useState([]);
-  
   const [toastMsg, setToastMsg] = useState('');
 
-  const showToast = (msg) => {
-    setToastMsg(msg);
-    setTimeout(() => setToastMsg(''), 2000);
-  };
+  const showToast = (msg) => { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2000); };
 
+  // 전역 클립보드 및 단축키 캡처 이벤트
   useEffect(() => {
-    const handleCopy = () => {
-      const text = window.getSelection().toString();
-      if (text) addClipboard(text);
-    };
+    const handleCopy = () => { const text = window.getSelection().toString(); if (text) addClipboard(text); };
     const handleKey = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'v') {
-        e.preventDefault(); openModal('clipboard');
-      }
+      // Ctrl + Shift + V (클립보드 히스토리 팝업)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'v') { e.preventDefault(); openModal('clipboard'); }
+      
+      // Alt + H (고유명사 사전 한자 변환)
       if (e.altKey && e.key.toLowerCase() === 'h' && e.target.tagName.match(/INPUT|TEXTAREA/)) {
         e.preventDefault(); e.stopPropagation();
         const input = e.target; const text = input.value; const cursor = input.selectionStart;
         const textBefore = text.substring(0, cursor);
-        const keys = dictList.map(d=>d.word).sort((a,b)=>b.length-a.length);
+        const keys = dictList.map(d=>d.word).sort((a,b)=>b.length-a.length); // 긴 단어부터 매칭
         
         for (let k of keys) {
           const trans = dictList.find(d => d.word === k)?.translation || '';
@@ -82,8 +73,7 @@ const FabMenu = () => {
           if (rep) {
             input.value = text.substring(0, cursor - mLen) + rep + text.substring(cursor);
             input.selectionStart = input.selectionEnd = cursor - mLen + rep.length;
-            const event = new Event('input', { bubbles: true });
-            input.dispatchEvent(event);
+            input.dispatchEvent(new Event('input', { bubbles: true }));
             break;
           }
         }
@@ -93,7 +83,7 @@ const FabMenu = () => {
     return () => { document.removeEventListener('copy', handleCopy); document.removeEventListener('cut', handleCopy); document.removeEventListener('keydown', handleKey, true); };
   }, [addClipboard, openModal, dictList]);
 
-  // Modals Loader
+  // 모달 데이터 페칭
   useEffect(() => {
     if (activeModal === 'dict') api.get(`/api/dicts?workId=${currentWorkId}`).then(res => setDictList(res.data)).catch(()=>{});
     if (activeModal === 'boilerplate') api.get('/api/boilerplates').then(res => setBpList(res.data)).catch(()=>{});
@@ -101,13 +91,9 @@ const FabMenu = () => {
       if (currentWorkId !== 'global') api.get(`/api/characters?workId=${currentWorkId}`).then(res => setSearchChars(res.data)).catch(()=>{});
       else { alert("작품 상세 화면에서만 검색이 가능합니다."); closeModal(); }
     }
-    if (activeModal === 'recent' || activeModal === 'fav') {
-      const keys = activeModal === 'recent' ? 'galpi-recent-works' : 'wiki-favs';
-      const ids = JSON.parse(localStorage.getItem(keys) || '[]');
-      if (ids.length > 0) api.get('/api/works').then(res => {
-        const list = ids.map(id => res.data.find(w => w.id === id)).filter(Boolean);
-        activeModal === 'recent' ? setRecentWorks(list) : setFavWorks(list);
-      }).catch(()=>{});
+    if (activeModal === 'recent') {
+      const ids = JSON.parse(localStorage.getItem('galpi-recent-works') || '[]');
+      if (ids.length > 0) api.get('/api/works').then(res => setRecentWorks(ids.map(id => res.data.find(w => w.id === id)).filter(Boolean))).catch(()=>{});
     }
   }, [activeModal, currentWorkId]);
 
@@ -174,6 +160,7 @@ const FabMenu = () => {
           <button className="wiki-btn" onClick={() => openModal('dict')} style={btnSty} title="고유명사 사전 (Alt+H)">📖</button>
           <button className="wiki-btn" onClick={() => openModal('boilerplate')} style={btnSty} title="스마트 상용구">⚡</button>
           <button className="wiki-btn" onClick={() => openModal('clipboard')} style={btnSty} title="클립보드 내역 (Ctrl+Shift+V)">📋</button>
+          <button className="wiki-btn" onClick={() => openModal('recent')} style={btnSty} title="최근 열람 기록">🕒</button>
           <button className="wiki-btn" onClick={() => { setIsOpen(false); window.scrollTo({top:0, behavior:'smooth'}); }} style={{...btnSty, background: 'var(--table-bg-alt)'}} title="최상단 이동">⬆️</button>
         </div>
       </div>
@@ -193,16 +180,26 @@ const FabMenu = () => {
         </ModalOverlay>
       )}
 
+      {/* ★ 에러 원인 해결 (onKeyDown 핸들러 부분 async 함수 선언 수정) */}
       {activeModal === 'dict' && (
         <ModalOverlay title="📖 고유명사 한자/영문 사전" onClose={closeModal} width="550px">
           <div style={{ display: 'flex', gap: '10px' }}>
             <input type="text" placeholder="원문" value={dictInput.word} onChange={e=>setDictInput({...dictInput, word: e.target.value})} style={{...inpSty, flex: 1}} />
-            <input type="text" placeholder="한자/영문" value={dictInput.trans} onChange={e=>setDictInput({...dictInput, trans: e.target.value})} onKeyDown={e => e.key === 'Enter' && async()=>{
-              if(!dictInput.word || !dictInput.trans) return;
-              await api.post('/api/dicts', { workId: currentWorkId, word: dictInput.word, translation: dictInput.trans });
-              setDictList([...dictList, { workId: currentWorkId, word: dictInput.word, translation: dictInput.trans }]);
-              setDictInput({ word: '', trans: '' });
-            }()} style={{...inpSty, flex: 1}} />
+            <input 
+              type="text" 
+              placeholder="한자/영문" 
+              value={dictInput.trans} 
+              onChange={e=>setDictInput({...dictInput, trans: e.target.value})} 
+              onKeyDown={async (e) => {
+                if (e.key === 'Enter') {
+                  if(!dictInput.word || !dictInput.trans) return;
+                  await api.post('/api/dicts', { workId: currentWorkId, word: dictInput.word, translation: dictInput.trans });
+                  setDictList([...dictList, { workId: currentWorkId, word: dictInput.word, translation: dictInput.trans }]);
+                  setDictInput({ word: '', trans: '' });
+                }
+              }} 
+              style={{...inpSty, flex: 1}} 
+            />
             <button className="wiki-btn" onClick={async () => {
               if(!dictInput.word || !dictInput.trans) return;
               await api.post('/api/dicts', { workId: currentWorkId, word: dictInput.word, translation: dictInput.trans });
@@ -237,12 +234,12 @@ const FabMenu = () => {
       {activeModal === 'boilerplate' && (
         <ModalOverlay title="⚡ 스마트 상용구 관리" onClose={closeModal} width="600px">
           <div style={{ display: 'flex', gap: '10px' }}>
-            <input type="text" placeholder="단축어 (!검성)" value={bpTitle} onChange={e=>setBpTitle(e.target.value)} style={{...inpSty, flex: 1}} />
-            <textarea placeholder="치환 본문" value={bpContent} onChange={e=>setBpContent(e.target.value)} style={{...inpSty, flex: 2, resize: 'none', height: '36px'}} />
+            <input type="text" placeholder="단축어 (!검성)" value={bpInput.title} onChange={e=>setBpInput({...bpInput, title: e.target.value})} style={{...inpSty, flex: 1}} />
+            <textarea placeholder="치환 본문" value={bpInput.content} onChange={e=>setBpInput({...bpInput, content: e.target.value})} style={{...inpSty, flex: 2, resize: 'none', height: '36px'}} />
             <button className="wiki-btn" onClick={async () => {
-              if(!bpTitle || !bpContent) return;
-              const res = await api.post('/api/boilerplates', { title: bpTitle, content: bpContent, category: '공통' });
-              setBpList([...bpList, res.data]); setBpTitle(''); setBpContent('');
+              if(!bpInput.title || !bpInput.content) return;
+              const res = await api.post('/api/boilerplates', { title: bpInput.title, content: bpInput.content, category: '공통' });
+              setBpList([...bpList, res.data]); setBpInput({title: '', content: ''});
             }} style={{ padding: '8px 16px', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>추가</button>
             <button className="wiki-btn" onClick={()=>setIsBpBulkMode(!isBpBulkMode)} style={{ padding: '8px 12px', background: 'var(--table-bg-alt)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>일괄 ▾</button>
           </div>
@@ -278,11 +275,11 @@ const FabMenu = () => {
         </ModalOverlay>
       )}
 
-      {(activeModal === 'recent' || activeModal === 'fav') && (
-        <ModalOverlay title={activeModal === 'recent' ? '🕒 최근 열람 기록' : '⭐ 즐겨찾기 목록'} onClose={closeModal}>
+      {activeModal === 'recent' && (
+        <ModalOverlay title="🕒 최근 열람 기록" onClose={closeModal}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {(activeModal === 'recent' ? recentWorks : favWorks).length === 0 ? <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>목록이 없습니다.</div> : 
-              (activeModal === 'recent' ? recentWorks : favWorks).map(w => (
+            {recentWorks.length === 0 ? <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>목록이 없습니다.</div> : 
+              recentWorks.map(w => (
                 <div key={w.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer' }} onClick={() => { closeModal(); navigate(`/work/${w.id}`); }}>
                   <div><h4 style={{ margin: '0 0 4px 0', fontSize: '15px' }}>{w.title}</h4><div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>✍️ {w.creator || '미상'}</div></div>
                   <span style={{ color: 'var(--primary-color)', fontWeight: 'bold', fontSize: '18px' }}>➔</span>

@@ -12,7 +12,7 @@ const NovelViewerPage = () => {
   const [page, setPage] = useState({ title: '로딩 중...', content: '', workId: workId });
   const [loading, setLoading] = useState(true);
 
-  // 뷰어 설정 상태
+  // 로컬 스토리지 연동 설정
   const [config, setConfig] = useState(() => {
     try { return JSON.parse(localStorage.getItem('galpi-viewer-config')) || { theme: 'light', font: 'serif', fontSize: 18, lineHeight: 1.8 }; }
     catch { return { theme: 'light', font: 'serif', fontSize: 18, lineHeight: 1.8 }; }
@@ -22,27 +22,22 @@ const NovelViewerPage = () => {
   const [showHeader, setShowHeader] = useState(true);
   const [progress, setProgress] = useState(0);
   const [lightboxImg, setLightboxImg] = useState(null);
-  
   const lastScrollY = useRef(0);
 
   useEffect(() => {
-    api.get(`/api/wikipages/${pageId}`).then(res => {
-      setPage(res.data);
-    }).catch(() => { alert('문서를 불러올 수 없습니다.'); navigate(-1); }).finally(() => setLoading(false));
+    api.get(`/api/wikipages/${pageId}`).then(res => setPage(res.data))
+       .catch(() => { alert('문서를 불러올 수 없습니다.'); navigate(-1); })
+       .finally(() => setLoading(false));
   }, [pageId, navigate]);
 
-  useEffect(() => {
-    localStorage.setItem('galpi-viewer-config', JSON.stringify(config));
-  }, [config]);
+  useEffect(() => { localStorage.setItem('galpi-viewer-config', JSON.stringify(config)); }, [config]);
 
+  // 스크롤 방향 감지 및 진행률 연산
   useEffect(() => {
     const handleScroll = () => {
       const currentY = window.scrollY;
-      if (currentY > lastScrollY.current && currentY > 60) {
-        setShowHeader(false); setShowSettings(false);
-      } else if (currentY < lastScrollY.current) {
-        setShowHeader(true);
-      }
+      if (currentY > lastScrollY.current && currentY > 60) { setShowHeader(false); setShowSettings(false); }
+      else if (currentY < lastScrollY.current) { setShowHeader(true); }
       lastScrollY.current = currentY;
 
       const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
@@ -76,12 +71,12 @@ const NovelViewerPage = () => {
     <div className={styles.layout} style={{ ...themeVars[config.theme], '--nv-font': config.font === 'serif' ? '"KoPub Batang", "바탕", serif' : '"KoPub Dotum", "돋움", sans-serif' }} onClick={(e) => { if(e.target.tagName !== 'IMG') { setShowHeader(!showHeader); setShowSettings(false); } }}>
       <header className={`${styles.header} ${!showHeader ? styles.headerHidden : ''}`} onClick={e => e.stopPropagation()}>
         <div className={styles.headerGroup}>
-          <button className={styles.btn} onClick={() => navigate(`/work/${page.workId}`)}><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+          <button className={styles.btn} onClick={() => navigate(`/work/${page.workId}`)}>🔙</button>
           <h1 className={styles.title}>{page.title}</h1>
         </div>
         <div className={styles.headerGroup}>
-          <button className={styles.btn} onClick={() => setShowSettings(!showSettings)}><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
-          <button className={styles.btn} onClick={() => navigate(`/edit?type=page&action=edit&id=${pageId}&workId=${page.workId}`)}><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button className={styles.btn} onClick={() => setShowSettings(!showSettings)}>⚙️</button>
+          <button className={styles.btn} onClick={() => navigate(`/edit?type=page&action=edit&id=${pageId}&workId=${page.workId}`)}>✏️</button>
         </div>
       </header>
 

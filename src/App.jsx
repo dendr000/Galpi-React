@@ -10,25 +10,26 @@ import useSettingStore from './store/useSettingStore';
 import Gnb from './components/layout/Gnb';
 import BossBlindLayer from './components/common/BossBlindLayer';
 import SettingModal from './components/common/SettingModal';
+import FabMenu from './components/layout/FabMenu';
 
 // 실제 구현 완료된 페이지들
 import Home from './pages/Home';
 import CategoryPage from './pages/CategoryPage';
 import BulkStudioPage from './pages/BulkStudioPage';
 import EditorPage from './pages/EditorPage'; 
-import WorkDetailPage from './pages/WorkDetailPage'; // ★ 이번에 만들 위키 본체!
+import WorkDetailPage from './pages/WorkDetailPage'; 
 
 // ============================================================================
 // [임시 껍데기 컴포넌트] (아직 JS 로직이 구현 안 된 것들만 남겨둠)
 // ============================================================================
-const MemoWorkspacePage = () => <div><h1>🌌 [무한 캔버스] 통합 메모 워크스페이스</h1></div>;
-const NovelViewerPage = () => <div><h1>👁️ [소설 뷰어]</h1></div>;
-const NotFoundPage = () => <div><h1>404 - 존재하지 않는 페이지입니다.</h1></div>;
+const MemoWorkspacePage = () => <div style={{padding:'50px', textAlign:'center'}}><h1>🌌 [무한 캔버스] 통합 메모 워크스페이스</h1></div>;
+const NovelViewerPage = () => <div style={{padding:'50px', textAlign:'center'}}><h1>👁️ [소설 뷰어]</h1></div>;
+const NotFoundPage = () => <div style={{padding:'50px', textAlign:'center', color:'#e53e3e'}}><h1>404 - 존재하지 않는 페이지입니다.</h1></div>;
 
 function App() {
   const [isSettingOpen, setIsSettingOpen] = useState(false);
   
-  // Zustand 스토어 구독 (중복 선언 완전 제거)
+  // Zustand 스토어 구독
   const { fontSize, layoutWidth, fontFamily } = useSettingStore();
   
   useBossKey();
@@ -43,22 +44,16 @@ function App() {
         maxWidth: layoutWidth === 'full' ? '100%' : '1200px',
         margin: '0 auto',
         minHeight: '100vh',
-        transition: 'max-width 0.3s ease'
+        transition: 'max-width 0.3s ease',
+        background: 'var(--bg-color)'
       }}
     >
       <SettingModal isOpen={isSettingOpen} onClose={() => setIsSettingOpen(false)} />
-      
-      <button 
-        onClick={() => setIsSettingOpen(true)}
-        style={{
-          position: 'fixed', bottom: '20px', right: '20px', zIndex: 9000, background: 'var(--surface-color)', border: '2px solid var(--primary-color)', fontSize: '24px', borderRadius: '50%', width: '50px', height: '50px', cursor: 'pointer', boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-        }}
-      >
-        ⚙️
-      </button>
-
       <BossBlindLayer />
-      <Gnb />
+      <FabMenu />
+      
+      {/* ★ Gnb에 설정창 열기 함수 전달 */}
+      <Gnb setIsSettingOpen={setIsSettingOpen} />     
       
       <Routes>
         <Route path="/" element={<Home />} />
@@ -67,9 +62,9 @@ function App() {
         <Route path="/bulk" element={<BulkStudioPage />} />
         <Route path="/work/:workId" element={<WorkDetailPage />} />
         
-        {/* 임시 라우트들 */}
-        <Route path="/memo" element={<MemoWorkspacePage />} />
+        {/* 아직 미구현인 라우트들 */}
         <Route path="/viewer/:pageId" element={<NovelViewerPage />} />
+        <Route path="/memo" element={<MemoWorkspacePage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>

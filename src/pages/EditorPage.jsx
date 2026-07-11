@@ -149,19 +149,33 @@ const EditorPage = () => {
       </header>
 
       <div className={styles['editor-layout']}>
-        {/* 좌측: 마크다운 작성 창 */}
-        <div className={`${styles['editor-pane']} ${styles['write-pane']}`}>
-          <input type="text" className={styles['editor-title-input']} placeholder="제목을 입력하세요" value={title} onChange={(e) => setTitle(e.target.value)} />
+        
+        {/* ★ [복원] 좌측: 실시간 미리보기 창 (preview-pane) */}
+        {isPreviewOpen && (
+          <div className={`${styles['editor-pane']} ${styles['preview-pane']}`} style={{ borderRight: '1px solid var(--border-color)' }}>
+            <h1 className={styles['preview-title']}>{title || '제목 없음'}</h1>
+            <div className="markdown-body">
+              {docType === 'work' && overview && (
+                <div style={{ marginBottom: '20px', borderBottom: '1px dashed var(--border-color)', paddingBottom: '15px' }}>
+                  <h3 style={{ color: 'var(--primary-color)', marginTop: 0 }}>1. 개요</h3>
+                  <div dangerouslySetInnerHTML={{ __html: renderMarkdown(overview) }} />
+                  <h3 style={{ color: 'var(--primary-color)' }}>2. 세계관 설정</h3>
+                </div>
+              )}
+              {/* 타자를 치면 빛의 속도로 변환되는 실시간 바인딩 영역 */}
+              <div dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }} />
+            </div>
+          </div>
+        )}
 
-          {docType === 'work' && (
-            <details className={styles['meta-details']} open>
-              <summary>⚙️ 작품 기본 속성 설정</summary>
-              <div className={styles['meta-grid']}>
-                <div className={styles['prop-row']}><label>제작자</label><input type="text" value={meta.creator} onChange={e => setMeta({...meta, creator: e.target.value})} /></div>
-                <div className={styles['prop-row']}><label>장르 태그</label><input type="text" value={meta.genre} onChange={e => setMeta({...meta, genre: e.target.value})} /></div>
-              </div>
-            </details>
-          )}
+        {/* 중앙 리사이저 */}
+        <div className={styles['pane-resizer']}>
+          <button className={styles['toggle-preview-btn']} onClick={() => setIsPreviewOpen(!isPreviewOpen)}>{isPreviewOpen ? '▶' : '◀'}</button>
+        </div>
+
+        {/* ★ [복원] 우측: 마크다운 작성 창 (write-pane) */}
+        <div className={`${styles['editor-pane']} ${styles['write-pane']}`} style={{ borderLeft: 'none' }}>
+          <input type="text" className={styles['editor-title-input']} placeholder="제목을 입력하세요" value={title} onChange={(e) => setTitle(e.target.value)} />
 
           {docType === 'char' && (
             <details className={styles['meta-details']} open>
