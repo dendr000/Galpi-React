@@ -1,0 +1,252 @@
+/* src/main/resources/static/css/novel-viewer.css */
+:root {
+    /* 기본(화이트) 테마 */
+    --nv-bg: #f8f9fa;
+    --nv-text: #212529;
+    --nv-toolbar-bg: rgba(255, 255, 255, 0.95);
+    --nv-toolbar-border: #e9ecef;
+    --nv-primary: #3b5bdb;
+}
+
+[data-nv-theme="dark"] {
+    --nv-bg: #121212;
+    --nv-text: #e0e0e0;
+    --nv-toolbar-bg: rgba(30, 30, 30, 0.95);
+    --nv-toolbar-border: #333;
+    --nv-primary: #5c7cfa;
+}
+
+[data-nv-theme="sepia"] {
+    --nv-bg: #f4ecd8;
+    --nv-text: #5b4636;
+    --nv-toolbar-bg: rgba(244, 236, 216, 0.95);
+    --nv-toolbar-border: #e3d5b8;
+    --nv-primary: #8a6d3b;
+}
+
+body.novel-viewer-mode {
+    background-color: var(--nv-bg);
+    color: var(--nv-text);
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s, color 0.3s;
+    font-family: "KoPub Batang", "바탕", serif; /* 기본 폰트 명조체 */
+}
+
+/* 상단 네비게이션 툴바 */
+.nv-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: var(--nv-toolbar-bg);
+    border-bottom: 1px solid var(--nv-toolbar-border);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-sizing: border-box;
+    z-index: 1000;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nv-header.hidden {
+    transform: translateY(-100%);
+}
+
+.nv-header-left, .nv-header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.nv-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--nv-text);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+}
+
+/* 툴바 SVG 버튼 */
+.nv-btn {
+    background: transparent;
+    border: none;
+    color: var(--nv-text);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    position: relative;
+}
+
+.nv-btn:hover {
+    background: rgba(128, 128, 128, 0.1);
+}
+
+.nv-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* 버튼 툴팁 */
+.nv-btn::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.nv-btn:hover::after {
+    opacity: 1;
+}
+
+/* 설정 패널 모달 */
+.nv-settings-panel {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    width: 320px;
+    background: var(--nv-toolbar-bg);
+    border: 1px solid var(--nv-toolbar-border);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    padding: 20px;
+    box-sizing: border-box;
+    z-index: 1001;
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+    backdrop-filter: blur(8px);
+}
+
+.nv-settings-panel.active {
+    display: flex;
+}
+
+.nv-setting-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.nv-setting-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--nv-text);
+    opacity: 0.7;
+}
+
+.nv-setting-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.nv-setting-btn {
+    flex: 1;
+    padding: 8px 0;
+    border: 1px solid var(--nv-toolbar-border);
+    background: transparent;
+    color: var(--nv-text);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 13px;
+    transition: 0.2s;
+}
+
+.nv-setting-btn.active {
+    background: var(--nv-primary);
+    color: white;
+    border-color: var(--nv-primary);
+}
+
+/* 본문 영역 */
+.nv-content-container {
+    margin: 80px auto 60px;
+    max-width: 800px;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.nv-content {
+    font-size: 18px; /* 기본 크기 */
+    line-height: 1.8; /* 기본 줄간격 */
+    word-break: keep-all;
+    text-align: justify;
+}
+
+.nv-content p {
+    margin-bottom: 1.5em;
+    text-indent: 1em; /* 문단 첫 줄 들여쓰기 기본 적용 */
+}
+
+/* 스마트 이미지 렌더링 */
+.nv-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+    margin: 2em auto;
+    cursor: zoom-in;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* 하단 진행률 바 */
+.nv-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--nv-toolbar-border);
+    z-index: 1000;
+}
+
+.nv-progress {
+    height: 100%;
+    background: var(--nv-primary);
+    width: 0%;
+    transition: width 0.1s;
+}
+
+/* 라이트박스 (이미지 확대) */
+.nv-lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+}
+
+.nv-lightbox img {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+}

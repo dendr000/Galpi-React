@@ -1,0 +1,28 @@
+.layout { min-height: 100vh; background-color: var(--nv-bg, #f8f9fa); color: var(--nv-text, #212529); transition: background-color 0.3s, color 0.3s; font-family: var(--nv-font, '"KoPub Batang", "바탕", serif'); }
+.header { position: fixed; top: 0; left: 0; width: 100%; height: 60px; background: var(--nv-toolbar-bg, rgba(255, 255, 255, 0.95)); border-bottom: 1px solid var(--nv-toolbar-border, #e9ecef); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-sizing: border-box; z-index: 1000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.headerHidden { transform: translateY(-100%); }
+.headerGroup { display: flex; align-items: center; gap: 15px; }
+.title { font-size: 16px; font-weight: bold; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
+
+.btn { background: transparent; border: none; color: inherit; cursor: pointer; padding: 8px; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: 0.2s; position: relative; }
+.btn:hover { background: rgba(128, 128, 128, 0.1); }
+.btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.settingsPanel { position: fixed; top: 70px; right: 20px; width: 320px; background: var(--nv-toolbar-bg); border: 1px solid var(--nv-toolbar-border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 20px; box-sizing: border-box; z-index: 1001; display: flex; flex-direction: column; gap: 20px; backdrop-filter: blur(8px); animation: fadeIn 0.2s; }
+.settingGroup { display: flex; flex-direction: column; gap: 10px; }
+.settingLabel { font-size: 12px; font-weight: bold; opacity: 0.7; }
+.settingControls { display: flex; gap: 10px; }
+.settingBtn { flex: 1; padding: 8px 0; border: 1px solid var(--nv-toolbar-border); background: transparent; color: inherit; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; }
+.settingBtn.active { background: var(--nv-primary, #3b5bdb); color: white; border-color: var(--nv-primary, #3b5bdb); }
+
+.contentContainer { margin: 80px auto 60px; max-width: 800px; padding: 0 20px; box-sizing: border-box; }
+.content { word-break: keep-all; text-align: justify; }
+.content p { margin-bottom: 1.5em; text-indent: 1em; }
+.content img { max-width: 100%; height: auto; border-radius: 8px; display: block; margin: 2em auto; cursor: zoom-in; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+.footer { position: fixed; bottom: 0; left: 0; width: 100%; height: 4px; background: var(--nv-toolbar-border); z-index: 1000; }
+.progress { height: 100%; background: var(--nv-primary, #3b5bdb); transition: width 0.1s; }
+
+.lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: zoom-out; animation: fadeIn 0.2s; }
+.lightbox img { max-width: 90vw; max-height: 90vh; object-fit: contain; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

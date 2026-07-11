@@ -1,0 +1,134 @@
+/* 메인 배너 및 상단 */
+.hero-banner { position: relative; height: 350px; display: flex; align-items: flex-end; background-color: var(--table-bg-alt); background-size: cover; background-position: center; margin-bottom: 30px; cursor: pointer; overflow: hidden; transition: background-image 0.5s ease; border-bottom: 1px solid var(--border-color); }
+.hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%); }
+.hero-content { position: relative; z-index: 2; padding: 0 40px 40px 60px; box-sizing: border-box; color: white; width: 100%; animation: fadeInUp 0.5s; }
+.hero-title { font-size: 38px; font-weight: 900; margin: 0 0 10px 0; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+.hero-desc { font-size: 15px; margin: 0; opacity: 0.9; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
+
+.toolbar-wrap { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; margin-bottom: 20px; }
+.filter-select, .filter-input { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--surface-color); color: var(--text-primary); outline: none; margin-right: 5px; font-size: 13px;}
+.view-btn-group { display: flex; background: var(--table-bg-alt); border-radius: 6px; border: 1px solid var(--border-color); overflow: hidden; margin-left: 10px; }
+.view-btn { padding: 4px 10px; background: transparent; border: none; cursor: pointer; font-size: 16px; opacity: 0.4; transition: 0.2s;}
+.view-btn.active { background: var(--primary-color); color: white; opacity: 1; }
+
+/* =========================================================
+작품 그리드 공통 및 뷰 모드별 레이아웃 설정
+========================================================= */
+.work-grid { padding-bottom: 50px; display: grid; gap: 20px; }
+
+/* ★ 공통: 장르 태그(Pill) 디자인 - 모든 뷰에서 테두리와 배경 적용 */
+.work-grid .work-card-genres { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-start; align-items: center; overflow: hidden; margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 12px; }
+.work-grid .genre-pill { font-size: 11px; padding: 4px 10px; border-radius: 8px; border: 1px solid var(--border-color); color: var(--text-secondary); font-weight: bold; background: var(--bg-color); transition: 0.2s; white-space: nowrap; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.work-grid .genre-pill:hover { background: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 2px 5px rgba(59,91,219,0.3); }
+
+/* ★ 1. 큰 카드 뷰: 4칸 고정 및 제목 줄바꿈 완벽 차단 */
+.work-grid.view-grid {
+display: grid !important;
+grid-template-columns: repeat(4, 1fr) !important;
+gap: 20px !important;
+}
+.work-grid.view-grid .work-card { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px 15px; cursor: pointer; display: flex; flex-direction: column; position: relative; overflow: hidden; transition: 0.2s; min-height: 140px; min-width: 0; }
+.work-grid.view-grid .work-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-color: transparent; }
+
+.work-grid.view-grid .work-card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, var(--primary-color), #63b3ed); transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease; border-radius: 12px 12px 0 0; }
+.work-grid.view-grid .work-card:hover::before { transform: scaleX(1); }
+
+.work-grid.view-grid .fav-btn { position: absolute; top: 12px; right: 12px; font-size: 18px; cursor: pointer; z-index: 10; opacity: 0.3; border: none; background: transparent; padding: 0; margin: 0; }
+.work-grid.view-grid .fav-btn.active { opacity: 1; text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); transform: scale(1.15); }
+.work-grid.view-grid .fav-btn:hover { transform: scale(1.2); opacity: 0.8; }
+.work-grid.view-grid .work-card-status { position: absolute; top: 12px; left: 12px; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 12px; cursor: pointer; z-index: 5; margin: 0; }
+.work-grid.view-grid .work-card-status:hover { transform: scale(1.05); filter: brightness(1.1); }
+
+.work-grid.view-grid .work-card-title { font-size: 17px; font-weight: 900; color: var(--primary-color); margin: 30px 0 10px 0; line-height: 1.3; padding-right: 25px; }
+.work-grid.view-grid .work-card-creator { font-size: 12px; color: var(--text-secondary); font-weight: 600; margin-bottom: auto;}
+.work-grid.view-grid .work-card-preview { display: none; }
+
+/* 큰 카드 뷰에서 제목 텍스트 줄바꿈 강제 금지 (말줄임표 처리) */
+.view-grid .work-card-title,
+.view-grid .work-card-title *,
+.view-grid .work-card-desc,
+.view-grid .work-card-desc * {
+white-space: nowrap !important;
+overflow: hidden !important;
+text-overflow: ellipsis !important;
+display: block !important;
+}
+
+/* 2. 작은 카드 뷰 */
+.work-grid.view-small { grid-template-columns: repeat(6, 1fr); gap: 15px; }
+.work-grid.view-small .work-card { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; cursor: pointer; display: flex; flex-direction: column; position: relative; min-height: 100px; min-width: 0; }
+.work-grid.view-small .work-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--primary-color);}
+.work-grid.view-small .fav-btn { position: absolute; top: 10px; right: 10px; font-size: 16px; opacity: 0.3; border: none; background: transparent; padding:0;}
+.work-grid.view-small .fav-btn.active { opacity: 1; text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); }
+.work-grid.view-small .work-card-status { display: inline-block; width: fit-content; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 12px; margin-bottom: 8px; cursor: pointer;}
+.work-grid.view-small .work-card-title { font-size: 15px; font-weight: 900; color: var(--primary-color); margin: 0; line-height: 1.3; padding-right: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.work-grid.view-small .work-card-creator, .work-grid.view-small .work-card-preview, .work-grid.view-small .work-card-genres { display: none; }
+
+/* 3. 대문 배너 장르(분류) 태그 스타일 (입체감 및 테두리 부여) */
+.hero-genre-tag { display: inline-block; border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 12px; padding: 2px 10px; margin: 0 3px; font-size: 13px; font-weight: bold; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); color: #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+/* =========================================================
+리스트 뷰: 태그 세로 찌그러짐 및 레이아웃 붕괴 완벽 해결
+========================================================= */
+.work-grid.view-list { display: flex; flex-direction: column; gap: 12px; }
+
+.work-grid.view-list .work-card { display: grid; grid-template-columns: 30px 75px minmax(200px, 2fr) 120px minmax(200px, 3fr); align-items: center; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px 24px; gap: 15px; cursor: pointer; transition: all 0.2s ease; box-sizing: border-box; }
+.work-grid.view-list .work-card:hover { border-color: var(--primary-color); background: var(--table-bg-alt); transform: translateX(4px); box-shadow: var(--shadow-sm); }
+.work-grid.view-list .work-card > * { margin: 0; padding: 0; text-align: left; }
+
+.work-grid.view-list .fav-btn { font-size: 20px; cursor: pointer; opacity: 0.3; border: none; background: transparent; justify-self: center; }
+.work-grid.view-list .fav-btn.active { opacity: 1; text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); transform: scale(1.1); }
+.work-grid.view-list .work-card-status { width: 100%; font-size: 11px; font-weight: 800; padding: 6px 0; border-radius: 6px; text-align: center; }
+
+.work-grid.view-list .work-card-title { font-size: 17px; font-weight: 900; color: var(--text-primary); white-space: normal; word-break: keep-all; line-height: 1.4; transition: 0.2s; padding-right: 10px; }
+.work-grid.view-list .work-card:hover .work-card-title { color: var(--primary-color); }
+.work-grid.view-list .work-card-creator { font-size: 13px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-left: 1px solid var(--border-color); padding-left: 15px; }
+
+.work-grid.view-list .work-card-genres { border: none; height: auto; padding: 0; margin-top: 0; }
+.work-grid.view-list .work-card-preview { display: none !important; }
+
+/* ==========================================
+   메인 배너 가로 슬라이딩 물리 엔진 스타일
+   ========================================== */
+.hero-slider-wrapper {
+    position: relative;
+    height: 350px;
+    margin-bottom: 30px;
+    overflow: hidden; /* 밖으로 나가는 슬라이드 숨김 */
+    border-radius: 0 0 12px 12px;
+    background-color: var(--table-bg-alt);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.hero-slider-inner {
+    display: flex;
+    height: 100%;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); /* 부드러운 가속도 곡선 */
+    width: 100%;
+}
+
+.hero-slide {
+    flex: 0 0 100%;
+    height: 100%;
+    position: relative;
+    cursor: pointer;
+    background-size: cover;
+    background-position: center;
+}
+
+.hero-slide .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+}
+
+.hero-slide .hero-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    padding: 0 40px 40px 60px;
+    box-sizing: border-box;
+    color: white;
+    width: 100%;
+}

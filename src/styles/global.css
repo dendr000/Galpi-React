@@ -1,0 +1,60 @@
+:root {
+    --bg-color: #f8f9fa; --surface-color: #ffffff; --text-primary: #222222; --text-secondary: #555555;
+    --border-color: #e5e5e5; --primary-color: #3b5bdb; --primary-hover: #4c6ef5;
+    --header-bg: #ffffff; --table-bg-alt: #f8f9fa; 
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.1); --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+}
+[data-theme="dark"] {
+    --bg-color: #121212; --surface-color: #1e1e1e; --text-primary: #e0e0e0; --text-secondary: #aaaaaa;
+    --border-color: #333333; --header-bg: #1e1e1e; --table-bg-alt: #252525;
+}
+
+html, body { height: 100%; margin: 0; padding: 0; }
+body { display: flex; flex-direction: column; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif; background: var(--bg-color); color: var(--text-primary); min-width: 1200px; overflow-x: auto; transition: background-color 0.3s; }
+.main-content-wrap { flex: 1 0 auto; display: flex; flex-direction: column; }
+.fixed-container { width: 1200px; margin: 0 auto; padding: 0 20px; box-sizing: border-box; }
+
+.wiki-btn, .theme-btn { padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; }
+.wiki-btn { background: var(--primary-color); color: white; margin-left: 5px; }
+.wiki-btn:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.theme-btn { background: transparent; color: var(--text-primary); border: 1px solid var(--border-color); }
+.theme-btn:hover { background: var(--table-bg-alt); }
+
+/* 모달이 화면 정중앙에 단단히 고정됩니다 */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 10000; }
+.modal-content { background: var(--surface-color); padding: 30px; border-radius: 12px; max-height: 85vh; overflow-y: auto; width: 450px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.close-btn { position: absolute; top: 15px; right: 15px; font-size: 20px; cursor: pointer; z-index: 20; background: rgba(255,255,255,0.9); width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 1px solid #ddd; transition: 0.2s;}
+.close-btn:hover { background: #e53e3e; color: white; border-color: #e53e3e; }
+
+.form-group { display: flex; flex-direction: column; margin-bottom: 15px; }
+.form-group input, .form-group textarea, .form-group select { padding: 10px; margin-top: 5px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-color); color: var(--text-primary); outline: none; font-family: inherit;}
+.form-group input:focus, .form-group textarea:focus { border-color: var(--primary-color); }
+.submit-btn { width: 100%; padding: 12px; background: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px;}
+
+.wiki-footer { flex-shrink: 0; padding: 25px; border-top: 1px solid var(--border-color); color: var(--text-secondary); font-size: 13px; background: var(--header-bg); width: 100%; box-sizing: border-box; margin-top: 50px; text-align: center; }
+.wiki-footer a, .wiki-footer span.link-btn { color: var(--primary-color); text-decoration: none; font-weight: bold; margin: 0 10px; cursor: pointer; }
+.wiki-footer a:hover, .wiki-footer span.link-btn:hover { text-decoration: underline; }
+
+/* =========================================================
+   마크다운 자동 분할 박스 및 헤더(H1) 스타일
+   ========================================================= */
+.md-box {
+    background: var(--surface-color); 
+    border: 1px solid var(--border-color); 
+    padding: 25px; 
+    border-radius: 8px; 
+    max-width: 100%; 
+    overflow-x: auto;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+.md-h1 {
+    margin-top: 50px; 
+    border-bottom: 2px solid var(--primary-color); 
+    color: var(--primary-color); 
+    font-weight: 900; 
+    font-size: 24px; 
+    padding-bottom: 8px; 
+    margin-bottom: 15px;
+    letter-spacing: -0.5px;
+}

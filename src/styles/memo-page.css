@@ -1,0 +1,227 @@
+/* ==========================================================================
+// [memo-page.css] 통합 메모 워크스페이스 스타일시트
+// ========================================================================== */
+
+body { margin: 0; padding: 0; }
+
+.memo-top-bar {
+    height: 60px;
+    background: var(--surface-color);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-sizing: border-box;
+    z-index: 1000;
+    position: relative;
+}
+
+.view-toggle-wrap {
+    display: flex;
+    background: var(--table-bg-alt);
+    border-radius: 8px;
+    padding: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.view-toggle-btn {
+    background: transparent;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.view-toggle-btn.active {
+    background: var(--surface-color);
+    color: var(--primary-color);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.memo-workspace-container {
+    display: flex;
+    height: calc(100vh - 60px);
+    position: relative;
+    background: var(--bg-color);
+}
+
+/* 좌측 슬라이딩 폴더 트리 (작품 페이지 스타일 차용) */
+.memo-left-tree {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    z-index: 500;
+    display: flex;
+    align-items: flex-start;
+    transform: translateX(0); /* 기본 상태 열림 */
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    height: calc(100% - 40px);
+}
+
+.memo-left-tree.closed {
+    transform: translateX(calc(-100% + 32px));
+}
+
+.memo-left-tree .tree-content {
+    width: 250px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+    padding: 20px;
+    box-shadow: 4px 4px 15px rgba(0,0,0,0.1);
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.memo-left-tree .tree-handle {
+    width: 32px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 0;
+    gap: 4px;
+    cursor: pointer;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+    color: var(--text-secondary);
+}
+
+.folder-item {
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--text-primary);
+    transition: 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.folder-item:hover { background: var(--table-bg-alt); }
+.folder-item.active { background: rgba(59,91,219,0.1); color: var(--primary-color); }
+
+/* 뷰포트 공통 */
+.memo-viewport {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.memo-view-panel {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    overflow-y: auto;
+}
+
+.memo-view-panel.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 리스트 뷰 그리드 */
+.memo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 30px;
+    padding-left: 300px; /* 트리 공간 확보 */
+}
+
+.memo-card {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    flex-direction: column;
+    height: 200px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+}
+
+.memo-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.memo-card-title {
+    font-size: 15px;
+    font-weight: 900;
+    margin: 0 0 10px 0;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.memo-card-preview {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    word-break: break-all;
+}
+
+/* 캔버스 뷰 */
+.canvas-board {
+    position: absolute;
+    width: 5000px;
+    height: 5000px;
+    background: radial-gradient(circle, var(--border-color) 1px, transparent 1px);
+    background-size: 25px 25px;
+    transform-origin: 0 0;
+    cursor: grab;
+}
+
+.canvas-board:active { cursor: grabbing; }
+
+.canvas-node {
+    position: absolute;
+    width: 250px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    cursor: default;
+    user-select: none;
+}
+
+.canvas-node.dragging {
+    opacity: 0.8;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    z-index: 1000 !important;
+}
+
+.canvas-node-header {
+    font-weight: 900;
+    font-size: 14px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+    cursor: move;
+}

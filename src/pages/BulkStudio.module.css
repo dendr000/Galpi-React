@@ -1,0 +1,25 @@
+.layout { display: flex; height: 100vh; width: 100vw; overflow: hidden; background: var(--bg-color); }
+
+.sidebar { width: 50vw; flex-shrink: 0; background: var(--surface-color); border-right: 2px solid var(--primary-color); display: flex; flex-direction: column; transition: width 0.3s; overflow: hidden; }
+.sidebarClosed { width: 0; border-right: none; }
+.previewHeader { background: var(--primary-color); color: white; padding: 15px 20px; font-size: 16px; font-weight: 900; text-align: center; flex-shrink: 0; }
+.previewContent { flex: 1; overflow-y: auto; padding: 30px; background: var(--bg-color); }
+
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.header { background: var(--surface-color); padding: 15px 25px; border-bottom: 2px solid var(--primary-color); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.toolbar { background: var(--table-bg-alt); padding: 10px 20px; display: flex; gap: 10px; align-items: center; overflow-x: auto; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+.tableWrap { flex: 1; overflow: auto; background: var(--surface-color); position: relative; }
+.table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; text-align: center; font-size: 13px; }
+
+.table th { padding: 12px; font-weight: 900; background: var(--table-bg-alt); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); }
+.table td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 0; background: var(--surface-color); }
+
+.table th:nth-child(1), .table td:nth-child(1) { position: sticky; left: 0; z-index: 11; width: 40px; }
+.table th:nth-child(2), .table td:nth-child(2) { position: sticky; left: 40px; z-index: 11; width: 45px; }
+.table th:nth-child(3), .table td:nth-child(3) { position: sticky; left: 85px; z-index: 11; width: 140px; border-right: 2px solid var(--primary-color); }
+.table th:nth-child(1), .table th:nth-child(2), .table th:nth-child(3) { background: var(--table-bg-alt); z-index: 15; }
+
+.input { width: 100%; padding: 12px 10px; border: 1px solid transparent; outline: none; background: transparent; color: var(--text-primary); text-align: center; font-size: 13px; font-weight: bold; }
+.input:focus { background: var(--surface-color); box-shadow: inset 0 0 0 2px var(--primary-color); z-index: 2; position: relative; }
+
+.footer { padding: 15px; background: var(--surface-color); border-top: 1px solid var(--border-color); flex-shrink: 0; }
