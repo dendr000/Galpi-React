@@ -11,25 +11,21 @@ import Gnb from './components/layout/Gnb';
 import BossBlindLayer from './components/common/BossBlindLayer';
 import SettingModal from './components/common/SettingModal';
 import FabMenu from './components/layout/FabMenu';
+import GlobalContextMenu from './components/layout/GlobalContextMenu'; // ★ 전역 우클릭 메뉴 추가
 
-// 실제 구현 완료된 페이지들
+// 라우트 페이지
 import Home from './pages/Home';
 import CategoryPage from './pages/CategoryPage';
 import BulkStudioPage from './pages/BulkStudioPage';
-import EditorPage from './pages/EditorPage'; 
+import EditorPage from './pages/EditorPage/EditorPage'; 
 import WorkDetailPage from './pages/WorkDetail/WorkDetailPage'; 
 
-// ============================================================================
-// [임시 껍데기 컴포넌트] (아직 JS 로직이 구현 안 된 것들만 남겨둠)
-// ============================================================================
 const MemoWorkspacePage = () => <div style={{padding:'50px', textAlign:'center'}}><h1>🌌 [무한 캔버스] 통합 메모 워크스페이스</h1></div>;
 const NovelViewerPage = () => <div style={{padding:'50px', textAlign:'center'}}><h1>👁️ [소설 뷰어]</h1></div>;
 const NotFoundPage = () => <div style={{padding:'50px', textAlign:'center', color:'#e53e3e'}}><h1>404 - 존재하지 않는 페이지입니다.</h1></div>;
 
 function App() {
   const [isSettingOpen, setIsSettingOpen] = useState(false);
-  
-  // Zustand 스토어 구독
   const { fontSize, layoutWidth, fontFamily } = useSettingStore();
   
   useBossKey();
@@ -52,7 +48,9 @@ function App() {
       <BossBlindLayer />
       <FabMenu />
       
-      {/* ★ Gnb에 설정창 열기 함수 전달 */}
+      {/* ★ 전역 이벤트 핸들러 부착 */}
+      <GlobalContextMenu /> 
+      
       <Gnb setIsSettingOpen={setIsSettingOpen} />     
       
       <Routes>
@@ -62,7 +60,6 @@ function App() {
         <Route path="/bulk" element={<BulkStudioPage />} />
         <Route path="/work/:workId" element={<WorkDetailPage />} />
         
-        {/* 아직 미구현인 라우트들 */}
         <Route path="/viewer/:pageId" element={<NovelViewerPage />} />
         <Route path="/memo" element={<MemoWorkspacePage />} />
         <Route path="*" element={<NotFoundPage />} />

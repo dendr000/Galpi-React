@@ -1,70 +1,116 @@
 import { marked } from 'marked';
 
-// 메타데이터 추출 (util-meta.js)
 export const extractMeta = (text) => {
-  if (!text) return { clean: "", meta: {} };
-  let meta = {}; let clean = text.replace(/^[\}\]\s,]+/, '').trim();
-  const nlIdx = clean.indexOf('\n');
-  const firstLine = nlIdx !== -1 ? clean.substring(0, nlIdx).trim() : clean;
-  if (firstLine.startsWith("[META_DATA:") && firstLine.endsWith("]")) {
-    try { meta = JSON.parse(firstLine.substring(11, firstLine.length - 1)); } catch(e) {}
-    clean = nlIdx !== -1 ? clean.substring(nlIdx + 1).trim() : "";
-  }
-  return { clean: clean.replace(/^[\}\]\s,]+/, '').trim(), meta };
+    if (!text) return { clean: "", meta: {} };
+    let meta = {};
+    let clean = text.replace(/^[\}\]\s,]+/, '').trim();
+    let nlIdx = clean.indexOf('\n');
+    let firstLine = nlIdx !== -1 ? clean.substring(0, nlIdx).trim() : clean;
+    
+    if (firstLine.startsWith("[META_DATA:") && firstLine.endsWith("]")) {
+        let jsonStr = firstLine.substring(11, firstLine.length - 1);
+        try { meta = JSON.parse(jsonStr); } catch(e) { console.error("JSON 파싱 오류", e); }
+        clean = (nlIdx !== -1) ? clean.substring(nlIdx + 1).trim() : "";
+    } else {
+        let fallbackMatch = clean.match(/\[META_DATA:(.*?)\]/);
+        if (fallbackMatch) {
+            try { meta = JSON.parse(fallbackMatch[1]); } catch(e) {}
+            clean = clean.replace(fallbackMatch[0], '').trim();
+        }
+    }
+    return { clean, meta };
 };
 
 export const buildMetaStr = (desc, meta) => {
-  if (!meta || Object.keys(meta).length === 0) return desc;
-  return `[META_DATA:${JSON.stringify(meta)}]\n${desc ? desc.trim() : ""}`;
+    if (!meta || Object.keys(meta).length === 0) return desc;
+    return `[META_DATA:${JSON.stringify(meta)}]\n${desc ? desc.trim() : ""}`;
 };
 
-// 정규식 파서 (util-parser.js)
 export const parseWikiText = (text) => {
-  if(!text) return "";
-  let p = text.replace(/\[RELATION_GRAPH\]/g, '▤REL_START▤').replace(/\[\/RELATION_GRAPH\]/g, '▤REL_END▤');
-  const fMap = { '궁서': "'Gungsuh', serif", '바탕': "'Batang', serif", '돋움': "'Dotum', sans-serif", '굴림': "'Gulim', sans-serif", '명조': "'Noto Serif KR', serif" };
-  p = p.replace(/\[폰트:(.*?):([\s\S]*?)\]/g, (m, f, c) => `<span style="font-family: ${fMap[f.trim()] || "inherit"};">${c}</span>`);
-  p = p.replace(/\[크기:([0-9]+):([\s\S]*?)\]/g, (m, s, c) => `<span style="font-size: ${s}px;">${c}</span>`);
-  p = p.replace(/\[정렬:(좌측|중앙|우측):([\s\S]*?)\]/g, (m, a, c) => `<div style="text-align: ${a==='중앙'?'center':a==='우측'?'right':'left'}; width:100%;">${c}</div>`);
-  p = p.replace(/\[들여쓰기:([\s\S]*?)\]/g, (m, c) => `<div style="text-indent:1.5em;">${c.replace(/\n/g, '<br/>')}</div>`);
-  p = p.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  p = p.replace(/(^|\s)_([^\s_][^_]*[^\s_]|[^\s_])_(\s|[.,!?]|$)/g, '$1<em>$2</em>$3');
-  p = p.replace(/(^|[^\\])--(?!\s)(.+?)(?<!\s)--/gm, '$1<del style="opacity:0.6;">$2</del>');
-  p = p.replace(/\[([a-zA-Z0-9#-]+):([\s\S]*?)\]/g, (m, k, c) => {
-    let color = k === 'red' ? '#e53e3e' : k === 'blue' ? 'var(--primary-color)' : k === 'black' ? 'var(--text-primary)' : k === 'white' ? '#fff' : k;
-    let bg = k.startsWith('bg-') ? (k === 'bg-yellow' ? 'rgba(253,224,71,0.6)' : k.replace('bg-', '')) : 'transparent';
-    if(k.startsWith('bg-')) color = 'var(--text-primary)';
-    return `<span style="color:${color}; background-color:${bg}; font-weight:bold;">${c}</span>`;
-  });
-  return p.replace(/▤REL_START▤/g, '[RELATION_GRAPH]').replace(/▤REL_END▤/g, '[/RELATION_GRAPH]');
+    if (!text) return "";
+    let preText = text;
+
+    preText = preText.replace(/\[RELATION_GRAPH\]/g, '▤REL_START▤');
+    preText = preText.replace(/\[\/RELATION_GRAPH\]/g, '▤REL_END▤');
+    preText = preText.replace(/\[META_DATA:/g, '▤META_START▤:');
+
+    preText = preText.replace(/\[폰트:(.*?):([\s\S]*?)\]/g, (match, fontName, content) => {
+        const fontMap = { '궁서': "'Gungsuh', '궁서', serif", '바탕': "'Batang', '바탕', serif", '돋움': "'Dotum', '돋움', sans-serif", '굴림': "'Gulim', '굴림', sans-serif", '명조': "'Noto Serif KR', serif" };
+        return `<span style="font-family: ${fontMap[fontName.trim()] || "inherit"};">${content}</span>`;
+    });
+    preText = preText.replace(/\[크기:([0-9]+):([\s\S]*?)\]/g, (match, size, content) => `<span style="font-size: ${size}px;">${content}</span>`);
+    preText = preText.replace(/\[정렬:(좌측|중앙|우측):([\s\S]*?)\]/g, (match, alignName, content) => {
+        let align = alignName === "중앙" ? "center" : (alignName === "우측" ? "right" : "left");
+        return `<div style="text-align: ${align}; width: 100%; margin: 10px 0;">${content}</div>`;
+    });
+    preText = preText.replace(/\[들여쓰기:([\s\S]*?)\]/g, (match, content) => {
+        let indented = content.split('\n').map(line => line.trim() ? `<div style="text-indent: 1.5em; margin: 4px 0;">${line}</div>` : line).join('\n');
+        return `<div style="margin: 10px 0;">${indented}</div>`;
+    });
+
+    preText = preText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    preText = preText.replace(/(^|\s)_([^\s_][^_]*[^\s_]|[^\s_])_(\s|[.,!?]|$)/g, '$1<em>$2</em>$3');
+    preText = preText.replace(/(^|[^\\])--(?!\s)(.+?)(?<!\s)--/gm, '$1<del style="opacity:0.6;">$2</del>');
+    preText = preText.replace(/\[([a-zA-Z0-9#-]+):([\s\S]*?)\]/g, (match, colorKey, content) => {
+        let color = colorKey; let bg = "transparent"; let k = colorKey.toLowerCase();
+        if (k === 'red') color = '#e53e3e'; else if (k === 'blue') color = 'var(--primary-color)'; else if (k === 'black') color = 'var(--text-primary)'; else if (k === 'white') color = '#ffffff';
+        else if (k.startsWith('bg-')) { color = 'var(--text-primary)'; bg = k.replace('bg-', '') === 'yellow' ? 'rgba(253, 224, 71, 0.6)' : k.replace('bg-', ''); }
+        return `<span style="color:${color}; background-color:${bg}; font-weight:bold; border-radius:2px; padding:0 2px;">${content}</span>`;
+    });
+
+    let lines = preText.split('\n');
+    let inQuote = false; let quoteBuffer = [];
+    let inTable = false; let tableBuffer = [];
+    let newLines = [];
+
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i]; let trimmed = line.trim();
+
+        if (trimmed.startsWith('||') && trimmed.endsWith('||') && !trimmed.match(/->|=>|→/)) {
+            if (inQuote) { newLines.push(`\n<div style="border: 1px solid var(--border-color); border-left: 4px solid var(--primary-color); background: var(--table-bg-alt); padding: 14px 20px; margin: 15px 0; border-radius: 4px 8px 8px 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); color: var(--text-primary); line-height: 1.7; font-size: 14px; word-break: keep-all;">${quoteBuffer.join('<br>')}</div>\n`); inQuote = false; quoteBuffer = []; }
+            if (!inTable) { 
+                inTable = true; 
+                tableBuffer.push('<div style="overflow-x:auto; margin: 15px 0;"><table style="width:100%; border-collapse:collapse; background:var(--surface-color); font-size:13px; text-align:center; border-radius:8px; border-style:hidden; box-shadow:0 0 0 1px var(--border-color), 0 2px 8px rgba(0,0,0,0.02);"><tbody>'); 
+            }
+            let cells = trimmed.substring(2, trimmed.length - 2).split('||');
+            let isHeader = tableBuffer.length === 1;
+            tableBuffer.push('<tr style="border-bottom: 1px solid var(--border-color); transition: background 0.2s;">');
+            cells.forEach(cell => {
+                let bg = isHeader ? 'background:var(--table-bg-alt); font-weight:900; color:var(--primary-color);' : 'color:var(--text-primary);';
+                let tag = isHeader ? 'th' : 'td';
+                tableBuffer.push(`<${tag} style="border:1px solid var(--border-color); padding:10px 14px; ${bg}">${cell.trim()}</${tag}>`);
+            });
+            tableBuffer.push('</tr>');
+            continue;
+        } else {
+            if (inTable) { tableBuffer.push('</tbody></table></div>\n'); newLines.push(tableBuffer.join('')); inTable = false; tableBuffer = []; }
+        }
+
+        if (line.match(/^\|[ \t]*(.*)/) && !trimmed.startsWith('||')) {
+            inQuote = true; quoteBuffer.push(line.replace(/^\|[ \t]*/, ''));
+        } else {
+            if (inQuote) { newLines.push(`\n<div style="border: 1px solid var(--border-color); border-left: 4px solid var(--primary-color); background: var(--table-bg-alt); padding: 14px 20px; margin: 15px 0; border-radius: 4px 8px 8px 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); color: var(--text-primary); line-height: 1.7; font-size: 14px; word-break: keep-all;">${quoteBuffer.join('<br>')}</div>\n`); inQuote = false; quoteBuffer = []; }
+            newLines.push(line);
+        }
+    }
+    if (inTable) { tableBuffer.push('</tbody></table></div>\n'); newLines.push(tableBuffer.join('')); }
+    if (inQuote) { newLines.push(`\n<div style="border: 1px solid var(--border-color); border-left: 4px solid var(--primary-color); background: var(--table-bg-alt); padding: 14px 20px; margin: 15px 0; border-radius: 4px 8px 8px 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); color: var(--text-primary); line-height: 1.7; font-size: 14px; word-break: keep-all;">${quoteBuffer.join('<br>')}</div>\n`); }
+    preText = newLines.join('\n');
+
+    preText = preText.replace(/▤REL_START▤/g, '[RELATION_GRAPH]');
+    preText = preText.replace(/▤REL_END▤/g, '[\/RELATION_GRAPH]');
+    preText = preText.replace(/▤META_START▤:/g, '[META_DATA:');
+
+    return preText;
 };
 
-// 최종 HTML 생성
+// ★ 삭제되었던 renderMarkdown 복구
 export const renderMarkdown = (markdownText) => {
-  if (!markdownText) return "";
-  let rawHtml = marked.parse(parseWikiText(markdownText));
-  
-  // (차후 리액트 컴포넌트인 <RadarChart />, <Timeline /> 으로 교체하기 위한 플레이스홀더를 심어둡니다)
-  rawHtml = rawHtml.replace(/(?:<p>)?\[스탯:(.*?)\](?:<\/p>)?/g, (m, p) => `<div class="macro-radar" data-content="${p}">[스탯 차트 렌더링 영역]</div>`);
-  rawHtml = rawHtml.replace(/(?:<p>)?\[게이지:(.*?)\](?:<\/p>)?/g, (m, p) => `<div class="macro-bar" data-content="${p}">[게이지 렌더링 영역]</div>`);
-  rawHtml = rawHtml.replace(/(?:<p>)?\[TIMELINE\]([\s\S]*?)\[\/TIMELINE\](?:<\/p>)?/g, (m, c) => `<div class="macro-timeline" data-content="${encodeURIComponent(c)}">[타임라인 렌더링 영역]</div>`);
-  
-  // 채팅 매크로
-  const chatRegex = /\[(대화|우대화):\s*(.*?)\](.*?)(?=(<br>|<\/p>|<\/div>|\[대화|\[우대화|$))/gm;
-  if (chatRegex.test(rawHtml)) {
-    rawHtml = rawHtml.replace(chatRegex, (m, type, name, msg) => `<div class="galpi-ext-msg ${type === '우대화' ? 'right' : ''}"><div class="galpi-ext-msg-name">${name.trim()}</div><div class="galpi-ext-msg-bubble">${msg.trim().replace(/^(&nbsp;|<br>|\s)+/, '')}</div></div>`);
-    rawHtml = rawHtml.replace(/(<div class="galpi-ext-msg[\s\S]*?<\/div>\s*)+/g, m => `<div class="galpi-ext-chat-room">${m}</div>`);
-  }
-
-  // H1 자동 박스화
-  const tempDiv = document.createElement('div'); tempDiv.innerHTML = rawHtml;
-  let result = ""; let currentBox = ""; let hasH1 = false;
-  Array.from(tempDiv.children).forEach(el => {
-    if (el.tagName === 'H1') {
-      hasH1 = true; if (currentBox) { result += `<div class="md-box">${currentBox}</div>`; currentBox = ""; }
-      el.className = "md-h1"; result += el.outerHTML;
-    } else currentBox += el.outerHTML;
-  });
-  if (currentBox) result += `<div class="md-box">${currentBox}</div>`;
-  return hasH1 ? result : `<div class="md-box">${tempDiv.innerHTML}</div>`;
+    if (!markdownText) return "";
+    try {
+        let parsedText = parseWikiText(markdownText);
+        return marked.parse(parsedText, { breaks: true });
+    } catch (e) {
+        return parseWikiText(markdownText).replace(/\n/g, '<br>');
+    }
 };

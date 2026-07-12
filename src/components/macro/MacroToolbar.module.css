@@ -1,0 +1,43 @@
+.sidebarToolbar { position: fixed; left: 15px; top: 50%; transform: translateY(-50%); background: var(--surface-color); padding: 8px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px; z-index: 9000; transition: left 0.3s ease, border-radius 0.3s ease; }
+@media (max-width: 1400px) { .sidebarToolbar { left: 0; border-radius: 0 12px 12px 0; border-left: none; padding: 6px; } }
+
+.toolBtn { width: 42px; height: 42px; border-radius: 8px; border: 1px solid transparent; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; position: relative; outline: none; font-size: 20px; }
+.toolBtn:hover { background: var(--table-bg-alt); border-color: var(--primary-color); transform: scale(1.1) translateY(-2px); box-shadow: 0 4px 10px rgba(59,91,219,0.15); }
+.toolBtn img { width: 22px; height: 22px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); opacity: 0.8; transition: 0.2s; }
+.toolBtn:hover img { opacity: 1; }
+
+.toolTip { position: absolute; left: 55px; background: rgba(0,0,0,0.8); color: white; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; white-space: nowrap; opacity: 0; pointer-events: none; transition: 0.2s; transform: translateX(-10px); }
+.toolBtn:hover .toolTip { opacity: 1; transform: translateX(0); }
+
+.modalOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100005; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(2px); animation: fadeIn 0.2s ease; }
+
+.modalContent { background: var(--surface-color); min-width: 400px; max-width: 95vw; max-height: 90vh; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 10px 40px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; }
+
+.modalHeader { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--table-bg-alt); }
+.modalTitle { margin: 0; font-size: 16px; font-weight: 900; color: var(--primary-color); }
+.closeBtn { background: transparent; border: none; font-size: 20px; color: var(--text-secondary); cursor: pointer; }
+
+.modalBody { padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+
+.modalFooter { padding: 15px 20px; border-top: 1px solid var(--border-color); display: flex; gap: 10px; }
+.cancelBtn { flex: 1; background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 10px; font-weight: bold; cursor: pointer; border-radius: 6px; transition: 0.2s; }
+.cancelBtn:hover { background: var(--table-bg-alt); }
+.confirmBtn { flex: 2; background: var(--primary-color); border: none; color: white; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 6px; transition: 0.2s; }
+.confirmBtn:hover { filter: brightness(1.1); }
+
+.toolInput { padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-primary); outline: none; font-size: 13px; font-family: inherit; flex: 1; min-width: 0; }
+.toolInput:focus { border-color: var(--primary-color); }
+
+.addBtn { background: transparent; border: 1px dashed var(--primary-color); color: var(--primary-color); padding: 10px 0; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; }
+.addBtn:hover { background: rgba(59,91,219,0.05); }
+
+/* 타임라인 전용 */
+.tlItem { display: flex; gap: 10px; background: var(--bg-color); padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; align-items: flex-start; transition: 0.2s; }
+.tlDragHandle { font-size: 20px; color: var(--text-secondary); cursor: grab; padding-top: 5px; user-select: none; }
+.tlDragHandle:active { cursor: grabbing; }
+
+/* 다이어그램 전용 */
+.diagramBoard { flex: 1; border: 2px dashed var(--border-color); border-radius: 8px; background: var(--bg-color); position: relative; overflow: hidden; }
+.diagPanel { width: 250px; background: var(--table-bg-alt); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
