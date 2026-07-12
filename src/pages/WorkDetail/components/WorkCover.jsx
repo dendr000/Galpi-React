@@ -1,3 +1,5 @@
+// 파일 위치: src/pages/WorkDetail/components/WorkCover.jsx
+
 import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../api/axiosCore';
@@ -32,17 +34,8 @@ const WorkCover = ({ work, workId, coverExt, coverUrl, coverY, setCoverY, isCove
       await api.put(`/api/works/${workId}`, { ...work, description: finalDesc });
       setWork(prev => ({ ...prev, description: finalDesc }));
       setIsCoverEdit(false);
-    } catch(e) {}
-  };
-
-  const deleteWork = async () => {
-    if (window.confirm(`⚠️ 경고: [${work.title}] 작품을 영구 삭제하시겠습니까?\n작품에 속한 모든 캐릭터 정보도 함께 삭제됩니다.`)) {
-      try {
-        const charsRes = await api.get(`/api/characters?workId=${work.id}`);
-        await Promise.all(charsRes.data.map(c => api.delete(`/api/characters/${c.id}`)));
-        await api.delete(`/api/works/${work.id}`);
-        navigate('/');
-      } catch(e) { alert("삭제 실패"); }
+    } catch(e) {
+        alert("위치 저장 실패");
     }
   };
 
@@ -74,7 +67,7 @@ const WorkCover = ({ work, workId, coverExt, coverUrl, coverY, setCoverY, isCove
         <div className={styles.wikiTitleArea}>
           <h1 className={styles.wikiTitle}>{work.title}</h1>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button className="wiki-btn" style={{ background: 'transparent', color: '#e53e3e', border: '1px dashed #e53e3e' }} onClick={deleteWork}>🗑️ 작품 삭제</button>
+            <button className="wiki-btn" style={{ background: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }} onClick={() => navigate(`/edit?type=work&action=edit&id=${workId}`)}>⚙️ 작품 설정</button>
           </div>
         </div>
       )}

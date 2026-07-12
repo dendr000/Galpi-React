@@ -1,5 +1,9 @@
+// 파일 위치: src/components/GlobalContextMenu/GlobalContextMenu.jsx
+// 버전: v1.2.0 (Shift+우클릭 메뉴 내 작품 안전 삭제 기능 탑재 완전판)
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import api from '../../api/axiosCore';
 
 const GlobalContextMenu = () => {
   const [menu, setMenu] = useState({ isOpen: false, x: 0, y: 0, selectedText: '' });
@@ -17,9 +21,9 @@ const GlobalContextMenu = () => {
       let posX = e.clientX;
       let posY = e.clientY;
 
-      // 팝업이 화면 밖으로 나가는 것 방지
+      // 팝업이 화면 밖으로 나가는 것 방지 (메뉴 확장으로 최대 높이 조절)
       const menuWidth = 220; 
-      const menuHeight = 300;
+      const menuHeight = 350;
       if (posX + menuWidth > window.innerWidth) posX = window.innerWidth - menuWidth - 10;
       if (posY + menuHeight > window.innerHeight) posY = window.innerHeight - menuHeight - 10;
 
@@ -84,6 +88,33 @@ const GlobalContextMenu = () => {
     alert("📝 '설정 아이디어' 탭에 메모가 저장되었습니다!");
   };
 
+  // ★ 작품 상세 화면 인지 제어 연산 로직 (정규식을 통해 /work/{id} 형태 판별)
+  const workPathMatch = location.pathname.match(/^\/work\/(\d+)/);
+  const isWorkDetailPage = !!workPathMatch;
+  const currentWorkId = workPathMatch ? workPathMatch[1] : null;
+
+  // ★ 글로벌 컨텍스트 메뉴용 세크리터리 작품 영구 삭제 처리 함수
+  const handleSecretDeleteWork = async () => {
+    if (!currentWorkId) return;
+    setMenu(prev => ({ ...prev, isOpen: false }));
+
+    const userInput = prompt(`⚠️ 시크릿 파괴 경고: 현재 작품을 시스템에서 완전히 파기하시겠습니까?\n등장인물 정보는 보존되며 작품 원장만 타겟이 됩니다. 삭제를 승인하시려면 'delete'를 정밀하게 입력하세요.`);
+
+    if (userInput === 'delete') {
+      try {
+        console.log(`[GlobalContextMenu] 작품 ID: ${currentWorkId} 원장 파괴 통신 개시.`);
+        await api.delete(`/api/works/${currentWorkId}`);
+        alert("💥 작품 데이터가 안전하게 파기되었습니다.");
+        navigate('/');
+      } catch (err) {
+        console.error("[GlobalContextMenu] 작품 파괴 중 통신 예외 발생:", err);
+        alert("원장 삭제 중 통신 거부가 감지되었습니다 백엔드를 확인하십시오.");
+      }
+    } else if (userInput !== null) {
+      alert("❌ 입력한 암호가 정확하지 않습니다. 삭제 프로세스를 긴급 중단합니다.");
+    }
+  };
+
   if (!menu.isOpen) return null;
 
   const isCategoryPage = location.pathname.includes('/category');
@@ -126,7 +157,6 @@ const GlobalContextMenu = () => {
               setMenu(prev => ({...prev, isOpen: false}));
               return;
             }
-            // CategoryPage 컴포넌트에 이벤트를 발송합니다.
             window.dispatchEvent(new Event('galpi-trigger-secret-mode'));
             setMenu(prev => ({...prev, isOpen: false}));
           }}>
@@ -135,9 +165,20 @@ const GlobalContextMenu = () => {
         </>
       )}
 
+      {/* ★ 작품 상세 페이지 진입 시에만 주입되는 백그라운드 비밀 삭제 트래커 링크 */}
+      {isWorkDetailPage && (
+        <>
+          <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 0' }}></div>
+          <div className="context-item secret-delete-item" style={{ color: '#e53e3e', fontWeight: 900 }} onClick={handleSecretDeleteWork}>
+            🗑️ 현재 작품 영구 삭제
+          </div>
+        </>
+      )}
+
       <style>{`
         .context-item { padding: 10px 16px; font-size: 13px; font-weight: bold; color: var(--text-primary); cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
         .context-item:hover { background: var(--table-bg-alt); }
+        .secret-delete-item:hover { background: rgba(229, 62, 62, 0.08) !important; }
       `}</style>
     </div>
   );

@@ -277,7 +277,7 @@ const WorkDetailPage = () => {
                   <h2 id="sec-subpages" className={`${styles.sectionHeaderTitle} auto-toc-target`}>🗂️ 하위 문서 목록</h2>
                   <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 'bold' }}>{childPages.length}개</span>
                 </div>
-                <button className="wiki-btn" style={{ background: 'transparent', color: 'var(--primary-color)', border: '1px solid var(--primary-color)', padding: '4px 10px', fontSize: '13px' }} onClick={() => navigate(`/edit?type=page&action=new&workId=${workId}${pageId ? `&parentId=${pageId}` : ''}`)}>+ 새 문서 추가</button>
+                <button className="wiki-btn" style={{ background: 'transparent', color: 'var(--primary-color)', border: '1px solid var(--primary-color)', padding: '4px 10px', fontSize: '13px' }} onClick={() => navigate(`/edit?type=page&action=new&workId=${workId}`)}>+ 새 문서 추가</button>
               </div>
               <div className={styles.wikiPageGrid}>
                 {childPages.length > 0 ? childPages.map(page => (
