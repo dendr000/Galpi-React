@@ -1,11 +1,10 @@
 // 파일 위치: src/components/fab/FabMemoWidget.jsx
-// 기능 요약: 우측 하단 플로팅 액션 버튼(FAB) 렌더링, 메모장 모달 오버레이 제어 및 메모 데이터(폴더, 목록) 전역 상태 관제
 
 import React, { useState, useEffect, useCallback } from 'react';
-import api from '../../../api/axiosCore';
-import MemoSidebar from './MemoSidebar';
-import MemoEditor from './MemoEditor';
-import styles from './FabMemoWidget.module.css'; // 필요 시 CSS 모듈 연동 (또는 글로벌 CSS 사용)
+import api from '../../api/axiosCore';
+import MemoSidebar from '../MemoSidebar';
+import MemoEditor from '../MemoEditor';
+import styles from './FabMemoWidget.module.css';
 
 const FabMemoWidget = () => {
   console.log("[FabMemoWidget] 메모장 위젯 관제탑 렌더링 개시");
@@ -17,37 +16,47 @@ const FabMemoWidget = () => {
   const [activeMemoId, setActiveMemoId] = useState(null);
   const [sortMap, setSortMap] = useState({});
 
-  // 1. 초기 데이터 로드 (로컬 스토리지 및 API 연동)
+  // 1. 초기 데이터 로드 (DB 주도형 폴더 추출 및 로컬 병합)
   useEffect(() => {
     console.log("[FabMemoWidget] 초기 메모 데이터 및 설정값 로드 연산 수행");
     try {
-      const storedFolders = JSON.parse(localStorage.getItem('galpi-memo-folders'));
-      if (storedFolders) setMemoFolders(storedFolders);
-
       const storedSortMap = JSON.parse(localStorage.getItem('galpi-memo-sort-map'));
       if (storedSortMap) setSortMap(storedSortMap);
 
-      const storedMemos = JSON.parse(localStorage.getItem('galpi-memos')) || [];
-      setMemoData(storedMemos);
+      let localFolders = ["전체 메모", "설정 아이디어", "기타"];
+      const storedFolders = JSON.parse(localStorage.getItem('galpi-memo-folders'));
+      if (storedFolders) localFolders = [...new Set([...localFolders, ...storedFolders])];
+      
+      setMemoFolders(localFolders);
 
-      // 서버 API 연동이 가능하다면 백그라운드에서 최신화 수행
+      // 서버 API 연동을 통한 메모 데이터 및 폴더 추출
       api.get('/api/memos').then(res => {
         if (res.data && res.data.length > 0) {
-          console.log("[FabMemoWidget] 서버 메모 데이터 동기화 완료");
+          console.log("[FabMemoWidget] 서버 메모 데이터 동기화 완료. DB 기반 폴더명 스캔 개시.");
           setMemoData(res.data);
           localStorage.setItem('galpi-memos', JSON.stringify(res.data));
+
+          // ★ DB 데이터에 존재하는 고유 폴더명 추출 후 기존 폴더 배열과 병합
+          const dbFolders = [...new Set(res.data.map(m => m.folder).filter(Boolean))];
+          const mergedFolders = [...new Set([...localFolders, ...dbFolders])];
+          
+          setMemoFolders(mergedFolders);
+          localStorage.setItem('galpi-memo-folders', JSON.stringify(mergedFolders));
         }
-      }).catch(err => console.log("[FabMemoWidget] 오프라인 모드: 로컬 메모 데이터 유지"));
+      }).catch(err => {
+        console.log("[FabMemoWidget] 오프라인 모드: 로컬 메모 데이터 유지");
+        const storedMemos = JSON.parse(localStorage.getItem('galpi-memos')) || [];
+        setMemoData(storedMemos);
+      });
       
     } catch (e) {
       console.error("[FabMemoWidget] 초기 데이터 로드 중 예외 발생:", e);
     }
   }, []);
 
-  // 2. 가상 격리 모드용 글로벌 스타일 인젝션 (마운트 시 1회)
+  // 2. 가상 격리 모드용 글로벌 스타일 인젝션
   useEffect(() => {
     if (!document.getElementById('memo-selection-styles')) {
-      console.log("[FabMemoWidget] 가상 격리 모드 및 에디터 전용 글로벌 CSS 인젝션 가동");
       const style = document.createElement('style');
       style.id = 'memo-selection-styles';
       style.innerHTML = `
@@ -63,9 +72,8 @@ const FabMemoWidget = () => {
     }
   }, []);
 
-  // 3. FAB 클릭 제어 (모달 오픈 시 기본 선택 로직 포함)
+  // 3. FAB 클릭 제어
   const toggleModal = () => {
-    console.log(`[FabMemoWidget] 위젯 모달 상태 토글: ${!isOpen}`);
     setIsOpen(!isOpen);
     if (!isOpen) {
       if (memoData.length === 0) {
@@ -81,7 +89,12 @@ const FabMemoWidget = () => {
     console.log("[FabMemoWidget] 신규 빈 메모 생성 프로세스 가동");
     const newId = `local_${Date.now()}`;
     const targetFolder = currentFolder === "전체 메모" ? "기타" : currentFolder;
-    const newMemo = { id: newId, folder: targetFolder, title: "새로운 메모", content: "", updatedAt: Date.now(), sortOrder: -1 };
+    
+    // DB 스키마(Memo.java)의 기본값에 맞춘 초기 객체
+    const newMemo = { 
+      id: newId, folder: targetFolder, title: "새로운 메모", content: "", 
+      updatedAt: Date.now(), sortOrder: -1, canvasX: 2500, canvasY: 2500, themeColor: 'var(--surface-color)' 
+    };
     
     setMemoData(prev => {
       const updated = [newMemo, ...prev];
@@ -95,7 +108,6 @@ const FabMemoWidget = () => {
 
   return (
     <>
-      {/* 플로팅 액션 버튼 렌더링 */}
       <div style={{ position: 'fixed', bottom: '30px', right: '30px', zIndex: 9000, display: 'flex', flexDirection: 'column-reverse', alignItems: 'flex-end', gap: '15px' }}>
         <button 
           onClick={toggleModal}
@@ -110,17 +122,15 @@ const FabMemoWidget = () => {
         </button>
       </div>
 
-      {/* 모달 오버레이 렌더링 */}
       {isOpen && (
         <div 
           style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', backdropFilter: 'blur(3px)' }}
-          onClick={() => { console.log("[FabMemoWidget] 오버레이 클릭 - 모달 닫기"); setIsOpen(false); }}
+          onClick={() => setIsOpen(false)}
         >
           <div 
             style={{ width: '1000px', maxWidth: '95vw', height: '80vh', minHeight: '600px', background: 'var(--surface-color)', borderRadius: '12px', boxShadow: '0 10px 40px rgba(0,0,0,0.3)', display: 'flex', overflow: 'hidden' }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* 좌측 사이드바 (폴더 및 목록) */}
             <MemoSidebar 
               memoData={memoData} setMemoData={setMemoData}
               memoFolders={memoFolders} setMemoFolders={setMemoFolders}
@@ -129,8 +139,6 @@ const FabMemoWidget = () => {
               sortMap={sortMap} setSortMap={setSortMap}
               handleCreateMemo={handleCreateMemo}
             />
-
-            {/* 우측 에디터 코어 */}
             <MemoEditor 
               activeMemo={activeMemo} 
               memoData={memoData} setMemoData={setMemoData}
