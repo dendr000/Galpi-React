@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api/axiosCore';
-import styles from './WorkDetail.module.css';
+import styles from '../../pages/WorkDetail/WorkDetail.module.css';
 import { extractMeta } from '../../utils/markdownParser';
-import MarkdownRenderer from '../../components/macro/MarkdownRenderer';
-import FloatingLeftTree from './FloatingLeftTree';
-import FloatingToc from './FloatingToc';
-import CharacterInfobox from './CharacterInfobox';
+import MarkdownRenderer from '../../domains/macro/MarkdownRenderer';
+import FloatingLeftTree from '../../domains/work/FloatingLeftTree';
+import FloatingToc from '../../domains/work/FloatingLeftTree';
+import CharacterInfobox from '../../domains/character/CharacterInfobox';
 
 // ★ 분리된 컴포넌트 & 훅 Import
-import { useCharacterDrag } from './hooks/useCharacterDrag';
-import WorkCover from './components/WorkCover';
-import BatchImageModal from './components/BatchImageModal';
-import InlineCategoryForm from './components/InlineCategoryForm';
+import { useCharacterDrag } from '../../domains/character/useCharacterDrag';
+import WorkCover from '../../domains/work/WorkCover';
+import BatchImageModal from '../../domains/character/BatchImageModal';
+import InlineCategoryForm from '../../domains/work/InlineCategoryForm';
 
 const WorkDetailPage = () => {
   const { workId } = useParams();
@@ -340,7 +340,16 @@ const WorkDetailPage = () => {
                               onDragEnd={(e) => handleCharDragEnd(e, gName)}
                             >
                               <div className={styles.cardImgWrap} title={fullVariants.length > 1 ? "" : ""}>
-                                <img src={cardImgSrc} style={{ objectPosition: `50% ${c.cardImgY ?? 50}%` }} onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.style.background = 'var(--table-bg-alt)'; }} alt={c.name} />
+                                <img 
+                                  src={cardImgSrc} 
+                                  style={{ 
+                                    objectPosition: `center ${c.cardImgY !== undefined ? c.cardImgY : 50}%`,
+                                    transform: `scale(${c.cardImgScale !== undefined ? c.cardImgScale : 1})`,
+                                    transition: 'transform 0.2s ease, object-position 0.2s ease'
+                                  }} 
+                                  onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.style.background = 'var(--table-bg-alt)'; }} 
+                                  alt={c.name} 
+                                />
                               </div>
                               <h4 style={{ margin: '0 0 5px 0', color: c.themeColor || 'var(--primary-color)', fontSize: '15px', fontWeight: 900 }}>{c.name}</h4>
                             </div>

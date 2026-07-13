@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosCore';
 import styles from './MemoWorkspace.module.css';
-import MarkdownRenderer from '../../components/macro/MarkdownRenderer';
+import MarkdownRenderer from '../../domains/macro/MarkdownRenderer';
 
 const MemoWorkspacePage = () => {
   const navigate = useNavigate();

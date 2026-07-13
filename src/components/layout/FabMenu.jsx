@@ -6,12 +6,12 @@ import { useModalStore } from '../../store/useModalStore';
 import api from '../../api/axiosCore';
 
 // 분리된 모달 컴포넌트 Import
-import ClipboardModal from './fab/ClipboardModal';
-import DictModal from './fab/DictModal';
-import BoilerplateModal from './fab/BoilerplateModal';
-import SearchModal from './fab/SearchModal';
-import RecentModal from './fab/RecentModal';
-import MemoModal from './fab/MemoModal';
+import ClipboardModal from '../../domains/fab_tools/ClipboardModal';
+import DictModal from '../../domains/fab_tools/DictModal';
+import BoilerplateModal from '../../domains/fab_tools/BoilerplateModal';
+import SearchModal from '../../domains/fab_tools/SearchModal';
+import RecentModal from '../../domains/fab_tools/RecentModal';
+import MemoModal from '../../domains/memo/MemoModal';
 
 const FabMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
