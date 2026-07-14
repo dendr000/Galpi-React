@@ -5,7 +5,7 @@ import styles from '../../pages/WorkDetail/WorkDetail.module.css';
 import { extractMeta } from '../../utils/markdownParser';
 import MarkdownRenderer from '../../domains/macro/MarkdownRenderer';
 import FloatingLeftTree from '../../domains/work/FloatingLeftTree';
-import FloatingToc from '../../domains/work/FloatingLeftTree';
+import FloatingToc from '../../domains/work/FloatingToc';
 import CharacterInfobox from '../../domains/character/CharacterInfobox';
 
 // ★ 분리된 컴포넌트 & 훅 Import
