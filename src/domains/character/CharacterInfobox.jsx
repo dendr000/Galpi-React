@@ -32,7 +32,8 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
     else if (char.pageBodyRaw) raw = char.pageBodyRaw;
     else if (char._rawDynamic) {
         try { 
-            const d = JSON.parse(char._rawDynamic); 
+            let d = JSON.parse(char._rawDynamic); 
+            if (typeof d === 'string') d = JSON.parse(d); // 이중 파싱 방어
             if (d.pageBody?.rawText) raw = d.pageBody.rawText; 
         } catch(e) {}
     }
@@ -43,7 +44,23 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
   };
 
   const previewText = getPreviewText();
-  const themeColor = char.themeColor || 'var(--primary-color)';
+  
+  // ★ JSON 이중 파싱 에러 방지 및 속성 추출 로직 적용
+  let dp = {};
+  try {
+    const rawDynamic = char.dynamicProperties || char._rawDynamic;
+    if (rawDynamic) {
+      let parsed = JSON.parse(rawDynamic);
+      if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+      dp = parsed || {};
+    }
+  } catch (e) {
+    console.warn(`[CharacterInfobox] 캐릭터(${char.name}) JSON 속성 파싱 실패:`, e);
+  }
+
+  const themeColor = dp.themeColor || char.themeColor || 'var(--primary-color)';
+  const cardImgY = dp.cardImgY !== undefined ? dp.cardImgY : (char.cardImgY !== undefined ? char.cardImgY : 50);
+  const cardImgScale = dp.cardImgScale !== undefined ? dp.cardImgScale : (char.cardImgScale !== undefined ? char.cardImgScale : 1);
 
   // ★ 이미지 바리에이션 (Shift+Click) 연산
   const fullVariants = ["", ...imgVariants.filter(v => v.trim() !== "")];
@@ -60,12 +77,6 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
   const suffix = currentVariant ? `_${currentVariant}` : "";
   const imgName = `${workTitle}_${char.name}${suffix}.${charExt.replace(/^\./, '')}`;
   const imgSrc = `/img/character/${encodeURIComponent(imgName)}`;
-
-  let dp = {};
-  try { 
-      if (typeof char.dynamicProperties === 'string') dp = JSON.parse(char.dynamicProperties);
-      else if (typeof char._rawDynamic === 'string') dp = JSON.parse(char._rawDynamic); 
-  } catch(e){}
   
   const propOrder = dp._propOrder || [];
   const mergedProps = { ...char, ...dp };
@@ -78,8 +89,9 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
   propOrder.forEach(k => { if (mergedProps[k] !== undefined && !keysToRender.includes(k)) keysToRender.push(k); });
   for (let k in mergedProps) { if (!keysToRender.includes(k)) keysToRender.push(k); }
 
+  // ★ cardImgScale 및 시스템 예약어 완벽 필터링
   const exclude = [
-      "id", "name", "imageCode", "pageBody", "themeColor", "cardImgY", "age", "birthday", 
+      "id", "name", "imageCode", "pageBody", "themeColor", "cardImgY", "cardImgScale", "age", "birthday", 
       "gender", "species", "_rawDynamic", "_propOrder", "작품명", "제작자", "sortOrder", 
       "_cardLabel1", "_cardLabel2", "_sortOrder", "_sortOrderNum", "workId", "부제목", 
       "pageBodyRaw", "isTrash", "dynamicProperties"
@@ -95,10 +107,18 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
       </h3>
       
       {/* 바리에이션 이미지 렌더링 영역 (알림 텍스트 제거) */}
-      <div className={styles.infoboxImage}>
+      <div className={styles.infoboxImage} style={{ overflow: 'hidden' }}>
         <img 
           src={imgSrc} 
-          style={{ objectPosition: `50% ${char.cardImgY !== undefined ? char.cardImgY : 50}%`, cursor: fullVariants.length > 1 ? 'pointer' : 'default' }} 
+          style={{ 
+            objectPosition: `center ${cardImgY}%`, 
+            transform: `scale(${cardImgScale})`,
+            transition: 'transform 0.2s ease, object-position 0.2s ease',
+            cursor: fullVariants.length > 1 ? 'pointer' : 'default',
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover'
+          }} 
           onClick={handleImageClick}
           onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; }} 
           alt={char.name} 
