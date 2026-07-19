@@ -1,25 +1,202 @@
-.layout { display: flex; height: 100vh; width: 100vw; overflow: hidden; background: var(--bg-color); }
+/* 파일 위치: src/pages/BulkStudio/BulkStudio.module.css */
+/* 기능 요약: React 컴포넌트에 종속되는 로컬 스코프 기반 스튜디오 레이아웃 스타일시트 */
 
-.sidebar { width: 50vw; flex-shrink: 0; background: var(--surface-color); border-right: 2px solid var(--primary-color); display: flex; flex-direction: column; transition: width 0.3s; overflow: hidden; }
-.sidebarClosed { width: 0; border-right: none; }
-.previewHeader { background: var(--primary-color); color: white; padding: 15px 20px; font-size: 16px; font-weight: 900; text-align: center; flex-shrink: 0; }
-.previewContent { flex: 1; overflow-y: auto; padding: 30px; background: var(--bg-color); }
+.layout { 
+  display: flex; 
+  width: 100%; 
+  height: 100vh; 
+  overflow: hidden; 
+  background: var(--bg-color); 
+}
 
-.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.header { background: var(--surface-color); padding: 15px 25px; border-bottom: 2px solid var(--primary-color); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-.toolbar { background: var(--table-bg-alt); padding: 10px 20px; display: flex; gap: 10px; align-items: center; overflow-x: auto; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
-.tableWrap { flex: 1; overflow: auto; background: var(--surface-color); position: relative; }
-.table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; text-align: center; font-size: 13px; }
+:global(.bulk-sidebar) { 
+  width: 50vw; 
+  flex-shrink: 0; 
+  background: var(--surface-color); 
+  border-right: 2px solid var(--primary-color); 
+  display: flex; 
+  flex-direction: column; 
+  transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+  overflow: hidden; 
+}
+:global(.sidebarClosed) { 
+  width: 0 !important; 
+  border-right: none !important; 
+}
 
-.table th { padding: 12px; font-weight: 900; background: var(--table-bg-alt); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); }
-.table td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 0; background: var(--surface-color); }
+:global(.previewHeader) { 
+  background: var(--primary-color); 
+  color: white; 
+  padding: 15px 20px; 
+  font-size: 16px; 
+  font-weight: 900; 
+  text-align: center; 
+  flex-shrink: 0; 
+}
+:global(.previewContent) { 
+  flex: 1; 
+  overflow-y: auto; 
+  padding: 30px; 
+  background: var(--bg-color); 
+}
 
-.table th:nth-child(1), .table td:nth-child(1) { position: sticky; left: 0; z-index: 11; width: 40px; }
-.table th:nth-child(2), .table td:nth-child(2) { position: sticky; left: 40px; z-index: 11; width: 45px; }
-.table th:nth-child(3), .table td:nth-child(3) { position: sticky; left: 85px; z-index: 11; width: 140px; border-right: 2px solid var(--primary-color); }
-.table th:nth-child(1), .table th:nth-child(2), .table th:nth-child(3) { background: var(--table-bg-alt); z-index: 15; }
+.main { 
+  flex: 1; 
+  min-width: 0; 
+  display: flex; 
+  flex-direction: column; 
+  position: relative;
+}
 
-.input { width: 100%; padding: 12px 10px; border: 1px solid transparent; outline: none; background: transparent; color: var(--text-primary); text-align: center; font-size: 13px; font-weight: bold; }
-.input:focus { background: var(--surface-color); box-shadow: inset 0 0 0 2px var(--primary-color); z-index: 2; position: relative; }
+:global(.header) { 
+  background: var(--surface-color); 
+  padding: 15px 25px; 
+  border-bottom: 2px solid var(--primary-color); 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+}
 
-.footer { padding: 15px; background: var(--surface-color); border-top: 1px solid var(--border-color); flex-shrink: 0; }
+/* ★ 툴바 영역 가로 스크롤 활성화 및 스크롤바 완전 숨김 처리 */
+:global(.toolbar) { 
+  background: var(--table-bg-alt); 
+  padding: 10px 20px; 
+  display: flex; 
+  gap: 15px; 
+  align-items: center; 
+  overflow-x: auto; 
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: nowrap; /* 줄바꿈 원천 차단 */
+  scrollbar-width: none; /* 파이어폭스 스크롤바 숨김 */
+  -ms-overflow-style: none; /* IE/Edge 스크롤바 숨김 */
+}
+:global(.toolbar::-webkit-scrollbar) {
+  display: none; /* 크롬/사파리 스크롤바 숨김 */
+}
+
+/* ★ 자식 요소들의 크기 압착(찌그러짐) 방지 */
+:global(.toolbar-group) {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0; 
+}
+:global(.toolbar-divider) {
+  width: 1px;
+  height: 24px;
+  background: var(--border-color);
+  margin: 0 5px;
+  flex-shrink: 0;
+}
+
+:global(.icon-btn) {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap; /* ★ 버튼 내 글자 세로로 꺾이는 현상 방지 */
+  flex-shrink: 0;
+}
+:global(.icon-btn:hover) {
+  background: var(--table-bg-alt);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+:global(.tb-input), :global(.tb-input-sm), :global(.tb-select) {
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--surface-color);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: bold;
+  outline: none;
+  flex-shrink: 0;
+}
+
+/* ★ 카드 표시 설정 바도 동일하게 스크롤바 숨김 및 줄바꿈 방지 */
+:global(.bulk-toolbar) {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+:global(.bulk-toolbar::-webkit-scrollbar) {
+  display: none;
+}
+
+.tableWrap { 
+  flex: 1; 
+  overflow: auto; 
+  background: var(--surface-color); 
+  position: relative; 
+}
+:global(.table) { 
+  border-collapse: separate; 
+  border-spacing: 0; 
+  width: max-content; 
+  min-width: 100%; 
+  text-align: center; 
+  font-size: 13px; 
+}
+
+:global(.table th) { 
+  padding: 12px; 
+  font-weight: 900; 
+  background: var(--table-bg-alt); 
+  position: sticky; 
+  top: 0; 
+  z-index: 20; 
+  border-bottom: 1px solid var(--border-color); 
+  border-right: 1px solid var(--border-color); 
+}
+:global(.table td) { 
+  border-bottom: 1px solid var(--border-color); 
+  border-right: 1px solid var(--border-color); 
+  padding: 0; 
+  background: transparent; 
+}
+
+:global(.sticky-check) { position: sticky; left: 0; z-index: 10; width: 40px; }
+:global(.sticky-delete) { position: sticky; left: 40px; z-index: 10; width: 45px; }
+:global(.sticky-name) { position: sticky; left: 85px; z-index: 10; width: 140px; border-right: 2px solid var(--primary-color) !important; }
+:global(.sticky-body) { position: sticky; right: 0; z-index: 10; width: 160px; border-left: 2px solid var(--primary-color) !important; }
+
+:global(thead .sticky-check), :global(thead .sticky-delete), :global(thead .sticky-name), :global(thead .sticky-body) {
+  z-index: 25;
+  background: var(--table-bg-alt) !important;
+}
+
+:global(.input) { 
+  width: 100%; 
+  padding: 12px 10px; 
+  border: 1px solid transparent; 
+  outline: none; 
+  background: transparent; 
+  color: var(--text-primary); 
+  text-align: center; 
+  font-size: 13px; 
+  font-weight: bold; 
+  box-sizing: border-box;
+}
+:global(.input:focus) { 
+  background: var(--surface-color); 
+  box-shadow: inset 0 0 0 2px var(--primary-color); 
+  z-index: 2; 
+  position: relative; 
+}
+
+.footer { 
+  padding: 15px; 
+  background: var(--surface-color); 
+  border-top: 1px solid var(--border-color); 
+  flex-shrink: 0; 
+}
