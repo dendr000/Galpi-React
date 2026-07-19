@@ -1,11 +1,14 @@
 // 파일 위치: src/pages/BulkStudio/useBulkStudioData.js
-// 기능 요약: 캐릭터 일괄 스튜디오의 전역 상태 관리 및 글로벌 DB 디바운싱 자동완성 로직, 단축키 처리 포함
+// 기능 요약: 캐릭터 일괄 스튜디오 전역 상태 관리 및 시스템 예약어 필터링 강화
 
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../../api/axiosCore';
 
 const DEFAULT_COLS = ["부제목", "나이", "성별", "종족", "소속", "직책", "능력", "등급", "관계"];
+
+// ★ 물리적으로 화면에 입력칸으로 노출되면 안 되는 시스템 내부 예약어(블랙리스트) 명단 정의
+const SYSTEM_PROPS = ["작품명", "제작자", "age", "gender", "species", "sortOrder", "themeColor", "cardImgY", "cardImgScale", "pageBody"];
 
 export const useBulkStudioData = () => {
   const [searchParams] = useSearchParams();
@@ -19,7 +22,6 @@ export const useBulkStudioData = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // 자동완성(제안) 데이터 보관소 및 1.5초 디바운싱 타이머
   const [suggestions, setSuggestions] = useState({});
   const suggestionTimer = useRef(null);
 
@@ -34,16 +36,12 @@ export const useBulkStudioData = () => {
 
   const lastCheckedRowIdx = useRef(null);
 
-  // ★ 탭 모드 전환 글로벌 단축키 (Alt+T, Ctrl+Q)
   useEffect(() => {
     const handleGlobalKey = (e) => {
-      // 모달이 열려있으면 단축키 작동 차단
       if (document.querySelector('.bulk-modal-overlay')) return;
-      
       if ((e.altKey && e.key.toLowerCase() === 't') || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'q')) {
         e.preventDefault();
         e.stopPropagation();
-        console.log("[useBulkStudioData] 전역 단축키 감지: 탭 방향 전환");
         setTabMode(prev => prev === 'horizontal' ? 'vertical' : 'horizontal');
       }
     };
@@ -86,7 +84,8 @@ export const useBulkStudioData = () => {
           try {
             const dp = JSON.parse(c.dynamicProperties || c._rawDynamic);
             Object.keys(dp).forEach(k => {
-              if (!k.startsWith('_') && k !== '부제목' && !["작품명", "제작자", "age", "gender", "species", "sortOrder", "themeColor", "cardImgY", "pageBody"].includes(k)) newCols.add(k);
+              // ★ 시스템 예약어이거나 _로 시작하는 내부 속성이면 컬럼으로 만들지 않고 필터링
+              if (!k.startsWith('_') && k !== '부제목' && !SYSTEM_PROPS.includes(k)) newCols.add(k);
             });
           } catch(e){}
         }
@@ -100,7 +99,8 @@ export const useBulkStudioData = () => {
         const rowData = { 
           id: c.id, name: c.name || '', _checked: false, pageBodyRaw: dp.pageBody?.rawText || '',
           themeColor: c.themeColor || dp.themeColor || '#3b5bdb',
-          cardImgY: c.cardImgY !== undefined ? c.cardImgY : (dp.cardImgY !== undefined ? dp.cardImgY : 50),
+          cardImgY: dp.cardImgY !== undefined ? dp.cardImgY : (c.cardImgY !== undefined ? c.cardImgY : 50),
+          cardImgScale: dp.cardImgScale !== undefined ? dp.cardImgScale : (c.cardImgScale !== undefined ? c.cardImgScale : 1),
           _sortOrderNum: dp.sortOrder !== undefined ? dp.sortOrder : 999
         };
         colArray.forEach(col => {
@@ -116,7 +116,7 @@ export const useBulkStudioData = () => {
         let firstDp = {}; try { firstDp = JSON.parse(chars[0].dynamicProperties || chars[0]._rawDynamic || "{}"); } catch(e){}
         setLabels({ label1: firstDp._cardLabel1 || "나이", label2: firstDp._cardLabel2 || "등급, 소속, 능력" });
       } else {
-        const nr = { id: `new_${Date.now()}`, name: '', _checked: false, pageBodyRaw: '', _sortOrderNum: 999, themeColor: '#3b5bdb', cardImgY: 50 };
+        const nr = { id: `new_${Date.now()}`, name: '', _checked: false, pageBodyRaw: '', _sortOrderNum: 999, themeColor: '#3b5bdb', cardImgY: 50, cardImgScale: 1 };
         colArray.forEach(c => nr[c] = '');
         nr['관계'] = "일반"; nr['성별'] = "여성"; nr['종족'] = "인간(人間)";
         formattedRows.push(nr);
@@ -135,11 +135,8 @@ export const useBulkStudioData = () => {
       
       suggestionTimer.current = setTimeout(async () => {
         try {
-          console.log(`[useBulkStudioData] 1.5초 입력 대기 완료. DB에 '${val}' 자동완성 검색 API 호출 (컬럼: ${key})`);
           const res = await api.get(`/api/characters/suggest?column=${encodeURIComponent(key)}&keyword=${encodeURIComponent(val.trim())}`);
-          
           if (res.data && res.data.length > 0) {
-            // ★ 백엔드에서 날아온 데이터도 콤마 기준으로 쪼개서 개별 배열로 만듭니다.
             let splitData = [];
             res.data.forEach(item => {
               if (item.includes(',')) {
@@ -148,14 +145,13 @@ export const useBulkStudioData = () => {
                 splitData.push(item.trim());
               }
             });
-
             setSuggestions(prev => ({
               ...prev,
               [key]: Array.from(new Set([...(prev[key] || []), ...splitData]))
             }));
           }
         } catch (e) {
-          console.error("[useBulkStudioData] 자동완성 데이터 로드 실패", e);
+          console.error("[useBulkStudioData] 자동완성 로드 실패", e);
         }
       }, 1500); 
     }
@@ -186,7 +182,7 @@ export const useBulkStudioData = () => {
     const newRows = [...rows];
     const baseTime = Date.now();
     for(let i=0; i<count; i++) {
-      const nr = { id: `new_${baseTime + i}`, name: '', _checked: false, pageBodyRaw: '', _sortOrderNum: 999, themeColor: '#3b5bdb', cardImgY: 50 };
+      const nr = { id: `new_${baseTime + i}`, name: '', _checked: false, pageBodyRaw: '', _sortOrderNum: 999, themeColor: '#3b5bdb', cardImgY: 50, cardImgScale: 1 };
       columns.forEach(c => nr[c] = '');
       nr['관계'] = "일반"; nr['성별'] = "여성"; nr['종족'] = "인간(人間)";
       newRows.push(nr);
@@ -201,7 +197,9 @@ export const useBulkStudioData = () => {
   const addColumn = (colName) => {
     if(!colName || colName.trim() === "") return;
     const cleanName = colName.trim();
-    if(["작품명", "제작자", "id", "name", "sortOrder", "imageCode", "workId", "부제목", "pageBodyRaw", "_checked"].includes(cleanName)) return alert("예약어는 사용할 수 없습니다.");
+    if([...SYSTEM_PROPS, "id", "name", "imageCode", "workId", "부제목", "pageBodyRaw", "_checked"].includes(cleanName) || cleanName.startsWith('_')) {
+      return alert("시스템 예약어는 속성 이름으로 사용할 수 없습니다.");
+    }
     if(columns.includes(cleanName)) return alert("이미 존재하는 속성입니다.");
     setColumns([...columns, cleanName]);
     setRows(rows.map(r => ({ ...r, [cleanName]: '' })));
@@ -293,7 +291,20 @@ export const useBulkStudioData = () => {
     try {
       const promises = rows.map(row => {
         if (!row.name.trim()) return Promise.resolve();
-        let dp = { _propOrder: [...columns], pageBody: { rawText: row.pageBodyRaw }, sortOrder: row._sortOrderNum !== undefined ? row._sortOrderNum : 999, themeColor: row.themeColor || "#3b5bdb", cardImgY: row.cardImgY !== undefined ? row.cardImgY : 50, _cardLabel1: labels.label1, _cardLabel2: labels.label2, 작품명: workTitle, 제작자: creator };
+        
+        // ★ 저장 시 기존에 갖고 있던 시스템 속성(themeColor, imgY, imgScale) 등도 온전히 유지한 채 병합 저장합니다.
+        let dp = { 
+          _propOrder: [...columns], 
+          pageBody: { rawText: row.pageBodyRaw }, 
+          sortOrder: row._sortOrderNum !== undefined ? row._sortOrderNum : 999, 
+          themeColor: row.themeColor || "#3b5bdb", 
+          cardImgY: row.cardImgY !== undefined ? row.cardImgY : 50, 
+          cardImgScale: row.cardImgScale !== undefined ? row.cardImgScale : 1, 
+          _cardLabel1: labels.label1, 
+          _cardLabel2: labels.label2, 
+          작품명: workTitle, 
+          제작자: creator 
+        };
         const payload = { workId: parseInt(selectedWorkId), name: row.name.trim(), imageCode: `${workTitle}_${row.name.trim()}.${cExt.replace(/^\./, '')}` };
 
         columns.forEach(col => { 

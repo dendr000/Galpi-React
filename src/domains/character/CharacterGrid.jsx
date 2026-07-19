@@ -1,6 +1,6 @@
 // 파일 위치: src/domains/character/CharacterGrid.jsx
-// 기능 요약: 작품 상세 페이지 내에서 분류 기준에 따라 캐릭터 카드를 격자 형태로 배치하고 드래그 앤 드롭 및 시프트 클릭 의상 전환을 지원하는 독립 서브 컴포넌트
-// 버전: v1.0.0
+// 기능 요약: 작품 상세 페이지 내에서 분류 기준에 따라 캐릭터 카드를 격자 형태로 배치하고 속성값(이름 옆/아래)을 렌더링하는 독립 서브 컴포넌트
+// 버전: v1.2.1
 
 import React from 'react';
 
@@ -96,50 +96,105 @@ const CharacterGrid = ({
                 {groupedChars[gName].map(c => {
                   const vIdx = cardVariants[c.id] || 0;
                   const suffix = fullVariants[vIdx] ? `_${fullVariants[vIdx]}` : "";
-                  const cardImgSrc = `/img/character/${encodeURIComponent(work.title + "_" + c.name + suffix + "." + charExt)}`;
+                  const workTitle = work?.title || "작품";
+                  const cardImgSrc = `/img/character/${encodeURIComponent(workTitle + "_" + c.name + suffix + "." + charExt)}`;
                   
+                  // ★ JSON 이중 파싱 에러 방지 및 속성 추출 로직
+                  let dp = {};
+                  try {
+                    const rawDynamic = c.dynamicProperties || c._rawDynamic;
+                    if (rawDynamic) {
+                      let parsed = JSON.parse(rawDynamic);
+                      if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+                      dp = parsed || {};
+                    }
+                  } catch (e) {
+                    console.warn(`[CharacterGrid] 캐릭터(${c.name}) JSON 속성 파싱 실패:`, e);
+                  }
+
+                  const themeColor = dp.themeColor || c.themeColor || 'var(--primary-color)';
+                  const cardImgY = dp.cardImgY !== undefined ? dp.cardImgY : (c.cardImgY !== undefined ? c.cardImgY : 50);
+                  const cardImgScale = dp.cardImgScale !== undefined ? dp.cardImgScale : (c.cardImgScale !== undefined ? c.cardImgScale : 1);
+
+                  // 1. 이름 옆 (label1) 파싱
+                  const label1Key = dp._cardLabel1 || "나이";
+                  const mappedKey1 = label1Key === '나이' ? 'age' : label1Key === '성별' ? 'gender' : label1Key === '종족' ? 'species' : label1Key;
+                  const val1 = dp[mappedKey1] || dp[label1Key] || c[mappedKey1] || c[label1Key];
+                  const label1Text = (val1 && String(val1).trim() !== "") ? `(${val1})` : "";
+
+                  // 2. 이름 아래 (label2) 파싱
+                  const label2Str = dp._cardLabel2 || "등급, 소속, 능력";
+                  const label2Keys = label2Str.split(',').map(s => s.trim()).filter(Boolean);
+                  
+                  const renderedLabels = label2Keys.map(key => {
+                    const mappedKey = key === '나이' ? 'age' : key === '성별' ? 'gender' : key === '종족' ? 'species' : key;
+                    const val = dp[mappedKey] || dp[key] || c[mappedKey] || c[key];
+                    
+                    if (!val || String(val).trim() === '') return null;
+                    return (
+                      <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ color: 'var(--text-secondary)' }}>{key}</span>
+                        <span style={{ fontWeight: 'bold', color: 'var(--text-primary)', textAlign: 'right' }}>{val}</span>
+                      </div>
+                    );
+                  }).filter(Boolean);
+
                   return (
                     <div 
                       key={c.id} 
                       id={`char-card-${c.id}`}
                       className={styles.noteCard} 
-                      style={{ borderTop: `4px solid ${c.themeColor || 'var(--primary-color)'}`, backgroundColor: activeCharId === c.id ? 'var(--table-bg-alt)' : 'var(--surface-color)' }} 
+                      style={{ 
+                        borderTop: `4px solid ${themeColor}`, 
+                        backgroundColor: activeCharId === c.id ? 'var(--table-bg-alt)' : 'var(--surface-color)',
+                        // ★ 기존의 하얀 여백 규격을 해치지 않으면서 글자 길이에 맞춰 세로로 늘어나게만 설정
+                        height: 'max-content'
+                      }} 
                       onClick={(e) => {
                         if (e.shiftKey) {
                           e.preventDefault(); 
                           e.stopPropagation();
-                          console.log(`[CharacterGrid] 캐릭터 ID [${c.id}] Shift+클릭 감지. 의상 배리언트 토글 작동.`);
                           if (fullVariants.length > 1) {
                             setCardVariants(prev => ({ ...prev, [c.id]: ((prev[c.id] || 0) + 1) % fullVariants.length }));
                           }
                         } else {
-                          console.log(`[CharacterGrid] 캐릭터 카드 ID [${c.id}] 토글 동작 집행`);
                           setActiveCharId(activeCharId === c.id ? null : c.id);
                         }
                       }}
                       draggable="true"
-                      onDragStart={(e) => { console.log(`[CharacterGrid] 드래그 시작 캐릭터: ${c.name}`); handleCharDragStart(e, c, gName); }}
+                      onDragStart={(e) => { handleCharDragStart(e, c, gName); }}
                       onDragOver={(e) => handleCharDragOver(e, c, gName)}
                       onDrop={(e) => e.preventDefault()}
-                      onDragEnd={(e) => { console.log(`[CharacterGrid] 드래그 종료`); handleCharDragEnd(e, gName); }}
+                      onDragEnd={(e) => { handleCharDragEnd(e, gName); }}
                     >
+                      {/* 상단 이미지 영역 (원래의 패딩 규격 내에서 렌더링되도록 원상복구) */}
                       <div className={styles.cardImgWrap}>
                         <img 
                           src={cardImgSrc} 
                           style={{ 
-                            objectPosition: `center ${c.cardImgY !== undefined ? c.cardImgY : 50}%`,
-                            transform: `scale(${c.cardImgScale !== undefined ? c.cardImgScale : 1})`,
+                            objectPosition: `center ${cardImgY}%`,
+                            transform: `scale(${cardImgScale})`,
                             transition: 'transform 0.2s ease, object-position 0.2s ease'
                           }} 
                           onError={(e) => { 
-                            console.warn(`[CharacterGrid] 이미지 로드 실패 처리: ${cardImgSrc}`);
                             e.target.style.display = 'none'; 
                             e.target.parentElement.style.background = 'var(--table-bg-alt)'; 
                           }} 
                           alt={c.name} 
                         />
                       </div>
-                      <h4 style={{ margin: '0 0 5px 0', color: c.themeColor || 'var(--primary-color)', fontSize: '15px', fontWeight: 900 }}>{c.name}</h4>
+
+                      {/* 이름 및 이름 옆 라벨 */}
+                      <h4 style={{ margin: renderedLabels.length > 0 ? '10px 0 10px 0' : '0 0 5px 0', color: themeColor, fontSize: '15px', fontWeight: 900 }}>
+                        {c.name} <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 'normal' }}>{label1Text}</span>
+                      </h4>
+
+                        {/* 이름 아래 라벨 리스트 */}
+                      {renderedLabels.length > 0 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12.5px' }}>
+                          {renderedLabels}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
