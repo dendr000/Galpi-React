@@ -1,4 +1,8 @@
-import React, { useMemo } from 'react';
+// 파일 위치: src/domains/macro/MarkdownRenderer.jsx
+// 기능 요약: 위키 커스텀 매크로(스탯/연표/관계도) 변환 및 하위 문단 자동 구분선, 문단 접기(Folding) 엔진이 통합된 마크다운 렌더러
+// 버전: v1.3.0
+
+import React, { useMemo, useEffect, useRef } from 'react';
 import { marked } from 'marked';
 import { parseWikiText } from '../../utils/markdownParser';
 
@@ -83,7 +87,7 @@ const createTimelineHtml = (innerText) => {
   return validCount > 0 ? html : "";
 };
 
-// 4. 인물 관계도 SVG 생성 헬퍼 (리액트 미리보기용 정적 렌더링)
+// 4. 인물 관계도 SVG 생성 헬퍼
 const createRelationGraphHtml = (innerText) => {
   let graphData = { nodes: [], edges: [] };
   try {
@@ -181,13 +185,15 @@ const createRelationGraphHtml = (innerText) => {
 
 // 메인 마크다운 렌더링 컴포넌트
 const MarkdownRenderer = ({ rawText, onNodeClick, startH1 = 1 }) => {
+  const containerRef = useRef(null);
+
   const renderedHtml = useMemo(() => {
     if (!rawText) return "";
 
     let parsedText = parseWikiText(rawText);
     let rawHtml = marked.parse(parsedText, { breaks: true });
 
-    // ★ 실시간 매크로 렌더링 함수 연동 교체 완료
+    // 실시간 매크로 렌더링 함수 연동 교체 완료
     rawHtml = rawHtml.replace(/(?:<p>)?\[스탯:(.*?)\](?:<\/p>)?/g, (m, p1) => createRadarChartHtml(p1.replace(/<[^>]*>?/gm, ''))); 
     rawHtml = rawHtml.replace(/(?:<p>)?\[게이지:(.*?)\](?:<\/p>)?/g, (m, p1) => createBarGraphHtml(p1.replace(/<[^>]*>?/gm, ''))); 
     rawHtml = rawHtml.replace(/(?:<p>)?\[TIMELINE\]([\s\S]*?)\[\/TIMELINE\](?:<\/p>)?/g, (m, content) => createTimelineHtml(content.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>?/gm, ''))); 
@@ -268,18 +274,110 @@ const MarkdownRenderer = ({ rawText, onNodeClick, startH1 = 1 }) => {
     return newBody.innerHTML;
   }, [rawText, startH1]);
 
+  // ★ 나무위키식 문단 접기 엔진 마운트
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+    headings.forEach((heading) => {
+      if (heading.querySelector('.wiki-fold-btn')) return;
+
+      const btn = document.createElement('span');
+      btn.className = 'wiki-fold-btn';
+      btn.innerHTML = '▼';
+      btn.title = "문단 접기/펼치기";
+      btn.style.cssText = "cursor: pointer; font-size: 0.7em; margin-left: 8px; color: var(--text-secondary); user-select: none; transition: color 0.2s; vertical-align: middle;";
+
+      btn.onmouseover = () => btn.style.color = 'var(--primary-color)';
+      btn.onmouseout = () => { 
+        if (!heading.classList.contains('is-collapsed')) btn.style.color = 'var(--text-secondary)'; 
+      };
+
+      heading.appendChild(btn);
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        
+        const isCollapsed = heading.classList.toggle('is-collapsed');
+        btn.innerHTML = isCollapsed ? '◀' : '▼';
+        btn.style.color = isCollapsed ? 'var(--primary-color)' : 'var(--text-secondary)';
+
+        // 1. H1 태그를 클릭한 경우: 바로 뒤에 붙어있는 md-box 전체를 통째로 토글
+        if (heading.tagName === 'H1') {
+          const mdBox = heading.nextElementSibling;
+          if (mdBox && mdBox.classList.contains('md-box')) {
+            if (isCollapsed) {
+              mdBox.dataset.originalDisplay = mdBox.style.display || '';
+              mdBox.style.display = 'none';
+            } else {
+              mdBox.style.display = mdBox.dataset.originalDisplay || '';
+            }
+          }
+        } 
+        // 2. H2, H3 등 하위 태그를 클릭한 경우: md-box 내부에 있으므로 동급 태그가 나오기 전까지의 형제 요소들을 토글
+        else {
+          const currentLevel = parseInt(heading.tagName.substring(1));
+          let sibling = heading.nextElementSibling;
+
+          while (sibling) {
+            const siblingLevelMatch = sibling.tagName.match(/^H(\d)$/);
+            if (siblingLevelMatch) {
+              const siblingLevel = parseInt(siblingLevelMatch[1]);
+              if (siblingLevel <= currentLevel) break;
+            }
+
+            if (isCollapsed) {
+              if (sibling.style.display !== 'none') {
+                sibling.dataset.originalDisplay = sibling.style.display || '';
+                sibling.style.display = 'none';
+              }
+            } else {
+              sibling.style.display = sibling.dataset.originalDisplay || '';
+            }
+            sibling = sibling.nextElementSibling;
+          }
+        }
+      });
+    });
+  }, [renderedHtml]);
+
   if (!rawText) return null;
 
   return (
-    <div 
-      className="markdown-body" 
-      dangerouslySetInnerHTML={{ __html: renderedHtml }} 
-      onClick={(e) => {
-        if (e.target.classList.contains('wiki-backlink') && onNodeClick) {
-          onNodeClick(e.target.innerText);
+    <>
+      <style>{`
+        /* ★ 하위 문단(H2, H3, H4) 자동 가로 구분선 CSS 주입 */
+        .markdown-body h2 {
+          border-bottom: 1px solid var(--border-color);
+          padding-bottom: 6px;
+          margin-bottom: 14px;
+          margin-top: 24px;
         }
-      }}
-    />
+        .markdown-body h3, .markdown-body h4 {
+          border-bottom: 1px dashed var(--border-color);
+          padding-bottom: 4px;
+          margin-bottom: 12px;
+          margin-top: 20px;
+        }
+        /* 첫 제목 여백 초기화로 레이아웃 어긋남 방지 */
+        .markdown-body h2:first-child, .markdown-body h3:first-child {
+          margin-top: 0;
+        }
+      `}</style>
+
+      <div 
+        ref={containerRef}
+        className="markdown-body" 
+        dangerouslySetInnerHTML={{ __html: renderedHtml }} 
+        onClick={(e) => {
+          if (e.target.classList.contains('wiki-backlink') && onNodeClick) {
+            onNodeClick(e.target.innerText);
+          }
+        }}
+      />
+    </>
   );
 };
 

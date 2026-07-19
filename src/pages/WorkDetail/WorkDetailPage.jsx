@@ -144,7 +144,7 @@ const WorkDetailPage = () => {
 
                 <section id="sec-2" className={styles.wikiSection}>
                   <div className={styles.sectionHeader}>
-                    <h2 id="sec-worldview" className={`${styles.sectionHeaderTitle} auto-toc-target`}>2. 세계관 설정</h2>
+                    <h2 id="sec-worldview" className={`${styles.sectionHeaderTitle} auto-toc-target`}>2. 설정</h2>
                     <button className="wiki-btn" style={{ padding: '4px 10px', fontSize: '13px' }} onClick={() => data.navigate(`/edit?type=work&action=edit&id=${data.work.id}`)}>✏️ 편집</button>
                   </div>
                   <MarkdownRenderer rawText={parsedDesc.clean} startH1={3} />

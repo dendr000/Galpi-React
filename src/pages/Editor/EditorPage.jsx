@@ -434,7 +434,7 @@ const EditorPage = () => {
             <>
               <h3 className="md-h1">1. 개요</h3>
               <MarkdownRenderer rawText={overviewText} />
-              <h3 className="md-h1" style={{ marginTop: '30px' }}>2. 세계관 설정</h3>
+              <h3 className="md-h1" style={{ marginTop: '30px' }}>2. 설정</h3>
             </>
           )}
 
@@ -568,7 +568,7 @@ const EditorPage = () => {
           )}
 
           <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', fontSize: '14px', marginTop: docType === 'work' ? '0' : '10px' }}>
-            {docType === 'work' ? '2. 세계관 설정' : '문서 내용 작성'}
+            {docType === 'work' ? '2. 설정' : '문서 내용 작성'}
           </label>
 
           {/* ★ 서식 제어 툴바 UI 인터페이스 구역 탑재 복원 */}
