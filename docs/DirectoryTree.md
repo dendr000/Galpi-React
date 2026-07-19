@@ -1,6 +1,6 @@
 src/
- ├── App.jsx                                          # 애플리케이션 최상위 라우팅 및 전역 환경설정 주입 코어 파일
- ├── main.jsx                                        # React 웹 애플리케이션 DOM 주입 및 서비스 구동 진입점 파일
+ ├── App.jsx                                    # 애플리케이션 최상위 라우팅 및 전역 환경설정 주입 코어 파일
+ ├── main.jsx                                   # React 웹 애플리케이션 DOM 주입 및 서비스 구동 진입점 파일
  │
  ├── api/
  │   └── axiosCore.js                           # 백엔드 데이터베이스 서버와의 비동기 통신용 Axios 기본 인스턴스 설정
@@ -8,10 +8,10 @@ src/
  ├── assets/
  │   └── image.png                              # 시스템 UI 구성용 범용 정적 이미지 파일 리소스
  │
- ├── store/                                           # [전역 상태 관리 스토어]
- │   ├── useAppStore.js                     # 클라이언트 비즈니스 뼈대를 통제하는 Zustand 기반 전역 핵심 상태 스토어
- │   ├── useModalStore.js                  # 레이어 팝업 및 기능 모달들의 동적 개폐 상태 전용 관리 스토어
- │   └── useSettingStore.js               # 글꼴 크기, 서체 종류, 레이아웃 해상도 등 커스텀 외관 설정 저장 스토어
+ ├── store/                                     # [전역 상태 관리 스토어]
+ │   ├── useAppStore.js                         # 클라이언트 비즈니스 뼈대를 통제하는 Zustand 기반 전역 핵심 상태 스토어
+ │   ├── useModalStore.js                       # 레이어 팝업 및 기능 모달들의 동적 개폐 상태 전용 관리 스토어
+ │   └── useSettingStore.js                     # 글꼴 크기, 서체 종류, 레이아웃 해상도 등 커스텀 외관 설정 저장 스토어
  │
  ├── styles/                                    # [전역 및 컴포넌트별 CSS 모음]
  │   ├── bulk.css                               # 스프레드시트형 캐릭터 속성 다중 원장 수정용 전용 CSS 스타일시트
@@ -50,7 +50,7 @@ src/
  │   │   ├── SubPageList.jsx                    # 현재 경로에 배속된 자식 문서들을 노션 스타일 그리드로 표출하는 모듈
  │   │   ├── WorkCategoryBar.jsx                # 지정된 분류 태그들을 호버 링크로 정렬 및 삭제 관리하는 도메인 바
  │   │   ├── WorkCover.jsx                      # 작품 상세 상단 타이틀 이미지를 휠 확대 및 드래그 위치 제어하는 배너
- │   │   └── useWorkDetailData.js               # [★신규] 작품 상세 화면의 데이터 로드, 목차 스캔, 상태 관리를 전담하는 커스텀 훅
+ │   │   └── useWorkDetailData.js               # 작품 상세 화면의 데이터 로드, 목차 스캔, 상태 관리를 전담하는 커스텀 훅
  │   ├── character/
  │   │   ├── BatchImageModal.jsx                # 모든 등장인물의 썸네일 세로 정렬 및 확대 배율을 동시 조작하는 일괄 모달
  │   │   ├── CharacterDetailSection.jsx         # 선택된 인물의 세부 원장 및 마크다운 본문을 안전하게 렌더링하는 컨테이너
@@ -87,15 +87,22 @@ src/
  │
  └── pages/                                     # [화면 라우팅 엔드포인트 구역]
      ├── BulkStudio/
+     │   ├── BulkModals.jsx                     # 찾아바꾸기 및 마크다운 편집 등 일괄 수정 부가 기능 모달 컨테이너
+     │   ├── BulkSidebar.jsx                    # 실제 캐릭터 카드 UI 레이아웃과 100% 동일한 실시간 프리뷰 뷰어 컴포넌트
      │   ├── BulkStudio.module.css              # 일괄 수정 데이터 스튜디오 전용 모듈 CSS 스타일시트
-     │   └── BulkStudioPage.jsx                 # 전체 등장인물의 다차원 원장 속성 데이터를 엑셀식 그리드로 수정하는 페이지
+     │   ├── BulkStudioPage.jsx                 # 전체 등장인물의 다차원 원장 속성 데이터를 엑셀식 그리드로 수정하는 페이지
+     │   ├── BulkTable.jsx                      # 가상화(Virtual) 렌더링 엔진과 자동완성 드롭다운이 융합된 데이터 그리드 코어
+     │   ├── BulkTableRow.jsx                   # 재렌더링 부하 격리 및 고정(Sticky) 셀의 시각적 겹침 방지 처리용 단일 행 컴포넌트
+     │   ├── BulkToolbar.jsx                    # 탭 스위칭, 속성 추가, 일괄 덮어쓰기 등 워크스페이스 상단 데이터 제어 툴바
+     │   └── useBulkStudioData.js               # 디바운싱 검색 자동완성, 예약어 필터링, 단축키 이벤트를 관장하는 커스텀 훅
      ├── Category/
      │   ├── Category.module.css                # 카테고리 인덱스 화면 전용 모듈 CSS 스타일시트
      │   └── CategoryPage.jsx                   # 분류별 설정 문서 및 작품 필터링 페이지
      ├── Editor/
-     │   ├── EditorPage.jsx                     # 통합 설정 에디터 작업 및 문서 작성 페이지
+     │   ├── EditorPage.jsx                     # 통합 설정 에디터 작업 및 문서 작성 UI 렌더링 페이지
      │   ├── EditorPage.module.css              # 에디터 작업 페이지 전용 모듈 CSS 스타일시트
-     │   └── EditorSearch.jsx                   # 에디터 내부 실시간 링크 주입용 검색 컴포넌트
+     │   ├── EditorSearch.jsx                   # 에디터 내부 실시간 링크 주입용 검색 컴포넌트
+     │   └── useEditorData.js                   # 비동기 서버 통신, 데이터 직렬화/파싱, 메타데이터 보존 및 예약어 필터링 훅
      ├── Home/
      │   ├── Home.module.css                    # 메인 대시보드 화면 전용 모듈 CSS 스타일시트
      │   └── HomePage.jsx                       # 전체 작품 목록 스캔 및 메인 대시보드 페이지
