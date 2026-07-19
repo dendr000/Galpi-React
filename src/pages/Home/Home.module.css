@@ -1,9 +1,9 @@
 /* 메인 배너 및 상단 */
-.hero-banner { position: relative; height: 350px; display: flex; align-items: flex-end; background-color: var(--table-bg-alt); background-size: cover; background-position: center; margin-bottom: 30px; cursor: pointer; overflow: hidden; transition: background-image 0.5s ease; border-bottom: 1px solid var(--border-color); }
-.hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%); }
-.hero-content { position: relative; z-index: 2; padding: 0 40px 40px 60px; box-sizing: border-box; color: white; width: 100%; animation: fadeInUp 0.5s; }
-.hero-title { font-size: 38px; font-weight: 900; margin: 0 0 10px 0; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-.hero-desc { font-size: 15px; margin: 0; opacity: 0.9; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
+.hero-banner { position: relative; height: 350px; display: flex; align-items: flex-end; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); background-size: cover; background-position: center; margin-bottom: 30px; cursor: pointer; overflow: hidden; transition: background-image 0.5s ease; border-bottom: 1px solid var(--border-color); border-radius: 0 0 16px 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+.hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.4) 50%, transparent 100%); }
+.hero-content { position: relative; z-index: 2; padding: 0 40px 45px 60px; box-sizing: border-box; color: white; width: 100%; animation: fadeInUp 0.5s; }
+.hero-title { font-size: 40px; font-weight: 900; margin: 0 0 12px 0; text-shadow: 0 4px 15px rgba(0,0,0,0.9); letter-spacing: -0.5px; }
+.hero-desc { font-size: 16px; margin: 0; opacity: 0.95; text-shadow: 0 2px 8px rgba(0,0,0,0.9); color: #cbd5e1; }
 
 .toolbar-wrap { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; margin-bottom: 20px; }
 .filter-select, .filter-input { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--surface-color); color: var(--text-primary); outline: none; margin-right: 5px; font-size: 13px;}
@@ -72,19 +72,19 @@ display: block !important;
 ========================================================= */
 .work-grid.view-list { display: flex; flex-direction: column; gap: 12px; }
 
-.work-grid.view-list .work-card { display: grid; grid-template-columns: 30px 75px minmax(200px, 2fr) 120px minmax(200px, 3fr); align-items: center; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px 24px; gap: 15px; cursor: pointer; transition: all 0.2s ease; box-sizing: border-box; }
-.work-grid.view-list .work-card:hover { border-color: var(--primary-color); background: var(--table-bg-alt); transform: translateX(4px); box-shadow: var(--shadow-sm); }
+.work-grid.view-list .work-card { display: flex; flex-direction: row; align-items: center; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px 24px; gap: 20px; cursor: pointer; transition: all 0.2s ease; box-sizing: border-box; }
+.work-grid.view-list .work-card:hover { border-color: var(--primary-color); background: var(--table-bg-alt); transform: translateX(6px); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
 .work-grid.view-list .work-card > * { margin: 0; padding: 0; text-align: left; }
 
-.work-grid.view-list .fav-btn { font-size: 20px; cursor: pointer; opacity: 0.3; border: none; background: transparent; justify-self: center; }
-.work-grid.view-list .fav-btn.active { opacity: 1; text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); transform: scale(1.1); }
-.work-grid.view-list .work-card-status { width: 100%; font-size: 11px; font-weight: 800; padding: 6px 0; border-radius: 6px; text-align: center; }
+.work-grid.view-list .fav-btn { font-size: 22px; cursor: pointer; opacity: 0.2; border: none; background: transparent; flex-shrink: 0; transition: 0.2s; }
+.work-grid.view-list .fav-btn.active { opacity: 1; text-shadow: 0 0 12px rgba(255, 215, 0, 0.9); transform: scale(1.15); }
+.work-grid.view-list .work-card-status { flex-shrink: 0; width: 65px; font-size: 11.5px; font-weight: 900; padding: 6px 0; border-radius: 8px; text-align: center; display: block; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); }
 
-.work-grid.view-list .work-card-title { font-size: 17px; font-weight: 900; color: var(--text-primary); white-space: normal; word-break: keep-all; line-height: 1.4; transition: 0.2s; padding-right: 10px; }
+.work-grid.view-list .work-card-title { flex: 1 1 auto; font-size: 18px; font-weight: 900; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; transition: 0.2s; min-width: 0; }
 .work-grid.view-list .work-card:hover .work-card-title { color: var(--primary-color); }
-.work-grid.view-list .work-card-creator { font-size: 13px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-left: 1px solid var(--border-color); padding-left: 15px; }
+.work-grid.view-list .work-card-creator { flex-shrink: 0; width: 110px; font-size: 13.5px; color: var(--text-secondary); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-left: 2px solid var(--border-color); padding-left: 15px; }
 
-.work-grid.view-list .work-card-genres { border: none; height: auto; padding: 0; margin-top: 0; }
+.work-grid.view-list .work-card-genres { flex-shrink: 0; display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; width: 350px; border: none; height: auto; padding: 0; margin-top: 0; }
 .work-grid.view-list .work-card-preview { display: none !important; }
 
 /* ==========================================
@@ -95,8 +95,9 @@ display: block !important;
     height: 350px;
     margin-bottom: 30px;
     overflow: hidden; /* 밖으로 나가는 슬라이드 숨김 */
-    border-radius: 0 0 12px 12px;
-    background-color: var(--table-bg-alt);
+    border-radius: 0 0 16px 16px;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -114,12 +115,13 @@ display: block !important;
     cursor: pointer;
     background-size: cover;
     background-position: center;
+    background-color: transparent; 
 }
 
 .hero-slide .hero-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+    background: linear-gradient(to top, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.4) 50%, transparent 100%);
 }
 
 .hero-slide .hero-content {
@@ -127,7 +129,7 @@ display: block !important;
     bottom: 0;
     left: 0;
     z-index: 2;
-    padding: 0 40px 40px 60px;
+    padding: 0 40px 45px 60px;
     box-sizing: border-box;
     color: white;
     width: 100%;
