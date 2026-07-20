@@ -5,25 +5,25 @@
 import React from 'react';
 
 const CharacterGrid = ({
-  styles,
-  charSectionNum,
-  groupCriteria,
+  styles = {}, 
+  charSectionNum = 1,
+  groupCriteria = "관계",
   setGroupCriteria,
   setIsBatchImgModalOpen,
   navigate,
   workId,
-  sortedGroupNames,
-  groupedChars,
-  cardVariants,
+  sortedGroupNames = [], // ★ map 크래시 방어 (기본값 빈 배열 할당)
+  groupedChars = {},     // ★ 객체 크래시 방어 (기본값 빈 객체 할당)
+  cardVariants = {},
   setCardVariants,
-  fullVariants,
-  work,
-  charExt,
+  fullVariants = [],
+  work = { title: "" },
+  charExt = "png",
   activeCharId,
   setActiveCharId,
-  handleCharDragStart,
-  handleCharDragOver,
-  handleCharDragEnd
+  handleCharDragStart = () => {},
+  handleCharDragOver = () => {},
+  handleCharDragEnd = () => {}
 }) => {
   console.log("[CharacterGrid] 등장인물 갤러리 그리드 컴포넌트 렌더링 개시");
 
@@ -85,15 +85,16 @@ const CharacterGrid = ({
 
       <div>
         {sortedGroupNames.map(gName => {
-          console.log(`[CharacterGrid] 그룹 섹션 빌드 ➔ 그룹명: ${gName}, 인원 수: ${groupedChars[gName].length}`);
+          const charList = groupedChars[gName] || []; // ★ 해당 그룹에 캐릭터 배열이 없을 경우 빈 배열로 대체하여 크래시 방지
+          console.log(`[CharacterGrid] 그룹 섹션 빌드 ➔ 그룹명: ${gName}, 인원 수: ${charList.length}`);
           return (
             <div key={gName} className={styles.relationGroup}>
               <h3 className={styles.relationHeader}>
-                {gName} <span style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 'normal' }}>({groupedChars[gName].length})</span>
+                {gName} <span style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 'normal' }}>({charList.length})</span>
               </h3>
               
               <div className={styles.characterGridContainer}>
-                {groupedChars[gName].map(c => {
+                {charList.map(c => {
                   const vIdx = cardVariants[c.id] || 0;
                   const suffix = fullVariants[vIdx] ? `_${fullVariants[vIdx]}` : "";
                   const workTitle = work?.title || "작품";

@@ -1,13 +1,13 @@
 // 파일 위치: src/pages/MemoWorkspace/MemoWorkspacePage.jsx
-// 기능 요약: 데이터 상태 훅(useMemoWorkspaceData)과 분리된 UI(Tree, Modal, Canvas)를 조립하여 최종 렌더링하는 워크스페이스 컨트롤러 컴포넌트
-// 버전: v2.1.0
+// 기능 요약: React Flow 기반 캔버스 보드 모듈 장착 및 기존 구형 물리 엔진 코드 완전 제거
+// 버전: v3.0.0
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../api/axiosCore';
 import styles from './MemoWorkspace.module.css';
 import MemoLeftTree from './MemoLeftTree';
 import WorkspaceEditorModal from './WorkspaceEditorModal';
+import MemoCanvasBoard from './canvas/MemoCanvasBoard';
 import { useMemoWorkspaceData } from './useMemoWorkspaceData';
 
 const MemoWorkspacePage = () => {
@@ -16,7 +16,8 @@ const MemoWorkspacePage = () => {
 
   const {
     memos, setMemos, folders, currentFolder, setCurrentFolder,
-    filteredMemos, handleAddFolder, handleEditFolder, handleDeleteFolder
+    filteredMemos, relations, setRelations, extractTags,
+    handleAddFolder, handleEditFolder, handleDeleteFolder
   } = useMemoWorkspaceData();
 
   const [currentView, setCurrentView] = useState("list");
@@ -26,109 +27,15 @@ const MemoWorkspacePage = () => {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editData, setEditData] = useState({ title: '', folder: '기타' });
 
-  // ----------------------------------------------------
-  // 고도화된 캔버스 물리 엔진 상태 (줌, 패닝, 포인터 드래그, Z-index)
-  // ----------------------------------------------------
-  const boardRef = useRef(null);
-  const [pan, setPan] = useState({ x: -1500, y: -1500 });
-  const [zoom, setZoom] = useState(1);
-  const [topMemoId, setTopMemoId] = useState(null);
-
-  const isPanningRef = useRef(false);
-  const panStartRef = useRef({ x: 0, y: 0 });
-
-  const draggingNodeRef = useRef(null);
-  const nodeStartPosRef = useRef({ x: 0, y: 0 });
-  const pointerStartRef = useRef({ x: 0, y: 0 });
-
   const handleOpenEditor = (memo) => {
-    console.log(`[MemoWorkspacePage] 에디터 모달 개방 요청. 대상 메모: ${memo ? memo.title : '신규 생성'}`);
     if (memo) {
       setActiveMemoId(memo.id);
-      setTopMemoId(memo.id);
       setEditData({ title: memo.title, folder: memo.folder || '기타' });
     } else {
       setActiveMemoId(null);
       setEditData({ title: '', folder: currentFolder === '전체 메모' ? '기타' : currentFolder });
     }
     setIsEditorOpen(true);
-  };
-
-  const handleWheel = (e) => {
-    if (currentView !== 'canvas') return;
-    if (e.target.closest(`.${styles.canvasNode}`)) return; 
-    
-    console.log(`[MemoWorkspacePage] 캔버스 줌 휠 이벤트 감지`);
-    const zoomSensitivity = 0.001;
-    setZoom(prevZoom => {
-      let newZoom = prevZoom - e.deltaY * zoomSensitivity;
-      if (newZoom < 0.3) newZoom = 0.3;
-      if (newZoom > 2.5) newZoom = 2.5;
-      return newZoom;
-    });
-  };
-
-  const handlePointerDown = (e, memoId = null) => {
-    if (e.button !== 0) return; 
-
-    if (memoId) {
-      console.log(`[MemoWorkspacePage] 메모 노드 드래그 시작: ID ${memoId}`);
-      e.stopPropagation();
-      setTopMemoId(memoId);
-      
-      const targetMemo = memos.find(m => m.id === memoId);
-      if (!targetMemo) return;
-
-      draggingNodeRef.current = memoId;
-      nodeStartPosRef.current = { x: targetMemo.canvasX ?? 2500, y: targetMemo.canvasY ?? 2500 };
-      pointerStartRef.current = { x: e.clientX, y: e.clientY };
-      e.target.setPointerCapture(e.pointerId);
-    } else {
-      console.log(`[MemoWorkspacePage] 캔버스 보드 패닝 시작`);
-      isPanningRef.current = true;
-      panStartRef.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
-      boardRef.current.setPointerCapture(e.pointerId);
-    }
-  };
-
-  const handlePointerMove = (e) => {
-    if (draggingNodeRef.current) {
-      const dx = (e.clientX - pointerStartRef.current.x) / zoom;
-      const dy = (e.clientY - pointerStartRef.current.y) / zoom;
-      
-      const newX = nodeStartPosRef.current.x + dx;
-      const newY = nodeStartPosRef.current.y + dy;
-
-      setMemos(prev => prev.map(m => m.id === draggingNodeRef.current ? { ...m, canvasX: newX, canvasY: newY } : m));
-    } else if (isPanningRef.current) {
-      setPan({
-        x: e.clientX - panStartRef.current.x,
-        y: e.clientY - panStartRef.current.y
-      });
-    }
-  };
-
-  const handlePointerUp = async (e) => {
-    if (draggingNodeRef.current) {
-      console.log(`[MemoWorkspacePage] 메모 노드 드래그 종료 및 좌표 DB 저장: ID ${draggingNodeRef.current}`);
-      const targetId = draggingNodeRef.current;
-      const targetMemo = memos.find(m => m.id === targetId);
-      
-      e.target.releasePointerCapture(e.pointerId);
-      draggingNodeRef.current = null;
-
-      if (targetMemo) {
-        try {
-          await api.put(`/api/memos/${targetId}`, targetMemo);
-        } catch(err) {
-          console.error("[MemoWorkspacePage] 메모 좌표 저장 실패", err);
-        }
-      }
-    } else if (isPanningRef.current) {
-      console.log(`[MemoWorkspacePage] 캔버스 보드 패닝 종료`);
-      isPanningRef.current = false;
-      boardRef.current.releasePointerCapture(e.pointerId);
-    }
   };
 
   return (
@@ -140,6 +47,12 @@ const MemoWorkspacePage = () => {
         .galpi-outer-select [contenteditable="false"] *::-moz-selection { background: transparent !important; color: inherit !important; }
         #memo-edit-content p { margin: 0.3em 0 !important; }
         #memo-edit-content div { margin-top: 0; margin-bottom: 0; }
+        
+        /* 캔버스 전용 커스텀 스타일 오버라이딩 */
+        .react-flow__minimap { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; }
+        .react-flow__controls { box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
+        .react-flow__controls-button { background: var(--surface-color); border-bottom: 1px solid var(--border-color); color: var(--text-primary); }
+        .react-flow__controls-button:hover { background: var(--table-bg-alt); }
       `}</style>
 
       <header className={styles.memoTopBar}>
@@ -172,15 +85,28 @@ const MemoWorkspacePage = () => {
 
         <div className={styles.memoViewport} style={{ paddingLeft: isTreeOpen ? '300px' : '30px' }}>
           
+          {/* 리스트 뷰 */}
           <div className={`${styles.memoViewPanel} ${currentView === 'list' ? styles.active : ''}`}>
             {filteredMemos.length === 0 ? <div style={{ textAlign: 'center', padding: '50px', color: 'var(--text-secondary)' }}>이 폴더에는 작성된 메모가 없습니다.</div> : (
               <div className={styles.memoGrid}>
                 {filteredMemos.map(m => (
-                  <div key={m.id} className={styles.memoCard} onClick={() => handleOpenEditor(m)} style={{ borderTop: `4px solid ${m.themeColor || 'var(--primary-color)'}` }}>
+                  <div key={m.id} className={styles.memoCard} onClick={() => handleOpenEditor(m)} style={{ borderTop: `4px solid ${m.themeColor || 'var(--primary-color)'}`, opacity: m.isTrash ? 0.6 : 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <h3 className={styles.memoCardTitle}>{m.title || '제목 없음'}</h3>
+                      <h3 className={styles.memoCardTitle}>{m.title || '제목 없음'} {m.isLocked ? '🔒' : ''}</h3>
                     </div>
                     <div className={styles.memoCardPreview}>{m.content ? m.content.replace(/<[^>]*>?/gm, '').trim() : "내용 없음"}</div>
+                    
+                    {/* 해시태그 렌더링 */}
+                    {m.tags && (
+                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '10px' }}>
+                        {m.tags.split(',').map((tag, idx) => (
+                          <span key={idx} style={{ background: 'var(--table-bg-alt)', color: 'var(--primary-color)', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>
+                            #{tag.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
                     <div style={{ marginTop: 'auto', paddingTop: '10px', borderTop: '1px solid var(--border-color)', fontSize: '11px', color: 'var(--text-secondary)', display: 'flex', justifyContent: 'space-between' }}>
                       <span>📂 {m.folder}</span>
                       <span>⏱️ {new Date(m.updatedAt).toLocaleDateString('ko-KR')}</span>
@@ -191,57 +117,17 @@ const MemoWorkspacePage = () => {
             )}
           </div>
 
-          <div 
-            className={`${styles.memoViewPanel} ${currentView === 'canvas' ? styles.active : ''}`}
-            onWheel={handleWheel}
-          >
-            <div 
-              ref={boardRef}
-              className={styles.canvasBoard} 
-              style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
-              onPointerDown={(e) => handlePointerDown(e)}
-              onPointerMove={handlePointerMove}
-              onPointerUp={handlePointerUp}
-              onPointerCancel={handlePointerUp}
-            >
-              {filteredMemos.map(m => (
-                <div 
-                  key={m.id} 
-                  className={styles.canvasNode} 
-                  style={{ 
-                    left: m.canvasX ?? 2500, 
-                    top: m.canvasY ?? 2500, 
-                    borderTop: `4px solid ${m.themeColor || 'var(--primary-color)'}`,
-                    zIndex: topMemoId === m.id ? 100 : 1,
-                    boxShadow: topMemoId === m.id ? '0 10px 30px rgba(0,0,0,0.2)' : '0 4px 15px rgba(0,0,0,0.1)'
-                  }}
-                  onPointerDown={(e) => handlePointerDown(e, m.id)}
-                  onClick={(e) => {
-                    console.log(`[MemoWorkspacePage] 메모 노드 클릭 포커싱: ID ${m.id}`);
-                    e.stopPropagation();
-                    setTopMemoId(m.id);
-                  }}
-                >
-                  <div className={styles.canvasNodeHeader}>{m.title || '제목 없음'}</div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '10px', pointerEvents: 'none' }}>
-                    {m.content ? m.content.replace(/<[^>]*>?/gm, '').trim().substring(0, 60) + '...' : "내용 없음"}
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', pointerEvents: 'auto' }}>
-                    <button 
-                      className="wiki-btn" 
-                      style={{ padding: '2px 6px', fontSize: '11px' }} 
-                      onPointerDown={(e) => e.stopPropagation()} 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenEditor(m);
-                      }}
-                    >
-                      ✏️ 편집
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* 캔버스 뷰 (React Flow 모듈 연동) */}
+          <div className={`${styles.memoViewPanel} ${currentView === 'canvas' ? styles.active : ''}`}>
+            {currentView === 'canvas' && (
+              <MemoCanvasBoard 
+                filteredMemos={filteredMemos}
+                setMemos={setMemos}
+                relations={relations}
+                setRelations={setRelations}
+                handleOpenEditor={handleOpenEditor}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -256,6 +142,7 @@ const MemoWorkspacePage = () => {
           folders={folders}
           currentFolder={currentFolder}
           setIsEditorOpen={setIsEditorOpen}
+          extractTags={extractTags}
         />
       )}
     </div>
