@@ -45,6 +45,7 @@ const WorkspaceEditorModal = (props) => {
           folders={props.folders} isSaving={isSaving} handleSaveMemo={handleSaveMemo}
           activeMemoId={props.activeMemoId} handleDeleteMemo={handleDeleteMemo}
           setIsEditorOpen={props.setIsEditorOpen} handleTitleKeyDown={handleTitleKeyDown}
+          memoTags={editorHooks.memoTags} setMemoTags={editorHooks.setMemoTags}
         />
 
         <MemoFormatBar 

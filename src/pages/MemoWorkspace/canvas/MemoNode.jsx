@@ -9,24 +9,29 @@ const MemoNode = ({ data, selected }) => {
   const { memo, onEdit, onToggleLock, onMoveToTrash } = data;
   const isLocked = memo.isLocked;
 
-  return (
+ return (
     <div 
       style={{
         width: 260,
         background: 'var(--surface-color)',
         borderRadius: '8px',
-        border: `2px solid ${selected ? '#e53e3e' : 'var(--border-color)'}`,
-        borderTop: `6px solid ${memo.themeColor || 'var(--primary-color)'}`,
+        borderStyle: 'solid',
+        borderWidth: '2px',
+        borderColor: selected ? '#e53e3e' : 'var(--border-color)',
+        borderTopWidth: '6px',
+        borderTopColor: memo.themeColor || 'var(--primary-color)',
         boxShadow: selected ? '0 10px 30px rgba(0,0,0,0.2)' : '0 4px 15px rgba(0,0,0,0.1)',
         display: 'flex', flexDirection: 'column',
         opacity: memo.isTrash ? 0.6 : 1,
-        transition: 'box-shadow 0.2s, border 0.2s'
+        transition: 'box-shadow 0.2s, border-color 0.2s'
       }}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* 360도 어디서든 선이 중앙을 향하도록 투명한 타겟/소스 핸들 정중앙 배치 */}
-      <Handle type="target" position={Position.Top} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0, position: 'absolute' }} />
-      <Handle type="source" position={Position.Bottom} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0, position: 'absolute' }} />
+      {/* 직관적인 연결을 위한 4방향 가시적 핸들 배치 */}
+      <Handle type="target" position={Position.Top} style={{ width: '12px', height: '12px', background: 'var(--primary-color)', border: '2px solid var(--surface-color)', zIndex: 10 }} />
+      <Handle type="source" position={Position.Bottom} style={{ width: '12px', height: '12px', background: 'var(--primary-color)', border: '2px solid var(--surface-color)', zIndex: 10 }} />
+      <Handle type="source" position={Position.Left} id="left-src" style={{ width: '12px', height: '12px', background: 'var(--primary-color)', border: '2px solid var(--surface-color)', zIndex: 10 }} />
+      <Handle type="target" position={Position.Right} id="right-tgt" style={{ width: '12px', height: '12px', background: 'var(--primary-color)', border: '2px solid var(--surface-color)', zIndex: 10 }} />
 
       {/* 노드 헤더 (이 부분을 잡아야만 드래그 가능하도록 custom-drag-handle 클래스 부여) */}
       <div 
@@ -60,7 +65,14 @@ const MemoNode = ({ data, selected }) => {
         {memo.tags && (
           <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '12px' }}>
             {memo.tags.split(',').map((tag, idx) => (
-              <span key={idx} style={{ background: 'var(--table-bg-alt)', color: 'var(--primary-color)', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>
+              <span 
+                key={idx} 
+                style={{ background: 'var(--table-bg-alt)', color: 'var(--primary-color)', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold', cursor: 'pointer' }}
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  if (data.onTagClick) data.onTagClick(tag.trim()); 
+                }}
+              >
                 #{tag.trim()}
               </span>
             ))}

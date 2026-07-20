@@ -25,6 +25,7 @@ export const useWorkspaceEditor = ({
   const [findText, setFindText] = useState("");
   const [replaceText, setReplaceText] = useState("");
   const [selectedColor, setSelectedColor] = useState('var(--surface-color)');
+  const [memoTags, setMemoTags] = useState("");
 
   // 멘션(백링크) 상태
   const [mentionCandidates, setMentionCandidates] = useState([]);
@@ -37,8 +38,9 @@ export const useWorkspaceEditor = ({
     if (titleRef.current) titleRef.current.value = editData.title || '';
     const targetMemo = memos.find(m => m.id === activeMemoId);
     
-    // 테마 색상 초기화
+    // 테마 색상 및 해시태그 초기화
     if (targetMemo && targetMemo.themeColor) setSelectedColor(targetMemo.themeColor);
+    if (targetMemo && targetMemo.tags) setMemoTags(targetMemo.tags);
 
     // 본문 내용 초기화 및 줄바꿈 처리
     if (editorRef.current) {
@@ -86,10 +88,9 @@ export const useWorkspaceEditor = ({
     const content = editorRef.current.innerHTML;
     if (!title) return alert("메모 제목을 입력해주세요.");
 
-    const parsedTags = extractTags(content);
     const payload = {
       title, content, folder: editData.folder, updatedAt: Date.now(),
-      canvasX: 2500, canvasY: 2500, themeColor: selectedColor, tags: parsedTags
+      canvasX: 2500, canvasY: 2500, themeColor: selectedColor, tags: memoTags
     };
 
     setIsSaving(true);
@@ -388,7 +389,7 @@ export const useWorkspaceEditor = ({
   return {
     editorRef, titleRef, charCount, isSaving, tableCtrlVisible, setTableCtrlVisible,
     findReplaceVisible, setFindReplaceVisible, findText, setFindText, replaceText, setReplaceText,
-    selectedColor, setSelectedColor, mentionCandidates, mentionState,
+    selectedColor, setSelectedColor, mentionCandidates, mentionState, memoTags, setMemoTags,
     handleSaveMemo, handleDeleteMemo, handleMentionSelect, handleTitleKeyDown,
     handleEditorKeyDown, handleEditorKeyUp, handleCopy, handleEditorClick, checkTableFocus,
     executeCmd, insertHtml, executeFindReplace, addTableRowBelow, addTableColRight,

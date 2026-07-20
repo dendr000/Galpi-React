@@ -1,18 +1,21 @@
 // 파일 위치: src/pages/MemoWorkspace/useMemoWorkspaceData.js
-// 기능 요약: 캔버스 화살표 관계망 연동, 해시태그 파싱, 휴지통(Soft Delete) 필터링이 추가된 워크스페이스 전역 상태 훅
-// 버전: v1.1.0
+// 기능 요약: 통합 검색(searchQuery) 및 해시태그(selectedTag) 교차 필터링이 추가된 워크스페이스 전역 상태 훅
+// 버전: v1.2.0
 
 import { useState, useEffect } from 'react';
 import api from '../../api/axiosCore';
 
 export const useMemoWorkspaceData = () => {
   const [memos, setMemos] = useState([]);
-  const [relations, setRelations] = useState([]); // ★ 관계망 화살표 데이터 상태 추가
+  const [relations, setRelations] = useState([]); 
   
-  // ★ 휴지통 폴더를 시스템 기본 폴더로 고정 추가
   const [folders, setFolders] = useState(["전체 메모", "설정 아이디어", "기타", "휴지통"]);
   const [currentFolder, setCurrentFolder] = useState("전체 메모");
   const [sortMap, setSortMap] = useState({});
+
+  // 신규 필터링 상태 추가
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTag, setSelectedTag] = useState(null);
 
   useEffect(() => {
     console.log("[useMemoWorkspaceData] 워크스페이스 초기 데이터 스캔 및 폴더 병합 개시");
@@ -25,7 +28,6 @@ export const useMemoWorkspaceData = () => {
         const storedFolders = JSON.parse(localStorage.getItem('galpi-memo-folders'));
         if (storedFolders) localFolders = [...new Set([...localFolders, ...storedFolders])];
 
-        // ★ 메모와 관계망 데이터를 병렬로 모두 호출
         const [memosRes, relationsRes] = await Promise.all([
           api.get('/api/memos'),
           api.get('/api/memo-relations').catch(() => ({ data: [] }))
@@ -53,7 +55,6 @@ export const useMemoWorkspaceData = () => {
     fetchData();
   }, []);
 
-  // ★ 본문 내용에서 해시태그를 자동 추출하여 콤마(,) 문자열로 반환하는 유틸 함수
   const extractTags = (content) => {
     if (!content) return "";
     const cleanText = content.replace(/<[^>]*>?/gm, ' ');
@@ -133,9 +134,9 @@ export const useMemoWorkspaceData = () => {
     localStorage.setItem('galpi-memo-sort-map', JSON.stringify(newSortMap));
   };
 
-  // ★ 휴지통 상태를 반영한 메모 필터링 로직
   const currentSort = sortMap[currentFolder] || 'date';
   
+  // 1. 폴더 기준 필터링
   let filteredMemos = [];
   if (currentFolder === "전체 메모") {
     filteredMemos = memos.filter(m => !m.isTrash);
@@ -143,6 +144,20 @@ export const useMemoWorkspaceData = () => {
     filteredMemos = memos.filter(m => m.isTrash);
   } else {
     filteredMemos = memos.filter(m => m.folder === currentFolder && !m.isTrash);
+  }
+
+  // 2. 태그 교차 필터링
+  if (selectedTag) {
+    filteredMemos = filteredMemos.filter(m => m.tags && m.tags.split(',').map(t => t.trim()).includes(selectedTag));
+  }
+
+  // 3. 텍스트 검색 교차 필터링
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filteredMemos = filteredMemos.filter(m => 
+      (m.title && m.title.toLowerCase().includes(q)) || 
+      (m.content && m.content.toLowerCase().includes(q))
+    );
   }
 
   filteredMemos.sort((a, b) => {
@@ -154,6 +169,7 @@ export const useMemoWorkspaceData = () => {
   return {
     memos, setMemos, folders, setFolders, currentFolder, setCurrentFolder,
     sortMap, setSortMap, currentSort, filteredMemos, relations, setRelations, extractTags,
+    searchQuery, setSearchQuery, selectedTag, setSelectedTag,
     handleAddFolder, handleEditFolder, handleDeleteFolder, handleSortChange
   };
 };
