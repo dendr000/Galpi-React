@@ -1,16 +1,24 @@
+// 파일 위치: src/domains/character/CharacterInfobox.jsx
+// 기능 요약: 우측 정보 박스 렌더링 및 이중인격 스위칭 기믹 지원 (로컬 스토리지 상태 영구 보존 연동)
+// 버전: v1.2.0
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosCore';
 import styles from '../../pages/WorkDetail/WorkDetail.module.css';
 
-const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], setCharacters, setActiveCharId }) => {
+const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], setCharacters, setActiveCharId, characters, cardVariants, setCardVariants, formSwaps, setFormSwaps }) => {
   const navigate = useNavigate();
   const [variantIdx, setVariantIdx] = useState(0);
 
-  // 캐릭터가 교체되면 바리에이션을 항상 '기본'으로 초기화
   useEffect(() => {
-    setVariantIdx(0);
-  }, [char?.id]);
+    // 폼 스위칭 시 바리에이션 인덱스 초기화 방지 로직 (현재 캐릭터의 바리에이션 상태를 유지)
+    if (char && cardVariants[char.id]) {
+      setVariantIdx(cardVariants[char.id]);
+    } else {
+      setVariantIdx(0);
+    }
+  }, [char?.id, cardVariants]);
 
   if (!char) return null;
 
@@ -33,7 +41,7 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
     else if (char._rawDynamic) {
         try { 
             let d = JSON.parse(char._rawDynamic); 
-            if (typeof d === 'string') d = JSON.parse(d); // 이중 파싱 방어
+            if (typeof d === 'string') d = JSON.parse(d);
             if (d.pageBody?.rawText) raw = d.pageBody.rawText; 
         } catch(e) {}
     }
@@ -45,7 +53,6 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
 
   const previewText = getPreviewText();
   
-  // ★ JSON 이중 파싱 에러 방지 및 속성 추출 로직 적용
   let dp = {};
   try {
     const rawDynamic = char.dynamicProperties || char._rawDynamic;
@@ -54,22 +61,50 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
       if (typeof parsed === 'string') parsed = JSON.parse(parsed);
       dp = parsed || {};
     }
-  } catch (e) {
-    console.warn(`[CharacterInfobox] 캐릭터(${char.name}) JSON 속성 파싱 실패:`, e);
-  }
+  } catch (e) {}
 
   const themeColor = dp.themeColor || char.themeColor || 'var(--primary-color)';
   const cardImgY = dp.cardImgY !== undefined ? dp.cardImgY : (char.cardImgY !== undefined ? char.cardImgY : 50);
   const cardImgScale = dp.cardImgScale !== undefined ? dp.cardImgScale : (char.cardImgScale !== undefined ? char.cardImgScale : 1);
 
-  // ★ 이미지 바리에이션 (Shift+Click) 연산
   const fullVariants = ["", ...imgVariants.filter(v => v.trim() !== "")];
   
-  const handleImageClick = (e) => {
+  const handleImageClick = async (e) => {
     if (e.shiftKey) {
       e.preventDefault();
+      // ★ 이중인격 폼 체인지(스위칭) 로직 적용
+      // 1. 현재 캐릭터가 스위칭 타겟을 가지고 있는지 확인 (본체 -> 서브폼)
+      if (dp._switchTarget) {
+         const targetChar = characters.find(c => c.name === dp._switchTarget);
+         if(targetChar) {
+            console.log(`[CharacterInfobox] 이중인격 스위칭 발동 (본체 -> 서브폼): ${char.name} -> ${targetChar.name}`);
+            setFormSwaps(prev => ({ ...prev, [char.id]: targetChar.id }));
+            setActiveCharId(targetChar.id);
+            return; 
+         }
+      } 
+      // 2. 현재 캐릭터가 누군가의 서브폼으로 렌더링 중인지 확인 (서브폼 -> 본체 복귀)
+      const baseId = Object.keys(formSwaps || {}).find(key => formSwaps[key] === char.id);
+      if (baseId) {
+         const baseChar = characters.find(c => String(c.id) === String(baseId));
+         if (baseChar) {
+            console.log(`[CharacterInfobox] 이중인격 스위칭 발동 (서브폼 -> 본체 복귀): ${char.name} -> ${baseChar.name}`);
+            setFormSwaps(prev => {
+              const newSwaps = { ...prev };
+              delete newSwaps[baseId];
+              return newSwaps;
+            });
+            setActiveCharId(baseChar.id);
+            return;
+         }
+      }
+      
+      // 스위칭 대상이 없는 일반 캐릭터라면 기존 바리에이션 순환 로직 수행
       if (fullVariants.length <= 1) return;
-      setVariantIdx((prev) => (prev + 1) % fullVariants.length);
+      const nextIdx = (variantIdx + 1) % fullVariants.length;
+      setVariantIdx(nextIdx);
+      // 그리드와 상태를 동기화하기 위해 상위 훅의 cardVariants 상태 업데이트
+      setCardVariants(prev => ({ ...prev, [char.id]: nextIdx }));
     }
   };
 
@@ -89,12 +124,11 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
   propOrder.forEach(k => { if (mergedProps[k] !== undefined && !keysToRender.includes(k)) keysToRender.push(k); });
   for (let k in mergedProps) { if (!keysToRender.includes(k)) keysToRender.push(k); }
 
-  // ★ cardImgScale 및 시스템 예약어 완벽 필터링
   const exclude = [
       "id", "name", "imageCode", "pageBody", "themeColor", "cardImgY", "cardImgScale", "age", "birthday", 
       "gender", "species", "_rawDynamic", "_propOrder", "작품명", "제작자", "sortOrder", 
       "_cardLabel1", "_cardLabel2", "_sortOrder", "_sortOrderNum", "workId", "부제목", 
-      "pageBodyRaw", "isTrash", "dynamicProperties"
+      "pageBodyRaw", "isTrash", "dynamicProperties", "_switchTarget", "_isHidden", "_baseCharId"
   ];
   
   const validKeys = keysToRender.filter(k => !exclude.includes(k) && !k.startsWith('_') && mergedProps[k] && mergedProps[k] !== "불명" && mergedProps[k] !== "미상" && mergedProps[k] !== "undefined");
@@ -106,7 +140,6 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
         {mergedProps["부제목"] && <div style={{ fontSize: '13px', fontWeight: 500, opacity: 0.85, marginTop: '5px' }}>{mergedProps["부제목"]}</div>}
       </h3>
       
-      {/* 바리에이션 이미지 렌더링 영역 (알림 텍스트 제거) */}
       <div className={styles.infoboxImage} style={{ overflow: 'hidden' }}>
         <img 
           src={imgSrc} 
@@ -114,13 +147,20 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
             objectPosition: `center ${cardImgY}%`, 
             transform: `scale(${cardImgScale})`,
             transition: 'transform 0.2s ease, object-position 0.2s ease',
-            cursor: 'default',
+            cursor: 'default', // 마우스 커서를 뾰족한 화살표(기본 상태)로 강제 고정
             width: '100%',
             height: '100%',
             objectFit: 'cover'
           }} 
-          onClick={handleImageClick}
-          onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; }} 
+          onClick={(e) => {
+            console.log(`[CharacterInfobox] 이미지 클릭 이벤트 감지. 대상: ${char.name}`);
+            handleImageClick(e);
+          }}
+          onError={(e) => { 
+            console.warn(`[CharacterInfobox] 이미지 로드 실패. 빈칸 처리.`);
+            e.target.onerror = null; 
+            e.target.style.display = 'none'; 
+          }} 
           alt={char.name} 
         />
       </div>

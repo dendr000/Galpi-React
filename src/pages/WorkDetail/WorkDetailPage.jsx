@@ -48,9 +48,32 @@ const WorkDetailPage = () => {
   const activePage = data.pageId ? data.wikiPages.find(p => String(p.id) === String(data.pageId)) : null;
   const activeChar = data.characters.find(c => c.id === data.activeCharId);
 
+  console.log("[WorkDetailPage] 캐릭터 은닉 처리 및 폼 체인지 파싱 시작");
+  // 은닉 처리 및 폼 체인지 적용 (이중 파싱 방어 로직 추가)
+  const baseChars = data.characters.filter(c => {
+    try { 
+      let dp = JSON.parse(c.dynamicProperties || c._rawDynamic || "{}"); 
+      if (typeof dp === 'string') dp = JSON.parse(dp); 
+      return !dp._isHidden; 
+    } catch(e) { 
+      console.warn(`[WorkDetailPage] 은닉 속성 파싱 에러 발생: ${c.name}`, e);
+      return true; 
+    }
+  });
+
+  const displayChars = baseChars.map(base => {
+    console.log(`[WorkDetailPage] 캐릭터 폼 스왑 확인 진행: ${base.name}`);
+    const activeFormId = data.formSwaps[base.id];
+    if (activeFormId && activeFormId !== base.id) {
+       const alt = data.characters.find(c => c.id === activeFormId);
+       if (alt) return { ...alt, _baseCharId: base.id }; 
+    }
+    return { ...base, _baseCharId: base.id };
+  });
+
   // 캐릭터 갤러리 정렬용 그룹 명칭 및 트리 추출 연산
   const groupedChars = {};
-  data.characters.forEach(c => {
+  displayChars.forEach(c => {
     const rawVal = c[data.groupCriteria] || "미분류";
     const tags = String(rawVal).split(',').map(s => s.trim()).filter(Boolean);
     let validTags = tags.filter(t => !t.startsWith('*'));
@@ -62,16 +85,20 @@ const WorkDetailPage = () => {
   });
 
   Object.keys(groupedChars).forEach(k => {
+    console.log(`[WorkDetailPage] 그룹 정렬 연산 수행. 대상 그룹: ${k}`);
     groupedChars[k].sort((a, b) => {
-      const getSortVal = (char) => {
+      const getBaseSort = (char) => {
+        const base = data.characters.find(bc => bc.id === char._baseCharId) || char;
         try {
-          const dp = JSON.parse(char.dynamicProperties || char._rawDynamic || "{}");
-          return dp._groupSortOrders?.[k] ?? char.sortOrder ?? 999;
+          let dp = JSON.parse(base.dynamicProperties || base._rawDynamic || "{}");
+          if (typeof dp === 'string') dp = JSON.parse(dp);
+          return dp._groupSortOrders?.[k] ?? base.sortOrder ?? 999;
         } catch(e) { 
-          return char.sortOrder ?? 999; 
+          console.warn(`[WorkDetailPage] 정렬 순서 파싱 에러 발생: ${char.name}`, e);
+          return base.sortOrder ?? 999; 
         }
       };
-      return getSortVal(a) - getSortVal(b);
+      return getBaseSort(a) - getBaseSort(b);
     });
   });
 
@@ -197,14 +224,14 @@ const WorkDetailPage = () => {
 
             {/* 캐릭터 하단 스크롤 트랙용 퀵 네비게이터 바 조립 */}
             {!activePage && activeChar && (
-              <CharacterQuickNav characters={data.characters} activeCharId={data.activeCharId} setActiveCharId={data.setActiveCharId} styles={styles} />
+              <CharacterQuickNav characters={displayChars} activeCharId={data.activeCharId} setActiveCharId={data.setActiveCharId} styles={styles} />
             )}
             
           </main>
           
           {/* 스마트 정보 박스 배치 구역 */}
           <aside className={styles.wikiAside}>
-            <CharacterInfobox char={activeChar} workId={data.workId} workTitle={data.work.title} charExt={charExt} imgVariants={imgVariants} setCharacters={data.setCharacters} setActiveCharId={data.setActiveCharId} />
+            <CharacterInfobox char={activeChar} workId={data.workId} workTitle={data.work.title} charExt={charExt} imgVariants={imgVariants} setCharacters={data.setCharacters} setActiveCharId={data.setActiveCharId} characters={data.characters} cardVariants={data.cardVariants} setCardVariants={data.setCardVariants} formSwaps={data.formSwaps} setFormSwaps={data.setFormSwaps} />
           </aside>
         </div>
       </div>

@@ -16,7 +16,8 @@ const EditorPage = () => {
     docType, docAction, loading, isPreviewOpen, setIsPreviewOpen,
     title, setTitle, rawText, setRawText, overviewText, setOverviewText,
     workMeta, setWorkMeta, charProps, setCharProps, themeColor, setThemeColor,
-    cardLabels, setCardLabels, editorRef, handleGoBack, handleSave
+    cardLabels, setCardLabels, editorRef, handleGoBack, handleSave,
+    workContext, isHidden, setIsHidden
   } = useEditorData();
 
   const badgeText = 
@@ -247,6 +248,32 @@ const EditorPage = () => {
                   <label>테마 컬러</label>
                   <input type="color" value={themeColor} onChange={e => setThemeColor(e.target.value)} style={{ width: '40px', padding: 0 }} />
                   <input type="text" value={themeColor} disabled />
+                </div>
+                <div className={styles.propRow}>
+                  <label>스위칭</label>
+                  <select 
+                    value={charProps.find(p => p.key === '_switchTarget')?.val || ""} 
+                    onChange={e => {
+                      const newProps = [...charProps];
+                      const idx = newProps.findIndex(p => p.key === '_switchTarget');
+                      if (idx > -1) newProps[idx].val = e.target.value;
+                      else newProps.push({ key: '_switchTarget', val: e.target.value });
+                      setCharProps(newProps);
+                    }}
+                    style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid var(--border-color)', fontSize: '13px' }}
+                  >
+                    <option value="">-- 스위칭 없음 --</option>
+                    {workContext?.characters?.filter(c => c.name !== title).map(c => (
+                      <option key={c.id} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className={styles.propRow}>
+                  <label>목록에서 숨기기</label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', flex: 1 }}>
+                    <input type="checkbox" checked={isHidden} onChange={e => setIsHidden(e.target.checked)} style={{ width: '16px', height: '16px' }} />
+                    <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>체크 시 갤러리 목록에 나오지 않습니다 (서브 폼 전용)</span>
+                  </label>
                 </div>
                 <div className={styles.propRow}>
                   <label>라벨 (이름 옆)</label>

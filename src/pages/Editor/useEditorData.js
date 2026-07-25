@@ -1,13 +1,14 @@
 // 파일 위치: src/pages/EditorPage/useEditorData.js
-// 기능 요약: 에디터 페이지의 서버 통신, 시스템 예약어 필터링, 데이터 파싱, 메타데이터 상태 저장을 관장하는 커스텀 훅
+// 기능 요약: 에디터 페이지의 서버 통신, 데이터 파싱, 메타데이터 상태 저장을 관장하는 커스텀 훅
+// 버전: v2.1.0
 
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import api from '../../api/axiosCore';
 import { extractMeta } from '../../utils/markdownParser';
 
-// ★ 물리적으로 에디터 속성창에 입력칸으로 노출되면 안 되는 시스템 내부 예약어(블랙리스트) 명단 정의
-const SYSTEM_PROPS = ["작품명", "제작자", "age", "gender", "species", "birthday", "sortOrder", "themeColor", "cardImgY", "cardImgScale", "pageBody", "_cardLabel1", "_cardLabel2", "id", "name", "imageCode", "dynamicProperties", "workId", "_sortOrder", "_sortOrderNum", "isTrash"];
+// ★ 물리적으로 에디터 속성창에 입력칸으로 노출되면 안 되는 시스템 내부 예약어 명단 정의
+const SYSTEM_PROPS = ["작품명", "제작자", "age", "gender", "species", "birthday", "sortOrder", "themeColor", "cardImgY", "cardImgScale", "pageBody", "_cardLabel1", "_cardLabel2", "id", "name", "imageCode", "dynamicProperties", "workId", "_sortOrder", "_sortOrderNum", "isTrash", "_switchTarget", "_isHidden"];
 
 export const useEditorData = () => {
   const [searchParams] = useSearchParams();
@@ -33,6 +34,7 @@ export const useEditorData = () => {
   const [themeColor, setThemeColor] = useState('#3b5bdb');
   const [cardLabels, setCardLabels] = useState({ label1: '나이', label2: '성격' });
   const [workContext, setWorkContext] = useState(null);
+  const [isHidden, setIsHidden] = useState(false);
 
   const editorRef = useRef(null);
 
@@ -75,7 +77,8 @@ export const useEditorData = () => {
         else if (docType === 'char') {
           if (targetWorkId) {
             const wRes = await api.get(`/api/works/${targetWorkId}`);
-            setWorkContext(wRes.data);
+            const cRes = await api.get(`/api/characters?workId=${targetWorkId}`);
+            setWorkContext({ ...wRes.data, characters: cRes.data });
           }
           if (docAction === 'edit' && targetId) {
             const res = await api.get(`/api/characters?workId=${targetWorkId}`);
@@ -86,6 +89,7 @@ export const useEditorData = () => {
               try { dp = JSON.parse(char.dynamicProperties || char._rawDynamic || "{}"); } catch (e) { }
 
               setThemeColor(dp.themeColor || char.themeColor || '#3b5bdb');
+              setIsHidden(dp._isHidden || false);
               setCardLabels({ label1: dp._cardLabel1 || '나이', label2: dp._cardLabel2 || '성격' });
               setRawText(dp.pageBody?.rawText || '');
 
@@ -99,7 +103,6 @@ export const useEditorData = () => {
               const extractedProps = [];
               const renderKeys = new Set();
 
-              // ★ 시스템 예약어 (SYSTEM_PROPS) 필터링 적용
               pOrder.forEach(k => {
                 if (merged[k] !== undefined && !k.startsWith('_') && !SYSTEM_PROPS.includes(k)) {
                   extractedProps.push({ key: k, val: merged[k] });
@@ -121,6 +124,10 @@ export const useEditorData = () => {
                 extractedProps.unshift(subProp);
               }
 
+              if (dp._switchTarget) {
+                extractedProps.push({ key: '_switchTarget', val: dp._switchTarget });
+              }
+
               setCharProps(extractedProps);
             }
           } else {
@@ -128,6 +135,7 @@ export const useEditorData = () => {
               { key: '부제목', val: '' }, { key: '나이', val: '' }, { key: '성별', val: '여성' },
               { key: '종족', val: '인간(人間)' }, { key: '관계', val: '일반' }
             ]);
+            setIsHidden(false);
           }
         }
       } catch (err) {
@@ -203,11 +211,9 @@ export const useEditorData = () => {
         }
       }
       else if (docType === 'char') {
-        // ★ 에디터 저장 시 기존에 갖고 있던 시스템 속성(themeColor, cardImgY, cardImgScale, _groupSortOrders 등) 유지 보장
         let dp = {
           pageBody: { rawText }, themeColor, _cardLabel1: cardLabels.label1, _cardLabel2: cardLabels.label2,
         };
-        // 기존 원본 데이터를 가져와 병합하여 시스템 속성값 유실 방지
         let originalChar = {};
         try {
           if (docAction === 'edit' && targetId) {
@@ -217,7 +223,6 @@ export const useEditorData = () => {
               originalChar = JSON.parse(char.dynamicProperties);
               dp.cardImgY = originalChar.cardImgY !== undefined ? originalChar.cardImgY : 50;
               dp.cardImgScale = originalChar.cardImgScale !== undefined ? originalChar.cardImgScale : 1;
-              // ★ 다중 그룹 정렬 순서 보존 로직 추가
               if (originalChar._groupSortOrders) {
                 dp._groupSortOrders = originalChar._groupSortOrders;
               }
@@ -251,9 +256,9 @@ export const useEditorData = () => {
 
         const cExt = workContext ? (extractMeta(workContext.description).meta.charExt || 'png') : 'png';
         payload.imageCode = `${workContext?.title || '불명'}_${title}.${cExt}`;
+        dp._isHidden = isHidden;
         payload.dynamicProperties = JSON.stringify(dp);
 
-        // ★ 에디터 저장 시 캐릭터 테이블 원장의 단일 sortOrder도 유실 방지 처리
         if (originalChar.sortOrder !== undefined) {
           payload.sortOrder = originalChar.sortOrder;
         } else if (docAction === 'edit' && targetId) {
@@ -280,6 +285,7 @@ export const useEditorData = () => {
     docType, docAction, loading, isPreviewOpen, setIsPreviewOpen,
     title, setTitle, rawText, setRawText, overviewText, setOverviewText,
     workMeta, setWorkMeta, charProps, setCharProps, themeColor, setThemeColor,
-    cardLabels, setCardLabels, editorRef, handleGoBack, handleSave
+    cardLabels, setCardLabels, editorRef, handleGoBack, handleSave,
+    workContext, isHidden, setIsHidden
   };
 };

@@ -142,8 +142,8 @@ const CharacterGrid = ({
 
                   return (
                     <div 
-                      key={c.id} 
-                      id={`char-card-${c.id}`}
+                      key={c._baseCharId || c.id} 
+                      id={`char-card-${c._baseCharId || c.id}`}
                       className={styles.noteCard} 
                       style={{ 
                         borderTop: `4px solid ${themeColor}`, 
@@ -155,9 +155,6 @@ const CharacterGrid = ({
                         if (e.shiftKey) {
                           e.preventDefault(); 
                           e.stopPropagation();
-                          if (fullVariants.length > 1) {
-                            setCardVariants(prev => ({ ...prev, [c.id]: ((prev[c.id] || 0) + 1) % fullVariants.length }));
-                          }
                         } else {
                           setActiveCharId(activeCharId === c.id ? null : c.id);
                         }

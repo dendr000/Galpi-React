@@ -35,7 +35,8 @@ export const useWorkDetailData = () => {
   const [tocList, setTocList] = useState([]);
 
   // 캐릭터 썸네일 제어 및 배리언트 상태
-  const [cardVariants, setCardVariants] = useState({});
+  const [cardVariants, setCardVariants] = useState(() => JSON.parse(localStorage.getItem(`galpi-variants-${workId}`) || "{}"));
+  const [formSwaps, setFormSwaps] = useState(() => JSON.parse(localStorage.getItem(`galpi-swaps-${workId}`) || "{}"));
   const [isBatchImgModalOpen, setIsBatchImgModalOpen] = useState(false);
   const [batchImgY, setBatchImgY] = useState(50);
 
@@ -44,6 +45,9 @@ export const useWorkDetailData = () => {
     console.log(`[useWorkDetailData] 캐릭터 분류 기준 변경 동기화 감지 ➔ 저장값: ${groupCriteria}`);
     localStorage.setItem(`galpi-char-group-${workId}`, groupCriteria);
   }, [groupCriteria, workId]);
+
+  useEffect(() => { localStorage.setItem(`galpi-variants-${workId}`, JSON.stringify(cardVariants)); }, [cardVariants, workId]);
+  useEffect(() => { localStorage.setItem(`galpi-swaps-${workId}`, JSON.stringify(formSwaps)); }, [formSwaps, workId]);
 
   // REST API 데이터베이스 병렬 패치 엔진
   useEffect(() => {
@@ -169,6 +173,8 @@ export const useWorkDetailData = () => {
     tocList,
     cardVariants,
     setCardVariants,
+    formSwaps,
+    setFormSwaps,
     isBatchImgModalOpen,
     setIsBatchImgModalOpen,
     batchImgY,
