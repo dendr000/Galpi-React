@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../../api/axiosCore';
 
-const DEFAULT_COLS = ["부제목", "나이", "성별", "종족", "소속", "직책", "능력", "등급", "관계"];
+const DEFAULT_COLS = ["부제목", "나이", "성별", "종족", "성격", "특징", "소속", "직책", "능력", "등급", "관계"];
 
 // ★ 물리적으로 화면에 입력칸으로 노출되면 안 되는 시스템 내부 예약어(블랙리스트) 명단 정의
 const SYSTEM_PROPS = ["작품명", "제작자", "age", "gender", "species", "sortOrder", "themeColor", "cardImgY", "cardImgScale", "pageBody"];
@@ -29,7 +29,7 @@ export const useBulkStudioData = () => {
   const [activeRowIdx, setActiveRowIdx] = useState(null);
   const [tabMode, setTabMode] = useState('horizontal');
   const [sortMode, setSortMode] = useState('card');
-  const [labels, setLabels] = useState({ label1: "나이", label2: "등급, 소속, 능력" });
+  const [labels, setLabels] = useState({ label1: "나이", label2: "등급, 소속, 직책, 능력" });
 
   const [bodyModal, setBodyModal] = useState({ isOpen: false, rowIdx: null, text: '' });
   const [findReplaceModal, setFindReplaceModal] = useState({ isOpen: false });

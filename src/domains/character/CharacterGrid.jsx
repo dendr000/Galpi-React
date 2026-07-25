@@ -120,8 +120,8 @@ const CharacterGrid = ({
                   // 1. 이름 옆 (label1) 파싱
                   const label1Key = dp._cardLabel1 || "나이";
                   const mappedKey1 = label1Key === '나이' ? 'age' : label1Key === '성별' ? 'gender' : label1Key === '종족' ? 'species' : label1Key;
-                  const val1 = dp[mappedKey1] || dp[label1Key] || c[mappedKey1] || c[label1Key];
-                  const label1Text = (val1 && String(val1).trim() !== "") ? `(${val1})` : "";
+                  const val1 = dp[mappedKey1] ?? dp[label1Key] ?? c[mappedKey1] ?? c[label1Key];
+                  const label1Text = (val1 !== undefined && val1 !== null && String(val1).trim() !== "") ? `(${val1})` : "";
 
                   // 2. 이름 아래 (label2) 파싱
                   const label2Str = dp._cardLabel2 || "등급, 소속, 능력";
@@ -129,9 +129,9 @@ const CharacterGrid = ({
                   
                   const renderedLabels = label2Keys.map(key => {
                     const mappedKey = key === '나이' ? 'age' : key === '성별' ? 'gender' : key === '종족' ? 'species' : key;
-                    const val = dp[mappedKey] || dp[key] || c[mappedKey] || c[key];
+                    const val = dp[mappedKey] ?? dp[key] ?? c[mappedKey] ?? c[key];
                     
-                    if (!val || String(val).trim() === '') return null;
+                    if (val === undefined || val === null || String(val).trim() === '') return null;
                     return (
                       <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ color: 'var(--text-secondary)' }}>{key}</span>

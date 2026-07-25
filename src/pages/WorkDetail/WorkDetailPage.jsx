@@ -62,7 +62,17 @@ const WorkDetailPage = () => {
   });
 
   Object.keys(groupedChars).forEach(k => {
-    groupedChars[k].sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
+    groupedChars[k].sort((a, b) => {
+      const getSortVal = (char) => {
+        try {
+          const dp = JSON.parse(char.dynamicProperties || char._rawDynamic || "{}");
+          return dp._groupSortOrders?.[k] ?? char.sortOrder ?? 999;
+        } catch(e) { 
+          return char.sortOrder ?? 999; 
+        }
+      };
+      return getSortVal(a) - getSortVal(b);
+    });
   });
 
   const groupOrderArray = parsedDesc.meta._groupOrder?.[data.groupCriteria] || [];

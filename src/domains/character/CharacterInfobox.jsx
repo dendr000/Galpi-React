@@ -114,7 +114,7 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
             objectPosition: `center ${cardImgY}%`, 
             transform: `scale(${cardImgScale})`,
             transition: 'transform 0.2s ease, object-position 0.2s ease',
-            cursor: fullVariants.length > 1 ? 'pointer' : 'default',
+            cursor: 'default',
             width: '100%',
             height: '100%',
             objectFit: 'cover'

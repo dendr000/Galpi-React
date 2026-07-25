@@ -51,9 +51,18 @@ export const useCharacterDrag = (characters, setCharacters, groupCriteria) => {
 
       let changed = false;
       const nextState = prev.map(c => {
-        if (orderMap.has(c.id) && c.sortOrder !== orderMap.get(c.id)) {
-          changed = true;
-          return { ...c, sortOrder: orderMap.get(c.id) };
+        if (orderMap.has(c.id)) {
+          let dp = {};
+          try { dp = JSON.parse(c.dynamicProperties || c._rawDynamic || "{}"); } catch(e){}
+          const currentOrder = dp._groupSortOrders?.[groupName] ?? c.sortOrder;
+          
+          if (currentOrder !== orderMap.get(c.id)) {
+            changed = true;
+            if (!dp._groupSortOrders) dp._groupSortOrders = {};
+            dp._groupSortOrders[groupName] = orderMap.get(c.id);
+            const newDynamic = JSON.stringify(dp);
+            return { ...c, sortOrder: orderMap.get(c.id), dynamicProperties: newDynamic, _rawDynamic: newDynamic };
+          }
         }
         return c;
       });
@@ -84,8 +93,12 @@ export const useCharacterDrag = (characters, setCharacters, groupCriteria) => {
         else if (c._rawDynamic) dp = JSON.parse(c._rawDynamic); 
       } catch(err){}
       
-      if (dp.sortOrder !== c.sortOrder) {
-        dp.sortOrder = c.sortOrder;
+      const targetOrder = c.sortOrder;
+      if (dp._groupSortOrders?.[groupName] !== targetOrder || dp.sortOrder !== targetOrder) {
+        if (!dp._groupSortOrders) dp._groupSortOrders = {};
+        dp._groupSortOrders[groupName] = targetOrder;
+        dp.sortOrder = targetOrder;
+        
         const newDynamic = JSON.stringify(dp);
         const payload = { ...c, dynamicProperties: newDynamic, _rawDynamic: newDynamic };
         promises.push(api.put(`/api/characters/${c.id}`, payload));

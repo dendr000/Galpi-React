@@ -20,11 +20,11 @@ export const useEditorData = () => {
 
   const [loading, setLoading] = useState(true);
   const [isPreviewOpen, setIsPreviewOpen] = useState(true);
-  
+
   const [title, setTitle] = useState('');
   const [rawText, setRawText] = useState('');
-  const [overviewText, setOverviewText] = useState(''); 
-  
+  const [overviewText, setOverviewText] = useState('');
+
   const [workMeta, setWorkMeta] = useState({
     creator: '', genre: '', status: '진행 전', alias: '', coverExt: '', charExt: 'png', groupOrderStr: '', imgVariants: [''], originalMeta: {}
   });
@@ -45,11 +45,11 @@ export const useEditorData = () => {
             const res = await api.get(`/api/works/${targetId}`);
             const data = res.data;
             setTitle(data.title || '');
-            
+
             const parsed = extractMeta(data.description);
             setRawText(parsed.clean);
             setOverviewText(parsed.meta.overview || '');
-            
+
             let groupOrderStr = "";
             if (parsed.meta._groupOrder) {
               for (let k in parsed.meta._groupOrder) {
@@ -64,14 +64,14 @@ export const useEditorData = () => {
               originalMeta: parsed.meta
             });
           }
-        } 
+        }
         else if (docType === 'page') {
           if (docAction === 'edit' && targetId) {
             const res = await api.get(`/api/wikipages/${targetId}`);
             setTitle(res.data.title || '');
             setRawText(res.data.content || '');
           }
-        } 
+        }
         else if (docType === 'char') {
           if (targetWorkId) {
             const wRes = await api.get(`/api/works/${targetWorkId}`);
@@ -83,8 +83,8 @@ export const useEditorData = () => {
             if (char) {
               setTitle(char.name || '');
               let dp = {};
-              try { dp = JSON.parse(char.dynamicProperties || char._rawDynamic || "{}"); } catch(e){}
-              
+              try { dp = JSON.parse(char.dynamicProperties || char._rawDynamic || "{}"); } catch (e) { }
+
               setThemeColor(dp.themeColor || char.themeColor || '#3b5bdb');
               setCardLabels({ label1: dp._cardLabel1 || '나이', label2: dp._cardLabel2 || '성격' });
               setRawText(dp.pageBody?.rawText || '');
@@ -112,7 +112,7 @@ export const useEditorData = () => {
                   extractedProps.push({ key: k, val: merged[k] });
                 }
               }
-              
+
               if (!extractedProps.some(p => p.key === '부제목')) {
                 extractedProps.unshift({ key: '부제목', val: '' });
               } else {
@@ -153,14 +153,14 @@ export const useEditorData = () => {
 
   const handleSave = async () => {
     if (!title.trim()) return alert("제목을 입력해주세요.");
-    
+
     try {
       if (docType === 'work') {
         const meta = {
           ...workMeta.originalMeta,
           alias: workMeta.alias, charExt: workMeta.charExt || 'png', coverExt: workMeta.coverExt, overview: overviewText,
         };
-        
+
         const validVariants = workMeta.imgVariants.filter(v => v.trim() !== '');
         if (validVariants.length > 0) meta.imgVariants = validVariants;
 
@@ -188,7 +188,7 @@ export const useEditorData = () => {
           const res = await api.post('/api/works', payload);
           navigate(`/work/${res.data.id}`);
         }
-      } 
+      }
       else if (docType === 'page') {
         const payload = { title, content: rawText, workId: parseInt(targetWorkId) };
         const pId = searchParams.get('parentId');
@@ -203,7 +203,7 @@ export const useEditorData = () => {
         }
       }
       else if (docType === 'char') {
-        // ★ 에디터 저장 시 기존에 갖고 있던 시스템 속성(themeColor, cardImgY, cardImgScale 등) 유지 보장
+        // ★ 에디터 저장 시 기존에 갖고 있던 시스템 속성(themeColor, cardImgY, cardImgScale, _groupSortOrders 등) 유지 보장
         let dp = {
           pageBody: { rawText }, themeColor, _cardLabel1: cardLabels.label1, _cardLabel2: cardLabels.label2,
         };
@@ -217,9 +217,15 @@ export const useEditorData = () => {
               originalChar = JSON.parse(char.dynamicProperties);
               dp.cardImgY = originalChar.cardImgY !== undefined ? originalChar.cardImgY : 50;
               dp.cardImgScale = originalChar.cardImgScale !== undefined ? originalChar.cardImgScale : 1;
+              // ★ 다중 그룹 정렬 순서 보존 로직 추가
+              if (originalChar._groupSortOrders) {
+                dp._groupSortOrders = originalChar._groupSortOrders;
+              }
             }
           }
-        } catch (e) {}
+        } catch (e) {
+          console.warn("[useEditorData] 원본 시스템 속성 파싱 실패:", e);
+        }
 
         const payload = { workId: targetWorkId, name: title };
         const pOrder = [];
@@ -228,7 +234,7 @@ export const useEditorData = () => {
           if (!p.key.trim() || !p.val.trim()) return;
           let val = p.val.trim();
           if (p.key === '나이' && /^\d+(\.\d+)?$/.test(val)) val += '세';
-          
+
           if (p.key === '나이') payload.age = val;
           if (p.key === '생일') payload.birthday = val;
           if (p.key === '성별') payload.gender = val;
@@ -246,6 +252,17 @@ export const useEditorData = () => {
         const cExt = workContext ? (extractMeta(workContext.description).meta.charExt || 'png') : 'png';
         payload.imageCode = `${workContext?.title || '불명'}_${title}.${cExt}`;
         payload.dynamicProperties = JSON.stringify(dp);
+
+        // ★ 에디터 저장 시 캐릭터 테이블 원장의 단일 sortOrder도 유실 방지 처리
+        if (originalChar.sortOrder !== undefined) {
+          payload.sortOrder = originalChar.sortOrder;
+        } else if (docAction === 'edit' && targetId) {
+          try {
+            const res = await api.get(`/api/characters?workId=${targetWorkId}`);
+            const char = res.data.find(c => String(c.id) === String(targetId));
+            if (char && char.sortOrder !== undefined) payload.sortOrder = char.sortOrder;
+          } catch (e) { }
+        }
 
         if (docAction === 'edit') {
           await api.put(`/api/characters/${targetId}`, { ...payload, id: targetId });
