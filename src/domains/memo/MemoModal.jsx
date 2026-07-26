@@ -1,4 +1,4 @@
-// 파일 위치: src/components/layout/fab/MemoModal.jsx
+// 파일 위치: src/components/domains/memo/MemoModal.jsx
 
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axiosCore';
@@ -91,6 +91,7 @@ const MemoModal = () => {
           activeMemo={activeMemo} 
           memoData={memoData} setMemoData={setMemoData}
           currentFolder={currentFolder}
+          setActiveMemoId={setActiveMemoId}
         />
       </div>
     </div>

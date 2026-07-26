@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosCore';
 
-const MemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder }) => {
+const MemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder, setActiveMemoId }) => {
   const navigate = useNavigate();
   const editorRef = useRef(null);
   const titleRef = useRef(null);
@@ -47,34 +47,81 @@ const MemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder }) => {
   };
 
   const saveMemo = async () => {
-    if (!activeMemo || !titleRef.current || !editorRef.current) return;
+    // 기능 설명 주석: 메모 에디터에서 작성된 내용을 DB에 저장 또는 갱신하는 비동기 함수입니다.
+    console.log("[MemoEditor] saveMemo 함수 호출: 메모 저장 로직 개시");
+    
+    if (!activeMemo || !titleRef.current || !editorRef.current) {
+      console.log("[MemoEditor] 필수 요소(activeMemo, titleRef, editorRef) 누락으로 저장 중단");
+      return;
+    }
+    
     const title = titleRef.current.value.trim();
     const content = editorRef.current.innerHTML;
     
-    if (!title) return alert("메모 제목을 입력해주세요.");
+    if (!title) {
+      console.log("[MemoEditor] 제목 미입력 상태. 저장 거부");
+      return alert("메모 제목을 입력해주세요.");
+    }
 
     const folder = activeMemo.folder || (currentFolder === "전체 메모" ? "기타" : currentFolder);
+    console.log(`[MemoEditor] 할당된 폴더명: ${folder}`);
+    
+    // 기능 설명 주석: 기존 메모의 속성(태그, 잠금 상태 등)을 유지하기 위해 전개 연산자를 사용하여 payload를 구성합니다.
     const memoPayload = { 
-      id: activeMemo.id, title, content, folder, 
+      ...activeMemo,
+      title, content, folder, 
       updatedAt: Date.now(), sortOrder: activeMemo.sortOrder || -1,
       canvasX: activeMemo.canvasX || 2500, canvasY: activeMemo.canvasY || 2500, themeColor: activeMemo.themeColor || 'var(--surface-color)'
     };
 
+    // 기능 설명 주석: ID가 'local_'로 시작하지 않으면 기존 DB에 있는 데이터로 판단하여 업데이트 모드로 설정합니다.
+    const isEdit = !String(activeMemo.id).startsWith("local_");
+    console.log(`[MemoEditor] 편집 모드 판별: ${isEdit ? "기존 메모 수정" : "신규 메모 생성"}`);
+
+    // 기능 설명 주석: 신규 메모 생성 시 백엔드의 Long 타입 매핑 에러 방지를 위해 임시 문자열 ID를 페이로드에서 제거합니다.
+    if (!isEdit) {
+      console.log("[MemoEditor] 신규 생성 모드: 페이로드에서 임시 문자열 ID를 제거합니다.");
+      delete memoPayload.id;
+    } else {
+      memoPayload.id = activeMemo.id;
+    }
+
     try {
-      const isEdit = !String(activeMemo.id).startsWith("local_") && String(activeMemo.id).length < 13;
       const url = isEdit ? `/api/memos/${activeMemo.id}` : '/api/memos';
       const method = isEdit ? 'put' : 'post';
+      console.log(`[MemoEditor] API 통신 준비 - URL: ${url}, Method: ${method}`);
 
       const response = await api[method](url, memoPayload);
-      if (!isEdit && response.data?.id) memoPayload.id = response.data.id;
-    } catch (error) {}
+      console.log("[MemoEditor] API 통신 성공 응답 수신");
+      
+      // 기능 설명 주석: 신규 메모 생성 완료 후, 서버로부터 발급받은 실제 숫자 ID를 로컬 페이로드에 적용합니다.
+      if (!isEdit && response.data?.id) {
+        console.log(`[MemoEditor] 백엔드에서 발급받은 실제 DB ID 갱신: ${response.data.id}`);
+        memoPayload.id = response.data.id;
+      }
+    } catch (error) {
+      // 기능 설명 주석: API 통신 중 에러가 발생한 경우 에러를 묵살하지 않고 로깅한 뒤 로직을 종료합니다.
+      console.error("[MemoEditor] 저장 중 통신 에러 발생:", error);
+      alert("서버 오류로 메모를 저장하지 못했습니다.");
+      return; 
+    }
 
+    console.log("[MemoEditor] 로컬 메모 데이터 배열 갱신 및 스토리지 저장 처리");
     const newData = memoData.map(m => String(m.id) === String(activeMemo.id) ? memoPayload : m);
     setMemoData(newData);
     localStorage.setItem('galpi-memos', JSON.stringify(newData));
 
+    // 기능 설명 주석: 신규 메모 생성 시 부모 컴포넌트의 활성 ID를 실제 DB ID로 동기화하여 에디터 뷰 증발 현상을 방지합니다.
+    if (!isEdit && memoPayload.id && setActiveMemoId) {
+      console.log(`[MemoEditor] 부모 컴포넌트의 활성화 ID를 신규 DB ID(${memoPayload.id})로 동기화합니다.`);
+      setActiveMemoId(memoPayload.id);
+    }
+
     setIsSaving(true);
-    setTimeout(() => setIsSaving(false), 1500);
+    setTimeout(() => {
+      console.log("[MemoEditor] 저장 완료 상태 표시 해제");
+      setIsSaving(false);
+    }, 1500);
   };
 
   // ★ 2. 제목 입력 후 Tab 키 이동 완벽 복원

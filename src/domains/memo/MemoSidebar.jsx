@@ -192,8 +192,8 @@ const MemoSidebar = ({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>📄 {filteredMemos.length}개의 메모</span>
           <select value={currentSort} onChange={handleSortChange} style={{ fontSize: '12px', padding: '4px', borderRadius: '4px', border: '1px solid var(--border-color)', outline: 'none', background: 'var(--surface-color)', color: 'var(--text-primary)' }}>
-            <option value="date">최신 수정순</option>
             <option value="name">이름순 정렬</option>
+            <option value="date">최신 수정순</option>
             <option value="custom">사용자 지정순</option>
           </select>
         </div>

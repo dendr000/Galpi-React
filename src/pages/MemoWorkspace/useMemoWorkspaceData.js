@@ -134,7 +134,9 @@ export const useMemoWorkspaceData = () => {
     localStorage.setItem('galpi-memo-sort-map', JSON.stringify(newSortMap));
   };
 
-  const currentSort = sortMap[currentFolder] || 'date';
+  // 기능 설명 주석: 폴더별 정렬 기준이 로컬 스토리지에 없을 경우 기본 정렬 방식을 이름순('name')으로 설정합니다.
+  const currentSort = sortMap[currentFolder] || 'name';
+  console.log(`[useMemoWorkspaceData] 현재 폴더(${currentFolder})의 적용된 정렬 기준: ${currentSort}`);
   
   // 1. 폴더 기준 필터링
   let filteredMemos = [];

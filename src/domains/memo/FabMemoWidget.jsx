@@ -1,4 +1,4 @@
-// 파일 위치: src/components/fab/FabMemoWidget.jsx
+// 파일 위치: src/components/domains/memo/FabMemoWidget.jsx
 
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axiosCore';
@@ -143,6 +143,7 @@ const FabMemoWidget = () => {
               activeMemo={activeMemo} 
               memoData={memoData} setMemoData={setMemoData}
               currentFolder={currentFolder}
+              setActiveMemoId={setActiveMemoId}
             />
           </div>
         </div>
