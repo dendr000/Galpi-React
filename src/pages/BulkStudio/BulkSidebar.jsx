@@ -77,17 +77,31 @@ const BulkSidebar = ({ isPreviewOpen, activeRow, labels, workTitle, workMeta }) 
         {/* 실제 작품 페이지 캐릭터 카드 레이아웃 완벽 동기화 */}
         <div style={{ margin: '0 auto', width: '100%', maxWidth: '320px', borderRadius: '8px', overflow: 'hidden', background: 'var(--surface-color)', border: '1px solid var(--border-color)', borderTop: `4px solid ${themeColor}`, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', marginBottom: '20px' }}>
           
-          {/* 캐릭터 썸네일 이미지 */}
+          {/* 캐릭터 썸네일 이미지 (React DOM 파괴 방어 및 CSS 폴백 레이어 적용) */}
           <div style={{ width: '100%', height: '320px', overflow: 'hidden', background: 'var(--bg-color)', position: 'relative' }}>
             {imgSrc ? (
-              <img 
-                src={imgSrc} 
-                onClick={handleImageClick}
-                title="Shift+클릭하여 바리에이션 변경"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: `center ${imgY}%`, cursor: 'pointer' }}
-                onError={(e) => { e.target.style.display='none'; e.target.parentElement.innerHTML='<div style="width:100%;height:100%;display:flex;justify-content:center;align-items:center;font-weight:bold;color:var(--text-secondary);font-size:13px;">이미지 없음</div>'; }}
-                alt={title}
-              />
+              <>
+                {/* 1. 이미지 로드 실패 시 나타날 대체 텍스트를 이미지 뒤(zIndex: 0)에 미리 배치합니다. */}
+                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#f1f3f5', color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '13px', zIndex: 0 }}>
+                  이미지 없음
+                </div>
+                {/* 2. 실제 이미지는 zIndex: 1로 텍스트를 덮고 있으며, 엑스박스 발생 시 innerHTML 훼손 없이 본인만 조용히 숨깁니다. */}
+                <img 
+                  src={imgSrc} 
+                  onClick={(e) => {
+                    console.log(`[BulkSidebar] 일괄 수정 스튜디오 썸네일 이미지 클릭 이벤트 감지. 대상: ${title}`);
+                    handleImageClick(e);
+                  }}
+                  title="Shift+클릭하여 바리에이션 변경"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: `center ${imgY}%`, cursor: 'pointer', position: 'relative', zIndex: 1 }}
+                  onError={(e) => { 
+                    console.warn(`[BulkSidebar] 썸네일 이미지 로드 실패(404). React DOM 충돌 방지를 위해 요소 자체를 숨김 처리합니다. 경로: ${imgSrc}`);
+                    e.target.onerror = null; // 무한 루프 방지
+                    e.target.style.display = 'none'; 
+                  }}
+                  alt={title}
+                />
+              </>
             ) : (
               <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#f1f3f5', color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '13px' }}>이미지 없음</div>
             )}

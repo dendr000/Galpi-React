@@ -1,0 +1,81 @@
+// 파일 위치: src/utils/markdown/syntaxParser.js
+import { injectMacroStyles } from './styleInjector';
+
+export const parseWikiText = (text) => {
+    if (!text) return "";
+    injectMacroStyles(); // 글로벌 CSS 안전 주입
+    let preText = text;
+
+    preText = preText.replace(/\[RELATION_GRAPH\]/g, '▤REL_START▤');
+    preText = preText.replace(/\[\/RELATION_GRAPH\]/g, '▤REL_END▤');
+    preText = preText.replace(/\[META_DATA:/g, '▤META_START▤:');
+
+    preText = preText.replace(/\[폰트:(.*?):([\s\S]*?)\]/g, (match, fontName, content) => {
+        const fontMap = { '궁서': "'Gungsuh', '궁서', serif", '바탕': "'Batang', '바탕', serif", '돋움': "'Dotum', '돋움', sans-serif", '굴림': "'Gulim', '굴림', sans-serif", '명조': "'Noto Serif KR', serif" };
+        return `<span style="font-family: ${fontMap[fontName.trim()] || "inherit"};">${content}</span>`;
+    });
+    preText = preText.replace(/\[크기:([0-9]+):([\s\S]*?)\]/g, (match, size, content) => `<span style="font-size: ${size}px;">${content}</span>`);
+    preText = preText.replace(/\[정렬:(좌측|중앙|우측):([\s\S]*?)\]/g, (match, alignName, content) => {
+        let align = alignName === "중앙" ? "center" : (alignName === "우측" ? "right" : "left");
+        return `<div style="text-align: ${align}; width: 100%; margin: 10px 0;">${content}</div>`;
+    });
+    preText = preText.replace(/\[들여쓰기:([\s\S]*?)\]/g, (match, content) => {
+        let indented = content.split('\n').map(line => line.trim() ? `<div style="text-indent: 1.5em; margin: 4px 0;">${line}</div>` : line).join('\n');
+        return `<div style="margin: 10px 0;">${indented}</div>`;
+    });
+
+    preText = preText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    preText = preText.replace(/(^|\s)_([^\s_][^_]*[^\s_]|[^\s_])_(\s|[.,!?]|$)/g, '$1<em>$2</em>$3');
+    preText = preText.replace(/(^|[^\\])--(?!\s)(.+?)(?<!\s)--/gm, '$1<del style="opacity:0.6;">$2</del>');
+    preText = preText.replace(/\[([a-zA-Z0-9#-]+):([\s\S]*?)\]/g, (match, colorKey, content) => {
+        let color = colorKey; let bg = "transparent"; let k = colorKey.toLowerCase();
+        if (k === 'red') color = '#e53e3e'; else if (k === 'blue') color = 'var(--primary-color)'; else if (k === 'black') color = 'var(--text-primary)'; else if (k === 'white') color = '#ffffff';
+        else if (k.startsWith('bg-')) { color = 'var(--text-primary)'; bg = k.replace('bg-', '') === 'yellow' ? 'rgba(253, 224, 71, 0.6)' : k.replace('bg-', ''); }
+        return `<span style="color:${color}; background-color:${bg}; font-weight:bold; border-radius:2px; padding:0 2px;">${content}</span>`;
+    });
+
+    let lines = preText.split('\n');
+    let inQuote = false; let quoteBuffer = [];
+    let inTable = false; let tableBuffer = [];
+    let newLines = [];
+
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i]; let trimmed = line.trim();
+
+        if (trimmed.startsWith('||') && trimmed.endsWith('||') && !trimmed.match(/->|=>|→/)) {
+            if (inQuote) { newLines.push(`\n<div class="galpi-ext-quote">${quoteBuffer.join('<br>')}</div>\n`); inQuote = false; quoteBuffer = []; }
+            if (!inTable) { 
+                inTable = true; 
+                tableBuffer.push('<div style="overflow-x:auto; margin: 15px 0;"><table style="width:100%; border-collapse:collapse; background:var(--surface-color); font-size:13px; text-align:center; border-radius:8px; border-style:hidden; box-shadow:0 0 0 1px var(--border-color), 0 2px 8px rgba(0,0,0,0.02);"><tbody>'); 
+            }
+            let cells = trimmed.substring(2, trimmed.length - 2).split('||');
+            let isHeader = tableBuffer.length === 1;
+            tableBuffer.push('<tr style="border-bottom: 1px solid var(--border-color); transition: background 0.2s;">');
+            cells.forEach(cell => {
+                let bg = isHeader ? 'background:var(--table-bg-alt); font-weight:900; color:var(--primary-color);' : 'color:var(--text-primary);';
+                let tag = isHeader ? 'th' : 'td';
+                tableBuffer.push(`<${tag} style="border:1px solid var(--border-color); padding:10px 14px; ${bg}">${cell.trim()}</${tag}>`);
+            });
+            tableBuffer.push('</tr>');
+            continue;
+        } else {
+            if (inTable) { tableBuffer.push('</tbody></table></div>\n'); newLines.push(tableBuffer.join('')); inTable = false; tableBuffer = []; }
+        }
+
+        if (line.match(/^\|[ \t]*(.*)/) && !trimmed.startsWith('||')) {
+            inQuote = true; quoteBuffer.push(line.replace(/^\|[ \t]*/, ''));
+        } else {
+            if (inQuote) { newLines.push(`\n<div class="galpi-ext-quote">${quoteBuffer.join('<br>')}</div>\n`); inQuote = false; quoteBuffer = []; }
+            newLines.push(line);
+        }
+    }
+    if (inTable) { tableBuffer.push('</tbody></table></div>\n'); newLines.push(tableBuffer.join('')); }
+    if (inQuote) { newLines.push(`\n<div class="galpi-ext-quote">${quoteBuffer.join('<br>')}</div>\n`); }
+    preText = newLines.join('\n');
+
+    preText = preText.replace(/▤REL_START▤/g, '[RELATION_GRAPH]');
+    preText = preText.replace(/▤REL_END▤/g, '[\/RELATION_GRAPH]');
+    preText = preText.replace(/▤META_START▤:/g, '[META_DATA:');
+
+    return preText;
+};
