@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import styles from './EditorPage.module.css';
 import EditorSearch from './EditorSearch';
 import MacroToolbar from '../../domains/macro/MacroToolbar';
-import { useEditorData } from './hooks/useEditorData';
+import { useEditorData } from './useEditorData';
 import EditorHeader from './components/EditorHeader';
 import EditorPreviewPane from './components/EditorPreviewPane';
 import EditorWritePane from './components/EditorWritePane';
+import { IconBook, IconDocument, IconUser } from './components/EditorIcons';
 
 const EditorPage = () => {
   console.log(`[EditorPage] UI 렌더링 사이클 개시`);
@@ -19,13 +20,14 @@ const EditorPage = () => {
     workContext, isHidden, setIsHidden
   } = useEditorData();
 
-  // ★ 듀얼/집중/뷰어 레이아웃 스위칭 상태 관리
+  // 듀얼/집중/뷰어 레이아웃 스위칭 상태 관리
   const [layoutMode, setLayoutMode] = useState('dual');
 
+  // 모드별 뱃지 아이콘 및 텍스트 동적 할당
   const badgeText = 
-    docType === 'work' ? (docAction === 'new' ? '📚 새 작품 등록' : '📚 작품 설정 편집') : 
-    docType === 'page' ? (docAction === 'new' ? '📄 새 위키 문서' : '📄 문서 편집') :
-    (docAction === 'new' ? '👤 새 캐릭터 추가' : '👤 캐릭터 상세 편집');
+    docType === 'work' ? (docAction === 'new' ? <><IconBook /> 새 작품 등록</> : <><IconBook /> 작품 설정 편집</>) : 
+    docType === 'page' ? (docAction === 'new' ? <><IconDocument /> 새 위키 문서</> : <><IconDocument /> 문서 편집</>) :
+    (docAction === 'new' ? <><IconUser /> 새 캐릭터 추가</> : <><IconUser /> 캐릭터 상세 편집</>);
 
   const handleEditorKeyDown = (e) => {
     if (e.key === 'Tab') {

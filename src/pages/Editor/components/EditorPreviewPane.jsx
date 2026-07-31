@@ -2,15 +2,10 @@
 import React from 'react';
 import styles from '../EditorPage.module.css';
 import MarkdownRenderer from '../../../domains/macro/MarkdownRenderer';
+import { IconPen } from './EditorIcons';
 
 const EditorPreviewPane = ({
-  isPreviewOpen,
-  title,
-  docType,
-  workMeta,
-  charProps,
-  overviewText,
-  rawText
+  isPreviewOpen, title, docType, workMeta, charProps, overviewText, rawText
 }) => {
   return (
     <div className={`${styles.previewPane} ${!isPreviewOpen ? styles.hidden : ''}`}>
@@ -23,7 +18,9 @@ const EditorPreviewPane = ({
           g.trim() && <span key={idx} className={styles.previewTag}>{g.trim()}</span>
         ))}
         {docType === 'work' && workMeta.creator && (
-          <span className={styles.previewInfo}>✍️ {workMeta.creator}</span>
+          <span className={styles.previewInfo} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <IconPen /> {workMeta.creator}
+          </span>
         )}
         {docType === 'char' && charProps.map((p, idx) => (
           p.key && p.val && p.key !== '부제목' && (

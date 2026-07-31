@@ -1,28 +1,13 @@
 // 파일 위치: src/pages/Editor/components/EditorWritePane.jsx
 import React from 'react';
 import styles from '../EditorPage.module.css';
+import { IconGear, IconShirt, IconX } from './EditorIcons';
 
 const EditorWritePane = ({
-  docType,
-  title,
-  setTitle,
-  workMeta,
-  setWorkMeta,
-  charProps,
-  setCharProps,
-  themeColor,
-  setThemeColor,
-  cardLabels,
-  setCardLabels,
-  workContext,
-  isHidden,
-  setIsHidden,
-  overviewText,
-  setOverviewText,
-  rawText,
-  setRawText,
-  editorRef,
-  handleEditorKeyDown
+  docType, title, setTitle, workMeta, setWorkMeta, charProps, setCharProps,
+  themeColor, setThemeColor, cardLabels, setCardLabels, workContext,
+  isHidden, setIsHidden, overviewText, setOverviewText, rawText, setRawText,
+  editorRef, handleEditorKeyDown
 }) => {
 
   const handleAddVariant = () => {
@@ -102,7 +87,7 @@ const EditorWritePane = ({
 
       {docType === 'work' && (
         <details className={styles.metaDetails} open>
-          <summary>⚙️ 상세 속성 설정 (클릭하여 펴기/접기)</summary>
+          <summary style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><IconGear /> 상세 속성 설정 (클릭하여 펴기/접기)</summary>
           <div className={styles.metaGrid}>
             <div className={styles.propRow}>
               <label>제작자 명의</label>
@@ -142,7 +127,7 @@ const EditorWritePane = ({
             </div>
 
             <div className={styles.propRow} style={{ gridColumn: '1 / -1', alignItems: 'flex-start', paddingTop: '15px', borderTop: '1px dashed var(--border-color)' }}>
-              <label>👗 이미지 변환<br/><span style={{fontSize:'10px', color:'var(--primary-color)'}}>(Shift+좌클릭용)</span></label>
+              <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}><span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><IconShirt /> 이미지 변환</span><span style={{fontSize:'10px', color:'var(--primary-color)'}}>(Shift+좌클릭용)</span></label>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {workMeta.imgVariants.map((variant, vIdx) => (
                   <div key={vIdx} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -152,7 +137,9 @@ const EditorWritePane = ({
                       value={variant} 
                       onChange={e => handleVariantChange(vIdx, e.target.value)} 
                     />
-                    <button type="button" style={{ border: 'none', background: 'transparent', color: '#e53e3e', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => handleRemoveVariant(vIdx)}>✖</button>
+                    <button type="button" style={{ border: 'none', background: 'transparent', color: '#e53e3e', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }} onClick={() => handleRemoveVariant(vIdx)}>
+                        <IconX />
+                    </button>
                   </div>
                 ))}
                 <button type="button" className="wiki-btn" style={{ alignSelf: 'flex-start', padding: '4px 10px', fontSize: '12px', borderColor: 'var(--primary-color)', color: 'var(--primary-color)', background: 'transparent' }} onClick={handleAddVariant}>+ 복장/변신 칸 추가</button>
@@ -165,7 +152,7 @@ const EditorWritePane = ({
 
       {docType === 'char' && (
         <details className={styles.metaDetails} open>
-          <summary>⚙️ 캐릭터 상세 속성 설정</summary>
+          <summary style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><IconGear /> 캐릭터 상세 속성 설정</summary>
           <div className={styles.metaGrid} style={{ display: 'flex', flexDirection: 'column' }}>
             <div className={styles.propRow}>
               <label>테마 컬러</label>
@@ -214,9 +201,9 @@ const EditorWritePane = ({
                 <input style={{ flex: 1 }} value={p.val} onChange={e => {
                   const newProps = [...charProps]; newProps[i].val = e.target.value; setCharProps(newProps);
                 }} placeholder="내용" />
-                <button className="wiki-btn" style={{ padding: '4px 8px', color: '#e53e3e', background: 'transparent', border: 'none' }} onClick={() => {
+                <button className="wiki-btn" style={{ padding: '4px', display: 'flex', alignItems: 'center', color: '#e53e3e', background: 'transparent', border: 'none' }} onClick={() => {
                   const newProps = [...charProps]; newProps.splice(i, 1); setCharProps(newProps);
-                }}>✖</button>
+                }}><IconX /></button>
               </div>
             ))}
             <button className="wiki-btn" style={{ alignSelf: 'flex-start', background: 'var(--table-bg-alt)', color: 'var(--text-primary)' }} onClick={() => setCharProps([...charProps, { key: '', val: '' }])}>+ 속성 추가</button>
