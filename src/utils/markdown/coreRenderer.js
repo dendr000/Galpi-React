@@ -6,7 +6,8 @@ import {
     createBarGraphHtml,
     createLogTabHtml,
     createTimelineHtml,
-    createRelationGraphHtml
+    createRelationGraphHtml,
+    createChatHtml
 } from './macroBuilders';
 
 export const renderMarkdown = (markdownText) => {
@@ -33,6 +34,11 @@ export const renderMarkdown = (markdownText) => {
         rawHtml = rawHtml.replace(/(?:<p>)?\[RELATION_GRAPH\]([\s\S]*?)\[\/RELATION_GRAPH\](?:<\/p>)?/g, (m, content) => {
             return createRelationGraphHtml(content.replace(/<[^>]*>?/gm, ''));
         }); 
+
+        // ★ 누락된 대화/우대화 매크로 정규식 치환 복구
+        rawHtml = rawHtml.replace(/(?:<p>)?\[(대화|우대화):(.*?):\]?([\s\S]*?)\](?:<\/p>)?/g, (m, type, name, msg) => {
+            return createChatHtml(type, name, msg);
+        });
 
         return rawHtml;
     } catch (e) {

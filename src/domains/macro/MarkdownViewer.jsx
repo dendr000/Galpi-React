@@ -1,6 +1,6 @@
 // 파일 위치: src/components/macro/viewer/MarkdownViewer.jsx
 // 기능 요약: marked 라이브러리를 거친 마크다운 정제 구문을 리액트 배열 요소 트리에 격리 바인딩하고, 특수 대형 매크로 태그들을 실시간 탐색하여 리액트 전용 서브 뷰어 컴포넌트 객체들로 치환 렌더링하는 토큰 코어 통제기
-// 버전: v2.5.0
+// 버전: v2.5.1
 
 import React, { useEffect } from 'react';
 import { parseWikiText } from '../../utils/markdownParser'; // 기존의 인라인 서식 파서 모듈 재사용
@@ -23,9 +23,58 @@ const useMacroStyles = () => {
   }, []);
 };
 
+// 각주 팝오버 글로벌 툴팁 이벤트 훅
+const useFootnoteTooltip = () => {
+  useEffect(() => {
+    const handleMouseOver = (e) => {
+      const target = e.target.closest('.wiki-footnote');
+      if (target) {
+        let tooltip = document.getElementById('wiki-footnote-tooltip');
+        if (!tooltip) {
+          tooltip = document.createElement('div');
+          tooltip.id = 'wiki-footnote-tooltip';
+          tooltip.style.cssText = "display:none; position:absolute; z-index:999999; background:var(--surface-color); border:2px solid var(--primary-color); border-radius:8px; padding:12px 16px; box-shadow:0 4px 15px rgba(0,0,0,0.2); max-width:300px; font-size:13px; font-weight:normal; line-height:1.6; word-break:keep-all; color:var(--text-primary); pointer-events:none;";
+          document.body.appendChild(tooltip);
+        }
+        tooltip.innerHTML = target.getAttribute('data-content');
+        tooltip.style.display = 'block';
+        
+        const rect = target.getBoundingClientRect();
+        const top = rect.bottom + window.scrollY + 8;
+        let left = rect.left + window.scrollX - (tooltip.offsetWidth / 2) + (rect.width / 2);
+        
+        if (left < 10) left = 10;
+        if (left + tooltip.offsetWidth > window.innerWidth - 10) left = window.innerWidth - tooltip.offsetWidth - 10;
+        
+        tooltip.style.top = top + 'px';
+        tooltip.style.left = left + 'px';
+      }
+    };
+
+    const handleMouseOut = (e) => {
+      const target = e.target.closest('.wiki-footnote');
+      if (target) {
+        const tooltip = document.getElementById('wiki-footnote-tooltip');
+        if (tooltip) tooltip.style.display = 'none';
+      }
+    };
+
+    document.addEventListener('mouseover', handleMouseOver);
+    document.addEventListener('mouseout', handleMouseOut);
+
+    return () => {
+      document.removeEventListener('mouseover', handleMouseOver);
+      document.removeEventListener('mouseout', handleMouseOut);
+      const tooltip = document.getElementById('wiki-footnote-tooltip');
+      if (tooltip) tooltip.remove();
+    };
+  }, []);
+};
+
 const MarkdownViewer = ({ text }) => {
   console.log("[MarkdownViewer] 마크다운 변환 및 리액트 컴포넌트 분기 파이프라인 세션 시작");
   useMacroStyles();
+  useFootnoteTooltip(); // 각주 툴팁 훅 마운트
 
   if (!text) {
     console.log("[MarkdownViewer] 본문 텍스트가 부재하여 빈 노드를 출력합니다.");
@@ -33,7 +82,14 @@ const MarkdownViewer = ({ text }) => {
   }
 
   // 1단계: 기존의 고유명사 폰트, 색상, 백링크 및 표/인용구 위키 마스터 치환 함수 가동
-  const parsedWiki = parseWikiText(text);
+  let parsedWiki = parseWikiText(text);
+
+  // 1.5단계: 누락된 대화/우대화 매크로 정규식 치환 복구
+  parsedWiki = parsedWiki.replace(/\[(대화|우대화):(.*?):\]?([\s\S]*?)\]/g, (m, type, name, msg) => {
+      const isRight = type === '우대화';
+      const alignClass = isRight ? 'right' : '';
+      return `<div class="galpi-ext-chat-room"><div class="galpi-ext-msg ${alignClass}"><div class="galpi-ext-msg-name">${name.trim()}</div><div class="galpi-ext-msg-bubble">${msg.trim().replace(/\n/g, '<br>')}</div></div></div>`;
+  });
 
   // 2단계: 정규식 경계를 활용하여 스트링 덩어리와 특수 대형 매크로 블록 구역을 토큰 패턴으로 쪼갬
   console.log("[MarkdownViewer] 정규식 패턴 라인 스플릿 및 컴포넌트 토큰화 연산 집행");

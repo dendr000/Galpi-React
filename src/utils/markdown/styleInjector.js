@@ -1,10 +1,10 @@
 // 파일 위치: src/utils/markdown/styleInjector.js
-// ★ 바닐라 UI 스타일 100% 복원: 글로벌 CSS 인젝터 (리액트 보안 모듈 회피용)
 export const injectMacroStyles = () => {
     if (typeof document === 'undefined' || document.getElementById('galpi-macro-styles')) return;
     const style = document.createElement('style');
     style.id = 'galpi-macro-styles';
     style.innerHTML = `
+        .wiki-footnote { position: relative; display: inline-block; transition: background-color 0.2s; cursor: help; color: var(--primary-color); font-weight: bold; }
         .wiki-footnote:hover { background-color: var(--table-bg-alt); border-radius: 4px; }
         .wiki-backlink { color: var(--primary-color); font-weight: 900; text-decoration: none; border-bottom: 2px solid rgba(59,91,219,0.3); padding: 0 3px; transition: 0.2s; cursor: pointer; border-radius: 2px; }
         .wiki-backlink:hover { background: rgba(59,91,219,0.1); border-bottom-color: var(--primary-color); }

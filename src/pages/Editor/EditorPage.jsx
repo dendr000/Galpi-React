@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import styles from './EditorPage.module.css';
 import EditorSearch from './EditorSearch';
 import MacroToolbar from '../../domains/macro/MacroToolbar';
-import { useEditorData } from './useEditorData';
+import { useEditorData } from './hooks/useEditorData';
 import EditorHeader from './components/EditorHeader';
 import EditorPreviewPane from './components/EditorPreviewPane';
 import EditorWritePane from './components/EditorWritePane';

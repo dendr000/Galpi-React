@@ -77,5 +77,13 @@ export const parseWikiText = (text) => {
     preText = preText.replace(/▤REL_END▤/g, '[\/RELATION_GRAPH]');
     preText = preText.replace(/▤META_START▤:/g, '[META_DATA:');
 
+    // ★ 각주 [* 내용] 파서 복구
+    let fnCount = 1;
+    preText = preText.replace(/\[\*(.*?)\]/g, (match, content) => {
+        const num = fnCount++;
+        const escaped = content.trim().replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return `<sup class="wiki-footnote" data-content="${escaped}" style="cursor:help; color:var(--primary-color); font-weight:bold;">[${num}]</sup>`;
+    });
+
     return preText;
 };

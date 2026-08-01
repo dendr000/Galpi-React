@@ -206,3 +206,10 @@ export const createRelationGraphHtml = (innerText) => {
     html += '</svg></div></div>';
     return html.replace(/\n\s*/g, '');
 };
+
+// ★ 누락된 대화 매크로 렌더링 팩토리 추가
+export const createChatHtml = (type, name, msg) => {
+    const isRight = type === '우대화';
+    const alignClass = isRight ? 'right' : '';
+    return `<div class="galpi-ext-chat-room"><div class="galpi-ext-msg ${alignClass}"><div class="galpi-ext-msg-name">${name.trim()}</div><div class="galpi-ext-msg-bubble">${msg.trim().replace(/\n/g, '<br>')}</div></div></div>`;
+};
