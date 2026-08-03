@@ -1,6 +1,6 @@
 // 파일 위치: src/components/layout/fab/memo/hooks/useMemoEvents.js
 
-export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTableFocus }) => {
+export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTableFocus, insertFootnote, handleFootnoteClick }) => {
   const handleTitleKeyDown = (e) => {
     if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
       e.preventDefault(); e.stopPropagation();
@@ -26,6 +26,11 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
       saveMemo();
     }
     
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'q' || e.key === 'Q')) {
+      e.preventDefault(); e.stopPropagation();
+      if (insertFootnote) insertFootnote();
+    }
+
     if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
       const selection = window.getSelection();
       if (selection.rangeCount === 0) return;
@@ -80,9 +85,14 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
     }
   };
 
+  // ★ 일반 클릭 이벤트와 각주 클릭 이벤트를 동시에 감지하여 충돌 없이 실행
   const handleEditorClick = (e) => {
     checkTableFocus();
     updateCharCount();
+
+    if (handleFootnoteClick) {
+      handleFootnoteClick(e);
+    }
 
     if (e.target.type === 'checkbox' && editorRef.current.contains(e.target)) {
       const isChecked = e.target.checked;

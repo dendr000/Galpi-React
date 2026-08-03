@@ -1,5 +1,5 @@
 // 파일 위치: src/components/layout/fab/memo/hooks/useMemoFolder.js
-import api from '../../../../../api/axiosCore';
+import api from '../../../api/axiosCore';
 
 export const useMemoFolder = ({ memoData, setMemoData, memoFolders, setMemoFolders, currentFolder, setCurrentFolder }) => {
   const handleAddFolder = () => {

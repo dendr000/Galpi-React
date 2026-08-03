@@ -1,7 +1,7 @@
 // 파일 위치: src/components/layout/fab/memo/MemoSidebar.jsx
 import React from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { useMemoSidebar } from './useMemoSidebar';
+import { useMemoSidebar } from './hooks/useMemoSidebar';
 
 const MemoSidebar = (props) => {
   // ★ 비즈니스 로직과 상태 관리를 전담하는 커스텀 훅 인젝션

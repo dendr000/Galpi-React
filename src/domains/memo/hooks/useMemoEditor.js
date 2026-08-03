@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useMemoSave } from './useMemoSave';
 import { useMemoFormat } from './useMemoFormat';
 import { useMemoEvents } from './useMemoEvents';
+import { useMemoFootnote } from './useMemoFootnote';
 
 export const useMemoEditor = (props) => {
   const editorRef = useRef(null);
@@ -37,22 +38,22 @@ export const useMemoEditor = (props) => {
     }
   };
 
-  // 1. 저장 훅 바인딩
   const { saveMemo, isSaving } = useMemoSave({ ...props, titleRef, editorRef });
-  
-  // 2. 포맷팅 훅 바인딩
   const formatHooks = useMemoFormat({ editorRef, activeCellRef, updateCharCount });
+  const footnoteHooks = useMemoFootnote(editorRef, updateCharCount, saveMemo);
   
-  // 3. DOM 이벤트 훅 바인딩
+  // ★ 클릭 센서를 이벤트 훅으로 넘겨줌
   const eventHooks = useMemoEvents({ 
     editorRef, 
     saveMemo, 
     updateCharCount, 
-    checkTableFocus: formatHooks.checkTableFocus 
+    checkTableFocus: formatHooks.checkTableFocus,
+    insertFootnote: footnoteHooks.insertFootnote,
+    handleFootnoteClick: footnoteHooks.handleFootnoteClick
   });
 
   return {
     editorRef, titleRef, charCount, isSaving, saveMemo, updateCharCount,
-    ...formatHooks, ...eventHooks
+    ...formatHooks, ...eventHooks, footnoteHooks
   };
 };

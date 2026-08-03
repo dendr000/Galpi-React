@@ -1,16 +1,13 @@
 // 파일 위치: src/components/layout/fab/memo/MemoEditor.jsx
-// 기능 요약: 훅과 하위 UI들을 조립하여 최종적으로 보여주는 FAB 메모장의 메인 렌더링 컨테이너
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMemoEditor } from './hooks/useMemoEditor';
 import MemoEditorHeader from './MemoEditorHeader';
 import MemoFormatBar from './MemoFormatBar';
+import MemoFootnotePopover from './components/MemoFootnotePopover';
 
 const MemoEditor = (props) => {
   const navigate = useNavigate();
-  
-  // ★ 비즈니스 로직과 상태 관리를 전담하는 커스텀 훅 인젝션
   const editorHooks = useMemoEditor(props);
 
   if (!props.activeMemo) {
@@ -22,7 +19,10 @@ const MemoEditor = (props) => {
   }
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg-color)' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg-color)', position: 'relative' }}>
+      
+      <MemoFootnotePopover {...editorHooks.footnoteHooks} />
+
       <MemoEditorHeader 
         titleRef={editorHooks.titleRef}
         handleTitleKeyDown={editorHooks.handleTitleKeyDown}
@@ -48,8 +48,10 @@ const MemoEditor = (props) => {
         replaceText={editorHooks.replaceText}
         setReplaceText={editorHooks.setReplaceText}
         executeFindReplace={editorHooks.executeFindReplace}
+        insertFootnote={editorHooks.footnoteHooks.insertFootnote}
       />
 
+      {/* ★ 메모가 렌더링될 때 센서가 완벽하게 몸체에 박히도록 React 이벤트로 위임 */}
       <div 
         id="memo-edit-content"
         ref={editorHooks.editorRef}
@@ -62,6 +64,8 @@ const MemoEditor = (props) => {
         onKeyUp={() => { editorHooks.checkTableFocus(); editorHooks.updateCharCount(); }}
         onKeyDown={editorHooks.handleEditorKeyDown}
         onCopy={editorHooks.handleCopy}
+        onMouseOver={editorHooks.footnoteHooks.handleMouseOver}
+        onMouseOut={editorHooks.footnoteHooks.handleMouseOut}
       />
     </div>
   );

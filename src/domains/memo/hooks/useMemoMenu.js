@@ -1,6 +1,6 @@
 // 파일 위치: src/components/layout/fab/memo/hooks/useMemoMenu.js
 import { useState, useRef, useEffect } from 'react';
-import api from '../../../../../api/axiosCore';
+import api from '../../../api/axiosCore';
 
 export const useMemoMenu = ({ memoData, setMemoData, activeMemoId, setActiveMemoId }) => {
   const [menuData, setMenuData] = useState({ isOpen: false, x: 0, y: 0, memoId: null });

@@ -1,6 +1,6 @@
 // 파일 위치: src/components/layout/fab/memo/hooks/useMemoSave.js
 import { useState } from 'react';
-import api from '../../../../../api/axiosCore';
+import api from '../../../api/axiosCore';
 
 export const useMemoSave = ({ activeMemo, memoData, setMemoData, currentFolder, setActiveMemoId, titleRef, editorRef }) => {
   const [isSaving, setIsSaving] = useState(false);
