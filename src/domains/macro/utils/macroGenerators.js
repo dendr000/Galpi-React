@@ -1,20 +1,17 @@
 // 파일 위치: src/domains/macro/utils/macroGenerators.js
-// 기능 요약: 마크다운 내부 배열 데이터를 기반으로 HTML 시각화 위젯을 생성하는 순수 함수 모음 (알파벳 등급 스케일 지원)
-// 버전: v2.2.0
+// 기능 요약: 마크다운 예약어를 감지하여 시각화 HTML/SVG 위젯을 문자열로 즉시 조립하는 순수 렌더링 함수 모음
+// 버전: v2.3.1 (createRelationGraphHtml 누락 함수 복구 통합본)
 
-// ★ 알파벳 랭크 및 숫자 겸용 파싱 유틸리티
 const parseRankValue = (valStr) => {
   if (!valStr) return 0;
   const s = String(valStr).toUpperCase().trim();
   if (!isNaN(parseFloat(s))) return parseFloat(s);
-  
   const rankMap = {
     'EX': 100, 'SSS': 95, 'SS': 90, 'S+': 85, 'S': 80, 'S-': 75,
     'A+': 70, 'A': 65, 'A-': 60, 'B+': 55, 'B': 50, 'B-': 45,
     'C+': 40, 'C': 35, 'C-': 30, 'D+': 25, 'D': 20, 'D-': 15,
     'E': 10, 'F': 5
   };
-  
   if (rankMap[s] !== undefined) return rankMap[s];
   for (const key of Object.keys(rankMap)) {
     if (s.startsWith(key)) return rankMap[key];
@@ -25,28 +22,16 @@ const parseRankValue = (valStr) => {
 export const createRadarChartHtml = (dataStr) => {
   try {
     const pairs = dataStr.split(',').map(s => s.trim().split('='));
-    const labels = []; 
-    const values = []; 
-    const originalValues = [];
-
+    const labels = []; const values = []; const originalValues = [];
     pairs.forEach(p => { 
       if (p.length === 2) { 
-        labels.push(p[0].trim()); 
-        values.push(parseRankValue(p[1])); 
-        originalValues.push(p[1].trim());
+        labels.push(p[0].trim()); values.push(parseRankValue(p[1])); originalValues.push(p[1].trim());
       } 
     });
-
-    const maxVal = Math.max(100, ...values); 
-    const size = 300; 
-    const center = size / 2; 
-    const radius = size * 0.35; 
-    const numSides = labels.length;
-
+    const maxVal = Math.max(100, ...values); const size = 300; const center = size / 2; const radius = size * 0.35; const numSides = labels.length;
     if (numSides < 3) return `<div style="color:#e53e3e; font-size:12px;">[스탯 분석 실패: 항목 3개 이상 필요]</div>`;
     
     let bgPolygons = ""; let polygonPoints = ""; let labelHtml = ""; let pointsHtml = "";
-    
     for(let level=1; level<=4; level++) {
       let pts = ""; let r = radius * (level/4);
       for(let i=0; i<numSides; i++) {
@@ -55,51 +40,85 @@ export const createRadarChartHtml = (dataStr) => {
       }
       bgPolygons += `<polygon points="${pts.trim()}" fill="none" stroke="var(--border-color)" stroke-width="1"/>`;
     }
-
     for(let i=0; i<numSides; i++) {
       let angle = (Math.PI * 2 * i / numSides) - (Math.PI / 2);
       let bgX = center + radius * Math.cos(angle); let bgY = center + radius * Math.sin(angle);
       bgPolygons += `<line x1="${center}" y1="${center}" x2="${bgX}" y2="${bgY}" stroke="var(--border-color)" stroke-width="1"/>`;
-      
       let r = radius * (values[i] / maxVal);
       let dx = center + r * Math.cos(angle); let dy = center + r * Math.sin(angle);
       polygonPoints += `${dx},${dy} `;
       pointsHtml += `<circle cx="${dx}" cy="${dy}" r="4" fill="var(--primary-color)" stroke="#fff" stroke-width="1.5"/>`;
-      
       let lx = center + (radius + 28) * Math.cos(angle); let ly = center + (radius + 20) * Math.sin(angle);
       let anchor = "middle";
       if(Math.cos(angle) > 0.1) anchor = "start"; else if(Math.cos(angle) < -0.1) anchor = "end";
-      
       labelHtml += `<text x="${lx}" y="${ly-6}" fill="var(--text-primary)" font-size="12" font-weight="900" text-anchor="${anchor}" dominant-baseline="middle">${labels[i]}</text>`;
       labelHtml += `<text x="${lx}" y="${ly+8}" fill="var(--text-secondary)" font-size="11" font-weight="bold" text-anchor="${anchor}" dominant-baseline="middle">${originalValues[i]}</text>`;
     }
-    
     return `<div style="display:flex; flex-direction:column; align-items:center; margin: 25px 0; background: var(--surface-color); padding: 25px 15px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);"><div style="font-weight:900; font-size:14px; margin-bottom:15px; color:var(--text-primary); letter-spacing: 1px;">📊 스탯 분석 차트</div><svg width="100%" height="100%" viewBox="0 0 ${size} ${size}" style="max-width: 320px; overflow:visible; font-family:inherit;">${bgPolygons}<polygon points="${polygonPoints.trim()}" fill="var(--primary-color)" fill-opacity="0.3" stroke="var(--primary-color)" stroke-width="2" stroke-linejoin="round"/>${pointsHtml}${labelHtml}</svg></div>`;
   } catch(e) { return `<div style="color:#e53e3e; font-size:12px;">[레이더 차트 오류]</div>`; }
+};
+
+export const createRadarCompareHtml = (dataStr) => {
+  return `<div style="padding:15px; background:var(--surface-color); border:1px solid var(--primary-color); border-radius:8px; color:var(--primary-color); font-weight:bold; font-size:13px; text-align:center; margin:15px 0;">📊 다중 스탯 비교 위젯은 React Viewer 전용 모드에서 렌더링됩니다.</div>`;
+};
+
+export const createAlignmentChartHtml = (dataStr) => {
+  try {
+    const pairs = dataStr.split(',').map(s => s.trim().split('='));
+    let xLabel = "가로축", yLabel = "세로축", xVal = 50, yVal = 50;
+    if (pairs[0] && pairs[0].length === 2) { xLabel = pairs[0][0].trim(); xVal = parseRankValue(pairs[0][1]); }
+    if (pairs[1] && pairs[1].length === 2) { yLabel = pairs[1][0].trim(); yVal = parseRankValue(pairs[1][1]); }
+    
+    const size = 260; const center = size / 2;
+    const px = (xVal / 100) * size; const py = size - ((yVal / 100) * size);
+    
+    return `<div style="display:flex; flex-direction:column; align-items:center; margin: 25px 0; background: var(--surface-color); padding: 25px 15px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);"><div style="font-weight:900; font-size:14px; margin-bottom:15px; color:var(--text-primary); letter-spacing: 1px;">🧭 2D 성향 매트릭스</div><svg width="100%" height="100%" viewBox="-30 -30 ${size+60} ${size+60}" style="max-width:300px; overflow:visible; font-family:inherit;"><rect x="0" y="0" width="${size}" height="${size}" fill="var(--bg-color)" stroke="var(--border-color)" stroke-width="1"/><line x1="${center}" y1="0" x2="${center}" y2="${size}" stroke="var(--text-secondary)" stroke-width="2" stroke-dasharray="4,4"/><line x1="0" y1="${center}" x2="${size}" y2="${center}" stroke="var(--text-secondary)" stroke-width="2" stroke-dasharray="4,4"/><circle cx="${px}" cy="${py}" r="6" fill="var(--primary-color)" stroke="#fff" stroke-width="2"/><text x="${center}" y="-10" fill="var(--text-primary)" font-size="12" font-weight="bold" text-anchor="middle">${yLabel}</text><text x="${size+10}" y="${center+4}" fill="var(--text-primary)" font-size="12" font-weight="bold" text-anchor="start">${xLabel}</text><text x="${px}" y="${py - 12}" fill="var(--primary-color)" font-size="12" font-weight="900" text-anchor="middle">현재 위치</text></svg></div>`;
+  } catch(e) { return `<div style="color:#e53e3e; font-size:12px;">[성향 매트릭스 렌더링 오류]</div>`; }
 };
 
 export const createBarGraphHtml = (dataStr) => {
   try {
     const pairs = dataStr.split(',').map(s => s.trim().split('='));
-    let html = `<div class="galpi-ext-bar-wrap">`;
+    let html = `<div class="galpi-ext-bar-wrap" style="display:flex; flex-direction:column; gap:10px; padding:15px; background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; margin:15px 0;">`;
     pairs.forEach(p => {
       if (p.length === 2) {
-        const label = p[0].trim(); 
-        const valStr = p[1].trim(); 
-        const valParts = valStr.split('/');
-        
-        const current = parseRankValue(valParts[0]); 
-        const max = valParts.length > 1 ? parseRankValue(valParts[1]) : 100;
+        const label = p[0].trim(); const valStr = p[1].trim(); const valParts = valStr.split('/');
+        const current = parseRankValue(valParts[0]); const max = valParts.length > 1 ? parseRankValue(valParts[1]) : 100;
         const percent = max > 0 ? Math.min(100, Math.max(0, (current / max) * 100)) : 0;
-        
         let barColor = "var(--primary-color)";
         if (percent <= 30) barColor = "#e53e3e"; else if (percent >= 80) barColor = "#10b981"; 
-        
-        html += `<div class="galpi-ext-bar-item"><div class="galpi-ext-bar-label">${label}</div><div class="galpi-ext-bar-track"><div class="galpi-ext-bar-fill" style="width: ${percent}%; background: ${barColor};"></div></div><div class="galpi-ext-bar-value">${valStr}</div></div>`;
+        html += `<div style="display:flex; align-items:center; gap:15px;"><div style="width:80px; font-weight:900; font-size:13px; color:var(--text-primary); text-align:right;">${label}</div><div style="flex:1; height:14px; background:var(--table-bg-alt); border-radius:8px; overflow:hidden;"><div style="width: ${percent}%; height:100%; background: ${barColor}; border-radius:8px;"></div></div><div style="width:65px; font-size:12px; font-weight:bold; color:var(--text-secondary);">${valStr}</div></div>`;
       }
     });
     return html + `</div>`;
   } catch(e) { return `<div style="color:#e53e3e; font-size:12px;">[게이지 렌더링 오류]</div>`; }
+};
+
+export const createChatHtml = (type, name, expr, msg) => {
+  const isRight = type === '우대화';
+  const alignClass = isRight ? 'flex-end' : 'flex-start';
+  const bgColor = isRight ? 'var(--primary-color)' : 'var(--surface-color)';
+  const color = isRight ? '#ffffff' : 'var(--text-primary)';
+  const workTitle = typeof window !== 'undefined' && window.currentWorkData?.title ? window.currentWorkData.title : '작품명';
+  
+  const imgName = expr ? `${workTitle}_${name.trim()}_${expr.trim()}.png` : `${workTitle}_${name.trim()}.png`;
+  const avatarHtml = `<div style="width:42px; height:42px; border-radius:50%; background-color:var(--table-bg-alt); background-image:url('/img/character/${imgName}'); background-size:cover; background-position:center; border:2px solid var(--border-color); flex-shrink:0; box-shadow:0 2px 5px rgba(0,0,0,0.1);"></div>`;
+
+  return `<div class="galpi-ext-chat-room" style="display:flex; gap:12px; align-items:flex-start; margin:15px 0; flex-direction:${isRight ? 'row-reverse' : 'row'};">
+    ${avatarHtml}
+    <div style="display:flex; flex-direction:column; align-items:${alignClass}; max-width:80%;">
+      <div style="font-size:12px; font-weight:900; color:var(--text-secondary); margin-bottom:4px;">${name.trim()}${expr ? ` <span style="font-weight:normal; opacity:0.7;">(${expr.trim()})</span>` : ''}</div>
+      <div style="background:${bgColor}; color:${color}; padding:10px 14px; border-radius:12px; border:1px solid var(--border-color); font-size:14px; line-height:1.6; word-break:break-all;">${msg.trim().replace(/\n/g, '<br>')}</div>
+    </div>
+  </div>`;
+};
+
+export const createSpoilerHtml = (content) => {
+  return `<span class="galpi-spoiler" style="background:#111111; color:#111111; cursor:pointer; padding:2px 6px; border-radius:4px; font-weight:bold; transition:color 0.3s ease;" onmouseover="this.style.color='#ffffff'" onmouseout="this.style.color='#111111'" title="마우스를 올려 스포일러 확인">${content}</span>`;
+};
+
+export const createTabHtml = (innerText) => {
+  return `<div style="padding:15px; background:var(--surface-color); border:1px solid var(--primary-color); border-radius:8px; color:var(--primary-color); font-weight:bold; font-size:13px; text-align:center; margin:15px 0;">📑 인라인 탭 컨테이너는 React Viewer 전용 모드에서 렌더링됩니다.</div>`;
 };
 
 export const createTimelineHtml = (innerText) => {
@@ -219,10 +238,4 @@ export const createRelationGraphHtml = (innerText) => {
 
   html += '</svg></div></div>';
   return html.replace(/\n\s*/g, '');
-};
-
-export const createChatHtml = (type, name, msg) => {
-  const isRight = type === '우대화';
-  const alignClass = isRight ? 'right' : '';
-  return `<div class="galpi-ext-chat-room"><div class="galpi-ext-msg ${alignClass}"><div class="galpi-ext-msg-name">${name.trim()}</div><div class="galpi-ext-msg-bubble">${msg.trim().replace(/\n/g, '<br>')}</div></div></div>`;
 };

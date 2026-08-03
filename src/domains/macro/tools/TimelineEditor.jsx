@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import styles from '../../domains/macro/MacroToolbar.module.css';
+import styles from '../MacroToolbar.module.css';
 
 export const TimelineEditor = ({ selectedText, onInsert, onCancel }) => {
   console.log("[TimelineEditor] 라이프사이클 인프라 체크");

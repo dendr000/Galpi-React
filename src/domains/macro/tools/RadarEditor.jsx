@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
-import styles from '../../domains/macro/MacroToolbar.module.css';
+import styles from '../MacroToolbar.module.css';
 import { parseRankValue } from './rankUtils';
 
 export const RadarEditor = ({ selectedText, onInsert, onCancel }) => {

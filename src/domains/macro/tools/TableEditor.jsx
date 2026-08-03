@@ -3,7 +3,7 @@
 // 버전: v2.2.0
 
 import React, { useState } from 'react';
-import styles from '../../domains/macro/MacroToolbar.module.css';
+import styles from '../MacroToolbar.module.css';
 
 export const TableEditor = ({ selectedText, onInsert, onCancel }) => {
   console.log("[TableEditor] 컴포넌트 렌더링 주기 추적");
