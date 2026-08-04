@@ -1,4 +1,4 @@
-// 파일 위치: src/components/layout/fab/memo/hooks/useMemoMenu.js
+// 파일 위치: src/domains/memo/hooks/useMemoMenu.js
 import { useState, useRef, useEffect } from 'react';
 import api from '../../../api/axiosCore';
 

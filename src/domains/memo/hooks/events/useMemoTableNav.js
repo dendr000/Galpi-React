@@ -1,4 +1,4 @@
-// 파일 위치: src/components/layout/fab/memo/hooks/events/useMemoTableNav.js
+// 파일 위치: src/domains/memo/hooks/events/useMemoTableNav.js
 
 export const useMemoTableNav = ({ editorRef, updateCharCount }) => {
   const handleTableNavigation = (e) => {

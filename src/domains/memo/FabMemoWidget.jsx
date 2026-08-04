@@ -1,13 +1,11 @@
-// 파일 위치: src/components/domains/memo/FabMemoWidget.jsx
-
+// 파일 위치: src/domains/memo/FabMemoWidget.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axiosCore';
-import MemoSidebar from '../MemoSidebar';
-import MemoEditor from '../MemoEditor';
+import MemoSidebar from './MemoSidebar';
+import MemoEditor from './MemoEditor';
+import { PenToolIcon, XIcon } from './components/MemoIcons'; // ★ 메인 버튼용 SVG 아이콘 임포트
 
 const FabMemoWidget = () => {
-  console.log("[FabMemoWidget] 메모장 위젯 관제탑 렌더링 개시");
-
   const [isOpen, setIsOpen] = useState(false);
   const [memoData, setMemoData] = useState([]);
   const [memoFolders, setMemoFolders] = useState(["전체 메모", "설정 아이디어", "기타"]);
@@ -15,9 +13,7 @@ const FabMemoWidget = () => {
   const [activeMemoId, setActiveMemoId] = useState(null);
   const [sortMap, setSortMap] = useState({});
 
-  // 1. 초기 데이터 로드 (DB 주도형 폴더 추출 및 로컬 병합)
   useEffect(() => {
-    console.log("[FabMemoWidget] 초기 메모 데이터 및 설정값 로드 연산 수행");
     try {
       const storedSortMap = JSON.parse(localStorage.getItem('galpi-memo-sort-map'));
       if (storedSortMap) setSortMap(storedSortMap);
@@ -28,14 +24,11 @@ const FabMemoWidget = () => {
       
       setMemoFolders(localFolders);
 
-      // 서버 API 연동을 통한 메모 데이터 및 폴더 추출
       api.get('/api/memos').then(res => {
         if (res.data && res.data.length > 0) {
-          console.log("[FabMemoWidget] 서버 메모 데이터 동기화 완료. DB 기반 폴더명 스캔 개시.");
           setMemoData(res.data);
           localStorage.setItem('galpi-memos', JSON.stringify(res.data));
 
-          // ★ DB 데이터에 존재하는 고유 폴더명 추출 후 기존 폴더 배열과 병합
           const dbFolders = [...new Set(res.data.map(m => m.folder).filter(Boolean))];
           const mergedFolders = [...new Set([...localFolders, ...dbFolders])];
           
@@ -43,17 +36,14 @@ const FabMemoWidget = () => {
           localStorage.setItem('galpi-memo-folders', JSON.stringify(mergedFolders));
         }
       }).catch(err => {
-        console.log("[FabMemoWidget] 오프라인 모드: 로컬 메모 데이터 유지");
         const storedMemos = JSON.parse(localStorage.getItem('galpi-memos')) || [];
         setMemoData(storedMemos);
       });
       
     } catch (e) {
-      console.error("[FabMemoWidget] 초기 데이터 로드 중 예외 발생:", e);
     }
   }, []);
 
-  // 2. 가상 격리 모드용 글로벌 스타일 인젝션
   useEffect(() => {
     if (!document.getElementById('memo-selection-styles')) {
       const style = document.createElement('style');
@@ -71,7 +61,6 @@ const FabMemoWidget = () => {
     }
   }, []);
 
-  // 3. FAB 클릭 제어
   const toggleModal = () => {
     setIsOpen(!isOpen);
     if (!isOpen) {
@@ -83,13 +72,10 @@ const FabMemoWidget = () => {
     }
   };
 
-  // 4. 새로운 메모 생성 로직
   const handleCreateMemo = useCallback(() => {
-    console.log("[FabMemoWidget] 신규 빈 메모 생성 프로세스 가동");
     const newId = `local_${Date.now()}`;
     const targetFolder = currentFolder === "전체 메모" ? "기타" : currentFolder;
     
-    // DB 스키마(Memo.java)의 기본값에 맞춘 초기 객체
     const newMemo = { 
       id: newId, folder: targetFolder, title: "새로운 메모", content: "", 
       updatedAt: Date.now(), sortOrder: -1, canvasX: 2500, canvasY: 2500, themeColor: 'var(--surface-color)' 
@@ -114,10 +100,10 @@ const FabMemoWidget = () => {
             width: '56px', height: '56px', borderRadius: '50%', background: isOpen ? '#e53e3e' : 'var(--primary-color)',
             color: 'white', border: 'none', boxShadow: `0 4px 15px ${isOpen ? 'rgba(229,62,62,0.4)' : 'rgba(59,91,219,0.4)'}`,
             cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center',
-            transition: '0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)', transform: isOpen ? 'rotate(45deg)' : 'none', fontSize: '24px'
+            transition: '0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
           }}
         >
-          {isOpen ? '+' : '📝'}
+          {isOpen ? <XIcon size={24} /> : <PenToolIcon size={24} />}
         </button>
       </div>
 

@@ -1,4 +1,4 @@
-// 파일 위치: src/components/layout/fab/memo/hooks/useMemoFormat.js
+// 파일 위치: src/domains/memo/hooks/useMemoFormat.js
 // 기능 요약: 볼드, 이탤릭 및 HTML 태그 템플릿 삽입(execCommand) 전담 훅
 // 버전: v2.0.0
 

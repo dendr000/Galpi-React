@@ -1,6 +1,6 @@
 // 파일 위치: src/pages/MemoWorkspace/editor/MemoEditorHeader.jsx
 // 기능 요약: 에디터 모달의 최상단 상태 제어(제목, 테마, 폴더, 저장, 닫기)를 담당하는 헤더 컴포넌트
-// 버전: v1.0.0
+// 버전: v1.1.0 (폴더 셀렉트 복구 및 인라인 태그 입력창 제거)
 
 import React from 'react';
 
@@ -21,9 +21,7 @@ const MemoEditorHeader = ({
   activeMemoId,
   handleDeleteMemo,
   setIsEditorOpen,
-  handleTitleKeyDown,
-  memoTags,
-  setMemoTags
+  handleTitleKeyDown
 }) => {
   console.log("[MemoEditorHeader] 에디터 헤더 컨트롤 패널 렌더링");
 
@@ -63,6 +61,7 @@ const MemoEditorHeader = ({
             ))}
           </div>
 
+          {/* ★ 실수로 삭제했던 폴더 셀렉트 박스 완벽 복구 */}
           <select 
             style={{ padding: '6px', borderRadius: '4px', border: '1px solid var(--border-color)', fontSize: '13px', fontWeight: 'bold' }} 
             value={editData.folder} 
@@ -112,18 +111,8 @@ const MemoEditorHeader = ({
         </div>
       </div>
 
-      {/* 2열: 해시태그 입력 및 글자 수 표시 */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-color)', padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', flex: 1, gap: '8px' }}>
-          <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>🏷️ 태그</span>
-          <input 
-            type="text" 
-            placeholder="태그를 입력하세요..." 
-            value={memoTags || ''} 
-            onChange={e => setMemoTags(e.target.value)} 
-            style={{ flex: 1, border: 'none', background: 'transparent', fontSize: '13px', color: 'var(--primary-color)', fontWeight: 'bold', outline: 'none' }}
-          />
-        </div>
+      {/* 2열: 글자 수 표시 (인라인 태그창 제거 후 우측 정렬 유지) */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', background: 'var(--bg-color)', padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
         <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 'bold', marginLeft: '15px' }}>
           {charCount.selected > 0 ? `${charCount.selected} / ${charCount.total}` : `0 / ${charCount.total}`}
         </div>

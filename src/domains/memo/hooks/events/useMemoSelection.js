@@ -1,4 +1,4 @@
-// 파일 위치: src/components/layout/fab/memo/hooks/events/useMemoSelection.js
+// 파일 위치: src/domains/memo/hooks/events/useMemoSelection.js
 import { useEffect } from 'react';
 
 export const useMemoSelection = ({ editorRef, updateCharCount }) => {

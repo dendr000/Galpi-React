@@ -1,4 +1,4 @@
-// 파일 위치: src/components/layout/fab/memo/hooks/useMemoTableCtrl.js
+// 파일 위치: src/domains/memo/hooks/useMemoTableCtrl.js
 import { useState } from 'react';
 
 export const useMemoTableCtrl = ({ editorRef, activeCellRef, updateCharCount }) => {

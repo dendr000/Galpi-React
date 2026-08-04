@@ -1,11 +1,15 @@
-// 파일 위치: src/components/layout/fab/memo/MemoEditor.jsx
+// 파일 위치: src/domains/memo/MemoEditor.jsx
+// 기능 요약: FAB 메모장의 상단 헤더, 서식 툴바, 본문 렌더링, 최하단 태그 바를 통합 조립하는 에디터 컨테이너
+// 버전: v2.1.1 (태그 바 컴포넌트 실제 경로 매핑 픽스)
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMemoEditor } from './hooks/useMemoEditor'; // ★ 상대 경로 완벽 수정 적용 완료
+import { useMemoEditor } from './hooks/useMemoEditor'; 
 import MemoEditorHeader from './MemoEditorHeader';
 import MemoFormatBar from './MemoFormatBar';
 import MemoFootnotePopover from './components/MemoFootnotePopover';
 import MemoEditorBody from './components/MemoEditorBody';
+import MemoTagBar from './components/MemoTagBar';
 
 const MemoEditor = (props) => {
   const navigate = useNavigate();
@@ -59,6 +63,9 @@ const MemoEditor = (props) => {
 
       <MemoEditorBody editorHooks={editorHooks} />
       
+      {/* ★ 메모장 최하단 독립형 태그 바 연동 */}
+      <MemoTagBar memoTags={editorHooks.memoTags} setMemoTags={editorHooks.setMemoTags} />
+
     </div>
   );
 };

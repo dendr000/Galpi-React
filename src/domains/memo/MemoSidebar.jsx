@@ -1,7 +1,8 @@
-// 파일 위치: src/components/layout/fab/memo/MemoSidebar.jsx
+// 파일 위치: src/domains/memo/MemoSidebar.jsx
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useMemoSidebar } from './hooks/useMemoSidebar';
+import { FolderPlusIcon, EditIcon, XIcon, FileTextIcon, MoreVerticalIcon, FolderIcon, TrashIcon } from './components/MemoIcons'; // ★ SVG 아이콘 임포트
 
 const MemoSidebar = (props) => {
   const sidebarHooks = useMemoSidebar(props);
@@ -83,12 +84,14 @@ const MemoSidebar = (props) => {
               >
                 {props.memoFolders.map(f => <option key={f} value={f}>{f}</option>)}
               </select>
-              <button className="wiki-btn" onClick={sidebarHooks.handleAddFolder} style={{ padding: '6px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} title="폴더 추가">➕</button>
-              <button className="wiki-btn" onClick={sidebarHooks.handleEditFolder} style={{ padding: '6px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} title="폴더 수정">✏️</button>
-              <button className="wiki-btn" onClick={sidebarHooks.handleDeleteFolder} style={{ padding: '6px', background: 'var(--surface-color)', border: '1px solid #e53e3e', color: '#e53e3e' }} title="폴더 삭제">✖</button>
+              <button className="wiki-btn" onClick={sidebarHooks.handleAddFolder} style={{ padding: '6px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="폴더 추가"><FolderPlusIcon /></button>
+              <button className="wiki-btn" onClick={sidebarHooks.handleEditFolder} style={{ padding: '6px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="폴더 수정"><EditIcon /></button>
+              <button className="wiki-btn" onClick={sidebarHooks.handleDeleteFolder} style={{ padding: '6px', background: 'var(--surface-color)', border: '1px solid #e53e3e', color: '#e53e3e', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="폴더 삭제"><XIcon /></button>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>📄 {sidebarHooks.filteredMemos.length}개의 메모</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>
+                <FileTextIcon /> {sidebarHooks.filteredMemos.length}개의 메모
+              </span>
               <select value={sidebarHooks.currentSort} onChange={sidebarHooks.handleSortChange} style={{ fontSize: '12px', padding: '4px', borderRadius: '4px', border: '1px solid var(--border-color)', outline: 'none', background: 'var(--surface-color)', color: 'var(--text-primary)' }}>
                 <option value="name">이름순 정렬</option>
                 <option value="date">최신 수정순</option>
@@ -126,9 +129,11 @@ const MemoSidebar = (props) => {
                               >
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
                                   <h4 style={{ margin: 0, fontSize: '14px', color: isActive ? '#e53e3e' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{m.title || '제목 없음'}</h4>
-                                  <button onClick={(e) => sidebarHooks.openMoveMenu(e, m.id)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '2px 5px', fontWeight: 'bold', fontSize: '14px' }}>⋮</button>
+                                  <button onClick={(e) => sidebarHooks.openMoveMenu(e, m.id)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '2px 5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MoreVerticalIcon /></button>
                                 </div>
-                                <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)' }}>{dateStr} | 📂 {m.folder}</p>
+                                <p style={{ display: 'flex', alignItems: 'center', gap: '4px', margin: 0, fontSize: '11px', color: 'var(--text-secondary)' }}>
+                                  {dateStr} | <FolderIcon /> {m.folder}
+                                </p>
                               </div>
                             )}
                           </Draggable>
@@ -147,21 +152,21 @@ const MemoSidebar = (props) => {
           </div>
         </div>
 
-        {/* 🌟 잘림 방지를 위해 마스킹 컨테이너 밖으로 빼낸 컨텍스트 메뉴 */}
+        {/* 🌟 컨텍스트 메뉴 */}
         {sidebarHooks.menuData.isOpen && (
           <div ref={sidebarHooks.menuRef} style={{ position: 'fixed', top: sidebarHooks.menuData.y, left: sidebarHooks.menuData.x, background: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', zIndex: 99999, display: 'flex', flexDirection: 'column', minWidth: '150px' }}>
-            <div style={{ padding: '10px 14px', fontSize: '11px', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)', fontWeight: 'bold', cursor: 'default' }}>📂 이동할 폴더 선택</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 14px', fontSize: '11px', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)', fontWeight: 'bold', cursor: 'default' }}><FolderIcon /> 이동할 폴더 선택</div>
             {props.memoFolders.filter(f => f !== "전체 메모").map(f => {
               const targetMemo = props.memoData.find(m => String(m.id) === String(sidebarHooks.menuData.memoId));
               const isCurrent = targetMemo?.folder === f;
               return (
-                <div key={f} className="memo-move-item" onClick={() => !isCurrent && sidebarHooks.executeMoveMemo(f)} style={{ opacity: isCurrent ? 0.4 : 1, cursor: isCurrent ? 'not-allowed' : 'pointer', padding: '8px 12px', fontSize: '12px', fontWeight: 'bold', color: 'var(--text-primary)', transition: '0.2s' }} onMouseOver={(e) => { if(!isCurrent) e.currentTarget.style.background = 'var(--table-bg-alt)'; e.currentTarget.style.color = 'var(--primary-color)'; }} onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-primary)'; }}>
-                  📁 {f} {isCurrent ? '(현재)' : ''}
+                <div key={f} className="memo-move-item" onClick={() => !isCurrent && sidebarHooks.executeMoveMemo(f)} style={{ opacity: isCurrent ? 0.4 : 1, cursor: isCurrent ? 'not-allowed' : 'pointer', padding: '8px 12px', fontSize: '12px', fontWeight: 'bold', color: 'var(--text-primary)', transition: '0.2s', display: 'flex', alignItems: 'center', gap: '6px' }} onMouseOver={(e) => { if(!isCurrent) e.currentTarget.style.background = 'var(--table-bg-alt)'; e.currentTarget.style.color = 'var(--primary-color)'; }} onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-primary)'; }}>
+                  <FolderIcon /> {f} {isCurrent ? '(현재)' : ''}
                 </div>
               );
             })}
             <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 0' }}></div>
-            <div className="memo-move-item" onClick={sidebarHooks.deleteMemo} style={{ color: '#e53e3e', fontWeight: 900, padding: '8px 12px', fontSize: '12px', cursor: 'pointer', transition: '0.2s' }} onMouseOver={(e) => e.currentTarget.style.background = 'var(--table-bg-alt)'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>🗑️ 영구 삭제</div>
+            <div className="memo-move-item" onClick={sidebarHooks.deleteMemo} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#e53e3e', fontWeight: 900, padding: '8px 12px', fontSize: '12px', cursor: 'pointer', transition: '0.2s' }} onMouseOver={(e) => e.currentTarget.style.background = 'var(--table-bg-alt)'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}><TrashIcon /> 영구 삭제</div>
           </div>
         )}
       </div>

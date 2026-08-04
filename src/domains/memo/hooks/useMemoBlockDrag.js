@@ -1,4 +1,4 @@
-// 파일 위치: src/components/layout/fab/memo/hooks/useMemoBlockDrag.js
+// 파일 위치: src/domains/memo/hooks/useMemoBlockDrag.js
 // 기능 요약: 노션(Notion) 스타일의 블록 드래그 핸들 [⋮⋮] 표출 및 HTML5 Native DnD 블록 재배치 물리 엔진
 // 버전: v1.1.0 (순수 표 및 아코디언 직접 타겟팅 버그 픽스)
 import { useEffect, useRef } from 'react';

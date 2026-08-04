@@ -1,4 +1,4 @@
-// 파일 위치: src/components/layout/fab/memo/components/MemoFootnotePopover.jsx
+// 파일 위치: src/domains/memo/components/MemoFootnotePopover.jsx
 import React, { useState, useEffect, useRef } from 'react';
 
 const MemoFootnotePopover = ({ popover, closePopover, switchToEdit, updateFootnote, deleteFootnote, timeoutRef }) => {

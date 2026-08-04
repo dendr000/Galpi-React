@@ -1,4 +1,4 @@
-// 파일 위치: src/components/layout/fab/memo/hooks/useMemoSortAndDrag.js
+// 파일 위치: src/domains/memo/hooks/useMemoSortAndDrag.js
 export const useMemoSortAndDrag = ({ memoData, setMemoData, currentFolder, sortMap, setSortMap }) => {
   const handleSortChange = (e) => {
     const val = e.target.value;

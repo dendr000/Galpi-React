@@ -1,4 +1,4 @@
-// 파일 위치: src/components/layout/fab/memo/hooks/useMemoEvents.js
+// 파일 위치: src/domains/memo/hooks/useMemoEvents.js
 import { useMemoSelection } from './events/useMemoSelection';
 import { useMemoTableNav } from './events/useMemoTableNav';
 

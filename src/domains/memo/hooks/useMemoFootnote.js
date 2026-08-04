@@ -1,4 +1,4 @@
-// 파일 위치: src/components/layout/fab/memo/hooks/useMemoFootnote.js
+// 파일 위치: src/domains/memo/hooks/useMemoFootnote.js
 import { useState, useEffect, useRef } from 'react';
 
 export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {

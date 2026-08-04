@@ -1,11 +1,12 @@
 // 파일 위치: src/pages/MemoWorkspace/WorkspaceEditorModal.jsx
 // 기능 요약: 비즈니스 로직을 모두 useWorkspaceEditor 훅으로 분리하고 UI 마크업만 남긴 경량화 모달
-// 버전: v2.0.0
+// 버전: v2.1.0 (최하단 독립형 태그 바 마운트)
 
 import React from 'react';
 import MemoFormatBar from './editor/MemoFormatBar';
 import MemoEditorHeader from './editor/MemoEditorHeader';
 import MentionDropdown from './editor/MentionDropdown';
+import MemoTagBar from './editor/MemoTagBar';
 import { useWorkspaceEditor } from './editor/useWorkspaceEditor';
 
 const WorkspaceEditorModal = (props) => {
@@ -45,7 +46,6 @@ const WorkspaceEditorModal = (props) => {
           folders={props.folders} isSaving={isSaving} handleSaveMemo={handleSaveMemo}
           activeMemoId={props.activeMemoId} handleDeleteMemo={handleDeleteMemo}
           setIsEditorOpen={props.setIsEditorOpen} handleTitleKeyDown={handleTitleKeyDown}
-          memoTags={editorHooks.memoTags} setMemoTags={editorHooks.setMemoTags}
         />
 
         <MemoFormatBar 
@@ -66,6 +66,10 @@ const WorkspaceEditorModal = (props) => {
           onMouseUp={() => { checkTableFocus(); updateCharCount(); }}
           onKeyDown={handleEditorKeyDown} onCopy={handleCopy}
         />
+
+        {/* ★ 신규 추가된 에디터 하단 독립형 태그 바 */}
+        <MemoTagBar memoTags={editorHooks.memoTags} setMemoTags={editorHooks.setMemoTags} />
+
       </div>
     </div>
   );
