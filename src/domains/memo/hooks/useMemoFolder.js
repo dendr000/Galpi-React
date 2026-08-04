@@ -2,61 +2,88 @@
 import api from '../../../api/axiosCore';
 
 export const useMemoFolder = ({ memoData, setMemoData, memoFolders, setMemoFolders, currentFolder, setCurrentFolder }) => {
-  const handleAddFolder = () => {
-    const name = prompt("새로운 폴더 이름을 입력하세요:");
-    if (name && name.trim() && !memoFolders.includes(name.trim())) {
-      const newFolders = [...memoFolders, name.trim()];
-      setMemoFolders(newFolders);
-      localStorage.setItem('galpi-memo-folders', JSON.stringify(newFolders));
-      setCurrentFolder(name.trim());
+  
+  const handleAddFolder = (parentPath = '') => {
+    const promptMsg = parentPath 
+      ? `[${parentPath}] 하위에 생성할 폴더명:` 
+      : "새로운 최상위 폴더 이름을 입력하세요:";
+      
+    const name = prompt(promptMsg);
+    
+    if (name && name.trim()) {
+      const newPath = parentPath ? `${parentPath}/${name.trim()}` : name.trim();
+      
+      if (!memoFolders.includes(newPath)) {
+        const newFolders = [...memoFolders, newPath];
+        setMemoFolders(newFolders);
+        localStorage.setItem('galpi-memo-folders', JSON.stringify(newFolders));
+        setCurrentFolder(newPath);
+      } else {
+        alert("이미 존재하는 경로입니다.");
+      }
     }
   };
 
-  const handleEditFolder = async () => {
-    if (["전체 메모", "설정 아이디어", "기타"].includes(currentFolder)) {
-      return alert("기본 폴더는 이름을 수정할 수 없습니다.");
+  const handleEditFolder = async (targetPath) => {
+    const path = targetPath || currentFolder;
+    // ★ 필수 시스템 폴더인 기타'만 남기고 잉여 폴더 락 해제
+    if (["기타"].includes(path)) {
+      return alert("기본 시스템 폴더는 이름을 수정할 수 없습니다.");
     }
-    const newName = prompt("수정할 폴더 이름을 입력하세요:", currentFolder);
-    if (newName && newName.trim() && newName.trim() !== currentFolder) {
-      const finalName = newName.trim();
-      if (memoFolders.includes(finalName)) return alert("이미 존재하는 폴더명입니다.");
+
+    const oldName = path.split('/').pop();
+    const parentPath = path.substring(0, path.lastIndexOf('/'));
+    
+    const newName = prompt("수정할 폴더 이름을 입력하세요:", oldName);
+    
+    if (newName && newName.trim() && newName.trim() !== oldName) {
+      const finalPath = parentPath ? `${parentPath}/${newName.trim()}` : newName.trim();
       
-      const newFolders = memoFolders.map(f => f === currentFolder ? finalName : f);
+      if (memoFolders.includes(finalPath)) return alert("이미 존재하는 폴더명입니다.");
+      
+      const newFolders = memoFolders.map(f => {
+        if (f === path) return finalPath;
+        if (f.startsWith(`${path}/`)) return f.replace(`${path}/`, `${finalPath}/`);
+        return f;
+      });
+      
       setMemoFolders(newFolders);
       localStorage.setItem('galpi-memo-folders', JSON.stringify(newFolders));
       
-      const newData = memoData.map(m => m.folder === currentFolder ? { ...m, folder: finalName, updatedAt: Date.now() } : m);
+      const newData = memoData.map(m => {
+        if (m.folder === path) return { ...m, folder: finalPath, updatedAt: Date.now() };
+        if (m.folder && m.folder.startsWith(`${path}/`)) return { ...m, folder: m.folder.replace(`${path}/`, `${finalPath}/`), updatedAt: Date.now() };
+        return m;
+      });
+      
       setMemoData(newData);
       localStorage.setItem('galpi-memos', JSON.stringify(newData));
-      setCurrentFolder(finalName);
-
-      const affectedMemos = newData.filter(m => m.folder === finalName);
-      Promise.all(affectedMemos.map(m => {
-        const isEdit = !String(m.id).startsWith("local_") && String(m.id).length < 13;
-        return isEdit ? api.put(`/api/memos/${m.id}`, m) : Promise.resolve();
-      })).catch(e => console.warn("폴더 일괄 동기화 통신 거부", e));
+      setCurrentFolder(finalPath);
     }
   };
 
-  const handleDeleteFolder = async () => {
-    if (["전체 메모", "설정 아이디어", "기타"].includes(currentFolder)) {
-      return alert("기본 폴더는 삭제할 수 없습니다.");
+  const handleDeleteFolder = async (targetPath) => {
+    const path = targetPath || currentFolder;
+    // ★ 필수 시스템 폴더인 '기타'만 남기고 잉여 폴더 락 해제
+    if (["기타"].includes(path)) {
+      return alert("기본 시스템 폴더는 삭제할 수 없습니다.");
     }
-    if (window.confirm(`'${currentFolder}' 폴더를 삭제하시겠습니까?\n(내부에 있던 메모는 모두 '기타' 폴더로 자동 이동되며 DB에 반영됩니다)`)) {
-      const newFolders = memoFolders.filter(f => f !== currentFolder);
+    
+    if (window.confirm(`'${path}' 폴더와 그 하위 폴더를 삭제하시겠습니까?\n(내부에 있던 메모는 모두 '기타' 폴더로 자동 이동됩니다)`)) {
+      const newFolders = memoFolders.filter(f => f !== path && !f.startsWith(`${path}/`));
       setMemoFolders(newFolders);
       localStorage.setItem('galpi-memo-folders', JSON.stringify(newFolders));
       
-      const newData = memoData.map(m => m.folder === currentFolder ? { ...m, folder: "기타", updatedAt: Date.now() } : m);
+      const newData = memoData.map(m => {
+        if (m.folder === path || (m.folder && m.folder.startsWith(`${path}/`))) {
+          return { ...m, folder: "기타", updatedAt: Date.now() };
+        }
+        return m;
+      });
+      
       setMemoData(newData);
       localStorage.setItem('galpi-memos', JSON.stringify(newData));
-      setCurrentFolder("전체 메모");
-
-      const affectedMemos = newData.filter(m => m.folder === "기타");
-      Promise.all(affectedMemos.map(m => {
-        const isEdit = !String(m.id).startsWith("local_") && String(m.id).length < 13;
-        return isEdit ? api.put(`/api/memos/${m.id}`, m) : Promise.resolve();
-      })).catch(e => console.warn("폴더 삭제 후 이동 동기화 실패", e));
+      setCurrentFolder("기타");
     }
   };
 

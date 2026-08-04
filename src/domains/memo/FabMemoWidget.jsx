@@ -3,22 +3,25 @@ import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axiosCore';
 import MemoSidebar from './MemoSidebar';
 import MemoEditor from './MemoEditor';
-import { PenToolIcon, XIcon } from './components/MemoIcons'; // ★ 메인 버튼용 SVG 아이콘 임포트
+import { PenToolIcon, XIcon } from './components/MemoIcons'; 
 
 const FabMemoWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [memoData, setMemoData] = useState([]);
-  const [memoFolders, setMemoFolders] = useState(["전체 메모", "설정 아이디어", "기타"]);
-  const [currentFolder, setCurrentFolder] = useState("전체 메모");
+  // ★ "설정 아이디어" 더미 데이터 제거
+  const [memoFolders, setMemoFolders] = useState(["기타"]);
+  const [currentFolder, setCurrentFolder] = useState("기타");
   const [activeMemoId, setActiveMemoId] = useState(null);
   const [sortMap, setSortMap] = useState({});
+  const [selectedTag, setSelectedTag] = useState(null);
 
   useEffect(() => {
     try {
       const storedSortMap = JSON.parse(localStorage.getItem('galpi-memo-sort-map'));
       if (storedSortMap) setSortMap(storedSortMap);
 
-      let localFolders = ["전체 메모", "설정 아이디어", "기타"];
+      // ★ "설정 아이디어" 더미 데이터 제거
+      let localFolders = ["기타"];
       const storedFolders = JSON.parse(localStorage.getItem('galpi-memo-folders'));
       if (storedFolders) localFolders = [...new Set([...localFolders, ...storedFolders])];
       
@@ -123,6 +126,7 @@ const FabMemoWidget = () => {
               activeMemoId={activeMemoId} setActiveMemoId={setActiveMemoId}
               sortMap={sortMap} setSortMap={setSortMap}
               handleCreateMemo={handleCreateMemo}
+              selectedTag={selectedTag} setSelectedTag={setSelectedTag} // ★ 상태 및 업데이트 함수 주입
             />
             <MemoEditor 
               activeMemo={activeMemo} 
