@@ -1,16 +1,18 @@
-// 파일 위치: src/domains/memo/MemoSidebar.jsx
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useMemoSidebar } from './hooks/useMemoSidebar';
 import { 
   FolderPlusIcon, EditIcon, XIcon, FileTextIcon, 
-  MoreVerticalIcon, FolderIcon, TrashIcon, TagIcon 
-} from './components/MemoIcons'; 
+  MoreVerticalIcon, FolderIcon 
+} from './components/MemoIcons';
+import MemoSmartFolders from './components/MemoSmartFolders';
+import MemoTagExplorer from './components/MemoTagExplorer';
+import MemoContextMenu from './components/MemoContextMenu';
 
 const MemoSidebar = (props) => {
   const sidebarHooks = useMemoSidebar(props);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isTagExplorerOpen, setIsTagExplorerOpen] = useState(false); // ★ 태그 탐색기 토글 상태
+  const [isTagExplorerOpen, setIsTagExplorerOpen] = useState(false); 
 
   const renderTreeNodes = (node) => {
     if (node.depth === -1) {
@@ -122,16 +124,11 @@ const MemoSidebar = (props) => {
       <div style={{ position: 'relative', width: isExpanded ? '300px' : '60px', height: '100%', flexShrink: 0, transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)', zIndex: 50, background: 'var(--bg-color)', borderRight: '1px solid var(--border-color)', overflow: 'hidden' }}>
         
         <div className="galpi-binder-tab" onClick={() => setIsExpanded(!isExpanded)} title={isExpanded ? "목록 닫기" : "탐색기 열기"}>
-          {isExpanded ? (
-            <XIcon size={20} />
-          ) : (
-            <FolderIcon size={20} />
-          )}
+          {isExpanded ? <XIcon size={20} /> : <FolderIcon size={20} />}
         </div>
 
         <div style={{ width: '300px', height: '100%', opacity: isExpanded ? 1 : 0, pointerEvents: isExpanded ? 'auto' : 'none', transition: 'opacity 0.2s', display: 'flex', flexDirection: 'column' }}>
           
-          {/* ★ '탐색기 (DB)' 텍스트 삭제 후 우측 정렬만 깔끔하게 유지 */}
           <div style={{ padding: '15px 15px 15px 60px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '4px' }}>
               <button className="wiki-btn" onClick={() => sidebarHooks.handleAddFolder('')} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', padding: '4px', cursor: 'pointer' }} title="새 최상위 폴더"><FolderPlusIcon /></button>
@@ -140,79 +137,67 @@ const MemoSidebar = (props) => {
           </div>
 
           <div className="galpi-sidebar-scroll" style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
-            <DragDropContext onDragEnd={sidebarHooks.handleDragEnd}>
-              {renderTreeNodes(sidebarHooks.treeData)}
-            </DragDropContext>
-          </div>
+            <MemoSmartFolders 
+              currentFolder={props.currentFolder} 
+              setCurrentFolder={props.setCurrentFolder} 
+            />
 
-          <div style={{ borderTop: '1px solid var(--border-color)', background: 'var(--table-bg-alt)', flexShrink: 0 }}>
-            <div 
-              onClick={() => setIsTagExplorerOpen(!isTagExplorerOpen)}
-              // ★ 상하 패딩을 12px -> 16px로 4px씩 늘려 우측 태그 바와 높이 및 경계선을 완벽하게 일치시킵니다.
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 15px', cursor: 'pointer', userSelect: 'none' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>
-                <TagIcon /> 태그 탐색기
-              </div>
-              <span style={{ fontSize: '10px', color: 'var(--text-secondary)', transform: isTagExplorerOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
-                ▼
-              </span>
-            </div>
-            
-            <div className="galpi-sidebar-scroll" style={{ 
-              display: 'flex', flexWrap: 'wrap', gap: '6px', 
-              maxHeight: isTagExplorerOpen ? '150px' : '0', 
-              padding: isTagExplorerOpen ? '0 15px 15px 15px' : '0 15px',
-              opacity: isTagExplorerOpen ? 1 : 0,
-              overflowY: 'auto', 
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' 
-            }}>
-              {sidebarHooks.tagList.length === 0 ? (
-                <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>등록된 태그가 없습니다.</span>
-              ) : (
-                sidebarHooks.tagList.map(t => (
-                  <button
-                    key={t.name}
-                    onClick={() => props.setSelectedTag(props.selectedTag === t.name ? null : t.name)}
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', gap: '4px',
-                      padding: '4px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer',
-                      border: props.selectedTag === t.name ? '1px solid var(--primary-color)' : '1px solid var(--border-color)',
-                      background: props.selectedTag === t.name ? 'var(--primary-color)' : 'var(--bg-color)',
-                      color: props.selectedTag === t.name ? '#fff' : 'var(--text-primary)',
-                      transition: '0.2s'
+            {(["최근 7일", "잠긴 메모", "미분류"].includes(props.currentFolder) || props.selectedTag) ? (
+              <div style={{ padding: '5px 0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 8px', marginBottom: '10px' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
+                    {props.selectedTag ? `#${props.selectedTag} 검색 결과` : `${props.currentFolder} 결과`} ({sidebarHooks.filteredMemos.length}건)
+                  </span>
+                  {/* ★ 트리뷰로 복귀하는 닫기 버튼 추가 */}
+                  <button 
+                    onClick={() => {
+                      if (props.selectedTag) props.setSelectedTag(null);
+                      else props.setCurrentFolder("기타");
                     }}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px', padding: 0 }}
                   >
-                    #{t.name} <span style={{ opacity: 0.7, fontSize: '10px' }}>({t.count})</span>
+                    <XIcon size={12} /> 닫기
                   </button>
-                ))
-              )}
-            </div>
+                </div>
+                {sidebarHooks.filteredMemos.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: 'bold' }}>해당하는 메모가 없습니다.</div>
+                ) : (
+                  <DragDropContext onDragEnd={sidebarHooks.handleDragEnd}>
+                    <Droppable droppableId="filtered-list-droppable">
+                      {(provided) => (
+                        <div {...provided.droppableProps} ref={provided.innerRef}>
+                          {sidebarHooks.filteredMemos.map((m, idx) => renderMemoItem(m, idx))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </DragDropContext>
+                )}
+              </div>
+            ) : (
+              <DragDropContext onDragEnd={sidebarHooks.handleDragEnd}>
+                {renderTreeNodes(sidebarHooks.treeData)}
+              </DragDropContext>
+            )}
           </div>
 
+          <MemoTagExplorer 
+            isTagExplorerOpen={isTagExplorerOpen}
+            setIsTagExplorerOpen={setIsTagExplorerOpen}
+            tagList={sidebarHooks.tagList}
+            selectedTag={props.selectedTag}
+            setSelectedTag={props.setSelectedTag}
+          />
         </div>
 
-        {/* 컨텍스트 메뉴 */}
-        {sidebarHooks.menuData.isOpen && (
-          <div ref={sidebarHooks.menuRef} style={{ position: 'fixed', top: sidebarHooks.menuData.y, left: sidebarHooks.menuData.x, background: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', zIndex: 99999, display: 'flex', flexDirection: 'column', minWidth: '180px', maxHeight: '400px', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 14px', fontSize: '11px', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)', fontWeight: 'bold', cursor: 'default' }}><FolderIcon /> 이동할 폴더 선택</div>
-            {props.memoFolders.sort().filter(f => f !== "기타").map(f => {
-              const targetMemo = props.memoData.find(m => String(m.id) === String(sidebarHooks.menuData.memoId));
-              const isCurrent = targetMemo?.folder === f;
-              const depth = f.split('/').length - 1;
-              const indent = '\u00A0\u00A0\u00A0\u00A0'.repeat(depth);
-              const displayName = f.split('/').pop();
-
-              return (
-                <div key={f} className="memo-move-item" onClick={() => !isCurrent && sidebarHooks.executeMoveMemo(f)} style={{ opacity: isCurrent ? 0.4 : 1, cursor: isCurrent ? 'not-allowed' : 'pointer', padding: '8px 12px', fontSize: '12px', fontWeight: 'bold', color: 'var(--text-primary)', transition: '0.2s', display: 'flex', alignItems: 'center', gap: '6px' }} onMouseOver={(e) => { if(!isCurrent) { e.currentTarget.style.background = 'var(--table-bg-alt)'; e.currentTarget.style.color = 'var(--primary-color)'; } }} onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-primary)'; }}>
-                  <span>{indent}</span><FolderIcon /> {displayName} {isCurrent ? '(현재)' : ''}
-                </div>
-              );
-            })}
-            <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 0', flexShrink: 0 }}></div>
-            <div className="memo-move-item" onClick={sidebarHooks.deleteMemo} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#e53e3e', fontWeight: 900, padding: '8px 12px', fontSize: '12px', cursor: 'pointer', transition: '0.2s', flexShrink: 0 }} onMouseOver={(e) => e.currentTarget.style.background = 'var(--table-bg-alt)'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}><TrashIcon /> 영구 삭제</div>
-          </div>
-        )}
+        <MemoContextMenu 
+          menuData={sidebarHooks.menuData}
+          menuRef={sidebarHooks.menuRef}
+          memoFolders={props.memoFolders}
+          memoData={props.memoData}
+          executeMoveMemo={sidebarHooks.executeMoveMemo}
+          deleteMemo={sidebarHooks.deleteMemo}
+        />
       </div>
     </>
   );

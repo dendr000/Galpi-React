@@ -1,26 +1,26 @@
-// 파일 위치: src/domains/memo/FabMemoWidget.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axiosCore';
 import MemoSidebar from './MemoSidebar';
 import MemoEditor from './MemoEditor';
-import { PenToolIcon, XIcon } from './components/MemoIcons'; 
+import { PenToolIcon, XIcon } from './components/MemoIcons';
 
 const FabMemoWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [memoData, setMemoData] = useState([]);
-  // ★ "설정 아이디어" 더미 데이터 제거
+  
+  // ★ 초기 상태값을 '기타' 단일 항목으로 고정하여 레거시 폴더 부활 방지
   const [memoFolders, setMemoFolders] = useState(["기타"]);
   const [currentFolder, setCurrentFolder] = useState("기타");
   const [activeMemoId, setActiveMemoId] = useState(null);
   const [sortMap, setSortMap] = useState({});
-  const [selectedTag, setSelectedTag] = useState(null);
+  const [selectedTag, setSelectedTag] = useState(null); 
 
   useEffect(() => {
     try {
       const storedSortMap = JSON.parse(localStorage.getItem('galpi-memo-sort-map'));
       if (storedSortMap) setSortMap(storedSortMap);
 
-      // ★ "설정 아이디어" 더미 데이터 제거
+      // ★ 로컬 동기화의 기준점(Fallback)을 '기타'로 단일 고정
       let localFolders = ["기타"];
       const storedFolders = JSON.parse(localStorage.getItem('galpi-memo-folders'));
       if (storedFolders) localFolders = [...new Set([...localFolders, ...storedFolders])];
@@ -77,7 +77,7 @@ const FabMemoWidget = () => {
 
   const handleCreateMemo = useCallback(() => {
     const newId = `local_${Date.now()}`;
-    const targetFolder = currentFolder === "전체 메모" ? "기타" : currentFolder;
+    const targetFolder = currentFolder === "최근 7일" || currentFolder === "미분류" ? "기타" : currentFolder;
     
     const newMemo = { 
       id: newId, folder: targetFolder, title: "새로운 메모", content: "", 
@@ -126,7 +126,7 @@ const FabMemoWidget = () => {
               activeMemoId={activeMemoId} setActiveMemoId={setActiveMemoId}
               sortMap={sortMap} setSortMap={setSortMap}
               handleCreateMemo={handleCreateMemo}
-              selectedTag={selectedTag} setSelectedTag={setSelectedTag} // ★ 상태 및 업데이트 함수 주입
+              selectedTag={selectedTag} setSelectedTag={setSelectedTag}
             />
             <MemoEditor 
               activeMemo={activeMemo} 

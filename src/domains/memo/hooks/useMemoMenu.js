@@ -1,4 +1,3 @@
-// 파일 위치: src/domains/memo/hooks/useMemoMenu.js
 import { useState, useRef, useEffect } from 'react';
 import api from '../../../api/axiosCore';
 
@@ -59,7 +58,15 @@ export const useMemoMenu = ({ memoData, setMemoData, activeMemoId, setActiveMemo
   };
 
   const deleteMemo = async () => {
-    if (!window.confirm("정말 이 메모를 영구 삭제하시겠습니까?")) return;
+    const deleteKeyword = import.meta.env.VITE_DELETE_KEYWORD || 'delete';
+    const pass = window.prompt(`이 메모를 영구 삭제하시겠습니까?\n삭제를 원하시면 입력창에 '${deleteKeyword}'를 정확히 입력해주세요.`);
+    
+    if (pass !== deleteKeyword) {
+      if (pass !== null) alert("입력값이 일치하지 않아 삭제가 취소되었습니다.");
+      setMenuData({ isOpen: false, x: 0, y: 0, memoId: null });
+      return;
+    }
+
     const newData = memoData.filter(m => String(m.id) !== String(menuData.memoId));
     setMemoData(newData);
     localStorage.setItem('galpi-memos', JSON.stringify(newData));

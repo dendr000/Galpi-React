@@ -98,7 +98,7 @@ const GlobalContextMenu = () => {
     if (!currentWorkId) return;
     setMenu(prev => ({ ...prev, isOpen: false }));
 
-    const userInput = prompt(`⚠️ 시크릿 파괴 경고: 현재 작품을 시스템에서 완전히 파기하시겠습니까?\n등장인물 정보는 보존되며 작품 원장만 타겟이 됩니다. 삭제를 승인하시려면 'delete'를 정밀하게 입력하세요.`);
+    const userInput = prompt(`⚠️ 시크릿 파괴 경고: 현재 작품을 시스템에서 완전히 파기하시겠습니까?\n등장인물 정보는 보존되며 작품 원장만 타겟이 됩니다. 삭제를 승인하시려면 '${deleteKeyword}'를 정밀하게 입력하세요.`);
 
     if (userInput === 'delete') {
       try {

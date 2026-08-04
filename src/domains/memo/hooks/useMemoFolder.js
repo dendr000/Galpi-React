@@ -1,4 +1,3 @@
-// 파일 위치: src/domains/memo/hooks/useMemoFolder.js
 import api from '../../../api/axiosCore';
 
 export const useMemoFolder = ({ memoData, setMemoData, memoFolders, setMemoFolders, currentFolder, setCurrentFolder }) => {
@@ -26,7 +25,6 @@ export const useMemoFolder = ({ memoData, setMemoData, memoFolders, setMemoFolde
 
   const handleEditFolder = async (targetPath) => {
     const path = targetPath || currentFolder;
-    // ★ 필수 시스템 폴더인 기타'만 남기고 잉여 폴더 락 해제
     if (["기타"].includes(path)) {
       return alert("기본 시스템 폴더는 이름을 수정할 수 없습니다.");
     }
@@ -64,12 +62,14 @@ export const useMemoFolder = ({ memoData, setMemoData, memoFolders, setMemoFolde
 
   const handleDeleteFolder = async (targetPath) => {
     const path = targetPath || currentFolder;
-    // ★ 필수 시스템 폴더인 '기타'만 남기고 잉여 폴더 락 해제
     if (["기타"].includes(path)) {
       return alert("기본 시스템 폴더는 삭제할 수 없습니다.");
     }
     
-    if (window.confirm(`'${path}' 폴더와 그 하위 폴더를 삭제하시겠습니까?\n(내부에 있던 메모는 모두 '기타' 폴더로 자동 이동됩니다)`)) {
+    const deleteKeyword = import.meta.env.VITE_DELETE_KEYWORD || 'delete';
+    const pass = window.prompt(`'${path}' 폴더와 그 하위 폴더를 삭제하시겠습니까?\n(내부에 있던 메모는 모두 '기타' 폴더로 자동 이동됩니다)\n\n삭제를 원하시면 입력창에 '${deleteKeyword}'를 정확히 입력해주세요.`);
+
+    if (pass === deleteKeyword) {
       const newFolders = memoFolders.filter(f => f !== path && !f.startsWith(`${path}/`));
       setMemoFolders(newFolders);
       localStorage.setItem('galpi-memo-folders', JSON.stringify(newFolders));
@@ -84,6 +84,8 @@ export const useMemoFolder = ({ memoData, setMemoData, memoFolders, setMemoFolde
       setMemoData(newData);
       localStorage.setItem('galpi-memos', JSON.stringify(newData));
       setCurrentFolder("기타");
+    } else if (pass !== null) {
+      alert("입력값이 일치하지 않아 삭제가 취소되었습니다.");
     }
   };
 
