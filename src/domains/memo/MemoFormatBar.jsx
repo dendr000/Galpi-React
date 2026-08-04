@@ -1,5 +1,4 @@
 // 파일 위치: src/components/layout/fab/memo/MemoFormatBar.jsx
-// 기능 요약: 이모지를 100% 배제하고 SVG 아이콘으로 대체된 에디터 포맷 툴바 UI 컴포넌트
 import React from 'react';
 import {
   BoldIcon, ItalicIcon, StrikethroughIcon, FootnoteIcon, TableIcon, TodoIcon, FoldIcon, SearchIcon,
@@ -14,12 +13,14 @@ const MemoFormatBar = ({
   findReplaceVisible, setFindReplaceVisible, findText, setFindText,
   replaceText, setReplaceText, executeFindReplace, insertFootnote
 }) => {
-  // ★ 삽입되는 HTML 내부의 이모지도 인라인 SVG 스트링으로 완벽하게 치환하여 이모지 렌더링 파괴 원천 차단
   const svgClose = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
   const svgPlay = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
 
   const checkHTML = `<div style="display:flex; align-items:center; gap:8px; margin:4px 0;" contenteditable="false"><button type="button" onclick="this.parentElement.remove()" style="background:transparent; color:#e53e3e; border:none; cursor:pointer; font-size:14px; padding:0; outline:none; display:flex; align-items:center; justify-content:center;" title="삭제">${svgClose}</button><input type="checkbox" style="cursor:pointer; width:16px; height:16px;"><span contenteditable="true" style="outline:none; flex:1; font-size:13px; min-width:50px;">할 일 입력...</span></div>`;
-  const tableHTML = `<table style="width:100%; border-collapse:collapse; text-align:center; font-size:13px; background:var(--surface-color); table-layout:auto; margin: 15px 0;"><tbody><tr><th style="border:1px solid var(--border-color); padding:10px; background:var(--table-bg-alt); color:var(--primary-color); min-width:60px;">제목1</th><th style="border:1px solid var(--border-color); padding:10px; background:var(--table-bg-alt); color:var(--primary-color); min-width:60px;">제목2</th></tr><tr><td style="border:1px solid var(--border-color); padding:10px; min-width:60px;">내용1</td><td style="border:1px solid var(--border-color); padding:10px; min-width:60px;">내용2</td></tr></tbody></table><div><br></div>`;
+  
+  // ★ 수정: width: max-content; min-width: 100%; 적용으로 외부 선 드래그 시 내부가 찌그러지지 않고 표가 엑셀처럼 팽창
+  const tableHTML = `<table style="width:max-content; min-width:100%; border-collapse:collapse; text-align:center; font-size:13px; background:var(--surface-color); table-layout:fixed; word-break:break-all; margin: 15px 0;"><tbody><tr><th style="border:1px solid var(--border-color); padding:10px; background:var(--table-bg-alt); color:var(--primary-color); min-width:60px; resize:horizontal; overflow:hidden;">제목1</th><th style="border:1px solid var(--border-color); padding:10px; background:var(--table-bg-alt); color:var(--primary-color); min-width:60px; resize:horizontal; overflow:hidden;">제목2</th></tr><tr><td style="border:1px solid var(--border-color); padding:10px; min-width:60px; resize:horizontal; overflow:hidden;">내용1</td><td style="border:1px solid var(--border-color); padding:10px; min-width:60px; resize:horizontal; overflow:hidden;">내용2</td></tr></tbody></table><div><br></div>`;
+  
   const foldHTML = `<div style="position:relative; margin:15px 0; padding-top:15px;" contenteditable="false"><button type="button" onclick="this.parentElement.remove()" style="position:absolute; top:0; right:0; background:#e53e3e; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:11px; font-weight:bold; z-index:10; display:flex; align-items:center; gap:4px;">${svgClose} 박스 삭제</button><details style="border: 1px solid var(--border-color); border-radius: 8px; background: var(--table-bg-alt); overflow: hidden; font-size:13px;"><summary style="padding: 10px 15px; font-weight: 900; cursor: pointer; color: var(--primary-color); outline: none; list-style:none; display:flex; align-items:center; gap:8px;"><span style="display:flex; align-items:center; justify-content:center;">${svgPlay}</span><span contenteditable="true" style="outline:none;">펼쳐보기 (클릭하여 제목 수정)</span></summary><div contenteditable="true" style="padding: 15px; border-top: 1px dashed var(--border-color); line-height: 1.6; background: var(--surface-color); outline:none;">숨길 내용을 입력하세요...</div></details></div><div><br></div>`;
 
   const PASTEL_COLORS = [
@@ -38,7 +39,6 @@ const MemoFormatBar = ({
   return (
     <div id="memo-format-bar" style={{ display: 'flex', flexDirection: 'column', width: '100%', background: 'var(--table-bg-alt)', borderBottom: '1px solid var(--border-color)', userSelect: 'none', padding: '6px 10px', boxSizing: 'border-box' }}>
       
-      {/* 1. 기본 마크다운 및 서식 툴바 */}
       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
         <button className="wiki-btn" onClick={() => executeCmd('bold')} style={iconBtnStyle} title="굵게 (Ctrl+B)">
           <BoldIcon />
@@ -68,7 +68,6 @@ const MemoFormatBar = ({
         </button>
       </div>
 
-      {/* 2. 표 제어 컨트롤러 툴바 (구조 및 서식 제어) */}
       {tableCtrlVisible && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed var(--border-color)', width: '100%' }}>
           
@@ -123,7 +122,6 @@ const MemoFormatBar = ({
         </div>
       )}
 
-      {/* 3. 찾아 바꾸기 패널 */}
       {findReplaceVisible && (
         <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed var(--border-color)', width: '100%' }}>
           <input type="text" placeholder="찾을 내용" value={findText} onChange={e => setFindText(e.target.value)} style={{ padding: '4px', fontSize: '11px', border: '1px solid var(--border-color)', borderRadius: '4px', flex: 1, outline: 'none' }} />

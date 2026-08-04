@@ -1,6 +1,4 @@
 // 파일 위치: src/components/layout/fab/memo/hooks/useMemoTableCtrl.js
-// 기능 요약: 표 내부 포커스 감지, 구조 편집 및 내부 디자인 서식 제어 전담 훅
-// 버전: v2.0.0
 import { useState } from 'react';
 
 export const useMemoTableCtrl = ({ editorRef, activeCellRef, updateCharCount }) => {
@@ -26,7 +24,6 @@ export const useMemoTableCtrl = ({ editorRef, activeCellRef, updateCharCount }) 
     return false; 
   };
 
-  // [기존 구조 제어 로직]
   const addTableRowBelow = () => {
     if (!activeCellRef.current) return;
     const tr = activeCellRef.current.closest('tr');
@@ -34,6 +31,8 @@ export const useMemoTableCtrl = ({ editorRef, activeCellRef, updateCharCount }) 
     Array.from(tr.children).forEach(c => {
       const td = document.createElement('td');
       td.style.cssText = c.style.cssText;
+      td.style.resize = 'horizontal';
+      td.style.overflow = 'hidden';
       td.innerHTML = '<br>'; 
       newTr.appendChild(td);
     });
@@ -52,6 +51,8 @@ export const useMemoTableCtrl = ({ editorRef, activeCellRef, updateCharCount }) 
       if (refCell) {
         const newCell = document.createElement(refCell.tagName);
         newCell.style.cssText = refCell.style.cssText;
+        newCell.style.resize = 'horizontal';
+        newCell.style.overflow = 'hidden';
         newCell.innerHTML = '<br>';
         row.insertBefore(newCell, refCell.nextSibling);
       }
@@ -121,7 +122,6 @@ export const useMemoTableCtrl = ({ editorRef, activeCellRef, updateCharCount }) 
     updateCharCount();
   };
 
-  // [신규 디자인 제어 로직]
   const setCellAlign = (align) => {
     if (!activeCellRef.current) return;
     activeCellRef.current.style.textAlign = align;
@@ -138,6 +138,9 @@ export const useMemoTableCtrl = ({ editorRef, activeCellRef, updateCharCount }) 
       const el = document.createElement(targetTag);
       el.innerHTML = c.innerHTML;
       el.style.cssText = c.style.cssText;
+      el.style.resize = 'horizontal';
+      el.style.overflow = 'hidden';
+      
       if (targetTag === 'th') {
         el.style.background = 'var(--table-bg-alt)';
         el.style.color = 'var(--primary-color)';
@@ -162,13 +165,16 @@ export const useMemoTableCtrl = ({ editorRef, activeCellRef, updateCharCount }) 
     updateCharCount();
   };
 
+  // ★ 표의 기본 Width 한계가 해제된 상황(max-content)에 맞춰, min-width를 100%와 auto로 토글하도록 엔진 교체
   const toggleTableWidth = () => {
     if (!activeCellRef.current) return;
     const table = activeCellRef.current.closest('table');
-    if (table.style.width === '100%') {
+    if (table.style.minWidth === '100%') {
+      table.style.minWidth = 'auto';
       table.style.width = 'max-content';
     } else {
-      table.style.width = '100%';
+      table.style.minWidth = '100%';
+      table.style.width = 'max-content';
     }
     updateCharCount();
   };
