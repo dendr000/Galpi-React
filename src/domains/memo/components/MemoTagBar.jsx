@@ -1,8 +1,9 @@
 // 파일 위치: src/domains/memo/components/MemoTagBar.jsx
 import React, { useState } from 'react';
-import { TagIcon, XIcon } from './MemoIcons'; // ★ SVG 아이콘 임포트
+import { TagIcon, XIcon } from './MemoIcons';
 
-const MemoTagBar = ({ memoTags, setMemoTags }) => {
+// ★ onTagClick 프롭스 추가
+const MemoTagBar = ({ memoTags, setMemoTags, onTagClick }) => {
   const [inputValue, setInputValue] = useState('');
 
   const tagsArray = memoTags ? memoTags.split(',').map(t => t.trim()).filter(Boolean) : [];
@@ -43,7 +44,14 @@ const MemoTagBar = ({ memoTags, setMemoTags }) => {
           background: 'rgba(59, 91, 219, 0.1)', color: 'var(--primary-color)', 
           borderRadius: '15px', fontSize: '12px', fontWeight: 'bold' 
         }}>
-          #{tag}
+          {/* ★ 텍스트 클릭 시 모달 호출 */}
+          <span 
+            onClick={() => onTagClick && onTagClick(tag)} 
+            style={{ cursor: 'pointer' }}
+            title={`'#${tag}' 연관 메모 검색`}
+          >
+            #{tag}
+          </span>
           <button 
             onClick={() => handleRemoveTag(tag)} 
             style={{ 

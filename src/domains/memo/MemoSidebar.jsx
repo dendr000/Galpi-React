@@ -10,6 +10,7 @@ import {
 const MemoSidebar = (props) => {
   const sidebarHooks = useMemoSidebar(props);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isTagExplorerOpen, setIsTagExplorerOpen] = useState(false); // ★ 태그 탐색기 토글 상태
 
   const renderTreeNodes = (node) => {
     if (node.depth === -1) {
@@ -113,7 +114,6 @@ const MemoSidebar = (props) => {
         .galpi-tree-folder:hover .folder-actions { opacity: 1; pointer-events: auto; }
         .galpi-tree-folder .folder-actions button:hover { background: var(--border-color) !important; border-radius: 4px; }
         
-        /* 스크롤바 디자인 최적화 */
         .galpi-sidebar-scroll::-webkit-scrollbar { width: 6px; }
         .galpi-sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
         .galpi-sidebar-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
@@ -131,8 +131,8 @@ const MemoSidebar = (props) => {
 
         <div style={{ width: '300px', height: '100%', opacity: isExpanded ? 1 : 0, pointerEvents: isExpanded ? 'auto' : 'none', transition: 'opacity 0.2s', display: 'flex', flexDirection: 'column' }}>
           
-          <div style={{ padding: '15px 15px 15px 60px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '13px', fontWeight: '900', color: 'var(--text-secondary)', letterSpacing: '1px' }}>탐색기 (DB)</span>
+          {/* ★ '탐색기 (DB)' 텍스트 삭제 후 우측 정렬만 깔끔하게 유지 */}
+          <div style={{ padding: '15px 15px 15px 60px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '4px' }}>
               <button className="wiki-btn" onClick={() => sidebarHooks.handleAddFolder('')} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', padding: '4px', cursor: 'pointer' }} title="새 최상위 폴더"><FolderPlusIcon /></button>
               <button className="wiki-btn" onClick={props.handleCreateMemo} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', padding: '4px', cursor: 'pointer' }} title="새 메모"><EditIcon /></button>
@@ -145,12 +145,28 @@ const MemoSidebar = (props) => {
             </DragDropContext>
           </div>
 
-          {/* ★ 신규: 독립형 태그 탐색기 영역 */}
-          <div style={{ padding: '15px', borderTop: '1px solid var(--border-color)', background: 'var(--table-bg-alt)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 'bold', color: 'var(--text-secondary)', marginBottom: '10px' }}>
-              <TagIcon /> 태그 탐색기
+          <div style={{ borderTop: '1px solid var(--border-color)', background: 'var(--table-bg-alt)', flexShrink: 0 }}>
+            <div 
+              onClick={() => setIsTagExplorerOpen(!isTagExplorerOpen)}
+              // ★ 상하 패딩을 12px -> 16px로 4px씩 늘려 우측 태그 바와 높이 및 경계선을 완벽하게 일치시킵니다.
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 15px', cursor: 'pointer', userSelect: 'none' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>
+                <TagIcon /> 태그 탐색기
+              </div>
+              <span style={{ fontSize: '10px', color: 'var(--text-secondary)', transform: isTagExplorerOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+                ▼
+              </span>
             </div>
-            <div className="galpi-sidebar-scroll" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', maxHeight: '150px', overflowY: 'auto' }}>
+            
+            <div className="galpi-sidebar-scroll" style={{ 
+              display: 'flex', flexWrap: 'wrap', gap: '6px', 
+              maxHeight: isTagExplorerOpen ? '150px' : '0', 
+              padding: isTagExplorerOpen ? '0 15px 15px 15px' : '0 15px',
+              opacity: isTagExplorerOpen ? 1 : 0,
+              overflowY: 'auto', 
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' 
+            }}>
               {sidebarHooks.tagList.length === 0 ? (
                 <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>등록된 태그가 없습니다.</span>
               ) : (
