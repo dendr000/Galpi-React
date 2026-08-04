@@ -116,15 +116,24 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
       indicatorTargetRef.current = null;
     };
 
+    // ★ 브라우저 텍스트 커서 개입 방어용 DragEnter 센서 추가
+    const onDragEnter = (e) => {
+      if (!draggedBlockRef.current) return;
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
     const onDragOver = (e) => {
       if (!draggedBlockRef.current) return;
       e.preventDefault();
+      e.stopPropagation(); // ★ 브라우저 기본 텍스트 드래그 간섭 강제 차단
       e.dataTransfer.dropEffect = 'move';
 
-      // ★ 픽스: 타겟 블록 감지에도 table과 details 태그 직접 지정
-      const targetBlock = e.target.closest('table, details, p, h1, h2, h3, h4');
+      // ★ 픽스: 일반 텍스트(div)를 포함시켜 줄바꿈 사이에도 드롭 가능하도록 타겟 확장
+      const targetBlock = e.target.closest('table, details, p, h1, h2, h3, h4, div');
 
-      if (targetBlock && editor.contains(targetBlock) && targetBlock !== draggedBlockRef.current) {
+      // 에디터 전체 컨테이너 자체가 타겟으로 잡히는 것을 방지
+      if (targetBlock && editor.contains(targetBlock) && targetBlock !== draggedBlockRef.current && targetBlock.id !== 'memo-edit-content') {
         const rect = targetBlock.getBoundingClientRect();
         const midY = rect.top + rect.height / 2;
 
@@ -146,6 +155,7 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
     const onDrop = (e) => {
       if (!draggedBlockRef.current) return;
       e.preventDefault();
+      e.stopPropagation(); // ★ 드롭 시에도 브라우저 기본 동작 차단
 
       const target = indicatorTargetRef.current;
       const pos = indicatorPosRef.current;
@@ -165,6 +175,7 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
 
     editor.addEventListener('mousemove', onMouseMove);
     editor.addEventListener('scroll', onScroll);
+    editor.addEventListener('dragenter', onDragEnter); // ★ 간섭 방어용 리스너 추가
     editor.addEventListener('dragover', onDragOver);
     editor.addEventListener('drop', onDrop);
     handle.addEventListener('dragstart', onDragStart);
@@ -173,6 +184,7 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
     return () => {
       editor.removeEventListener('mousemove', onMouseMove);
       editor.removeEventListener('scroll', onScroll);
+      editor.removeEventListener('dragenter', onDragEnter);
       editor.removeEventListener('dragover', onDragOver);
       editor.removeEventListener('drop', onDrop);
       handle.removeEventListener('dragstart', onDragStart);
