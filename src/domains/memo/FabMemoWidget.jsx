@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axiosCore';
 import MemoSidebar from '../MemoSidebar';
 import MemoEditor from '../MemoEditor';
-import styles from './FabMemoWidget.module.css';
 
 const FabMemoWidget = () => {
   console.log("[FabMemoWidget] 메모장 위젯 관제탑 렌더링 개시");

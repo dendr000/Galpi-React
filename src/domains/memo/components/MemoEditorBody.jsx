@@ -1,11 +1,10 @@
 // 파일 위치: src/components/layout/fab/memo/components/MemoEditorBody.jsx
 // 기능 요약: ContentEditable 기반의 실제 텍스트 입력 구역을 렌더링하고 DOM 물리 이벤트를 감지하는 컨테이너
-// 버전: v1.1.0 (누락된 Ctrl+A 시각적 은폐 CSS 글로벌 인젝션 복구)
+// 버전: v1.2.0 (표 가로 팽창 족쇄 해제)
 import React, { useEffect } from 'react';
 
 const MemoEditorBody = ({ editorHooks }) => {
 
-  // ★ 픽스: 분리 시 누락되었던 시각적 격리 CSS 글로벌 인젝션 (표, 아코디언 직접 타겟팅)
   useEffect(() => {
     if (!document.getElementById('memo-selection-styles')) {
       const style = document.createElement('style');
@@ -27,7 +26,8 @@ const MemoEditorBody = ({ editorHooks }) => {
       ref={editorHooks.editorRef}
       contentEditable="true"
       spellCheck="false"
-      style={{ flex: 1, overflowY: 'auto', outline: 'none', padding: '20px', background: 'var(--bg-color)', fontSize: '14px', lineHeight: 1.6, color: 'var(--text-primary)' }}
+      // ★ 수정: overflowY: 'auto'를 overflow: 'auto'로 변경하여 표 드래그 팽창 시 가로 스크롤 허용
+      style={{ flex: 1, overflow: 'auto', outline: 'none', padding: '20px', background: 'var(--bg-color)', fontSize: '14px', lineHeight: 1.6, color: 'var(--text-primary)' }}
       onInput={editorHooks.updateCharCount}
       onClick={editorHooks.handleEditorClick}
       onMouseUp={() => { editorHooks.checkTableFocus(); editorHooks.updateCharCount(); }}

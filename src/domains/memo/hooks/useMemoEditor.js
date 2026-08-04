@@ -6,6 +6,7 @@ import { useMemoEvents } from './useMemoEvents';
 import { useMemoFootnote } from './useMemoFootnote';
 import { useMemoTableCtrl } from './useMemoTableCtrl';
 import { useMemoFindReplace } from './useMemoFindReplace';
+import { useMemoBlockDrag } from './useMemoBlockDrag'; // ★ 신규 블록 드래그 엔진 임포트
 
 export const useMemoEditor = (props) => {
   const editorRef = useRef(null);
@@ -47,6 +48,9 @@ export const useMemoEditor = (props) => {
   const findReplaceHooks = useMemoFindReplace({ editorRef, updateCharCount });
   const footnoteHooks = useMemoFootnote(editorRef, updateCharCount, saveMemo);
   
+  // ★ 노션 스타일 블록 드래그 물리 엔진 마운트
+  useMemoBlockDrag({ editorRef, updateCharCount, saveMemo });
+
   const checkTableFocusWrapper = () => {
     const isFocused = tableCtrlHooks.checkTableFocus();
     if (isFocused) findReplaceHooks.setFindReplaceVisible(false);
