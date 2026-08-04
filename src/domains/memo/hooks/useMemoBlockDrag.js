@@ -1,16 +1,15 @@
 // 파일 위치: src/components/layout/fab/memo/hooks/useMemoBlockDrag.js
 // 기능 요약: 노션(Notion) 스타일의 블록 드래그 핸들 [⋮⋮] 표출 및 HTML5 Native DnD 블록 재배치 물리 엔진
-// 버전: v1.0.0
+// 버전: v1.1.0 (순수 표 및 아코디언 직접 타겟팅 버그 픽스)
 import { useEffect, useRef } from 'react';
 
 export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
   const draggedBlockRef = useRef(null);
   const hoveredBlockRef = useRef(null);
   const indicatorTargetRef = useRef(null);
-  const indicatorPosRef = useRef(null); // 'before' or 'after'
+  const indicatorPosRef = useRef(null);
 
   useEffect(() => {
-    // 1. 드래그 핸들 및 드롭 인디케이터(파란선) CSS 글로벌 인젝션
     if (!document.getElementById('memo-block-drag-styles')) {
       const style = document.createElement('style');
       style.id = 'memo-block-drag-styles';
@@ -36,7 +35,6 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
       document.head.appendChild(style);
     }
 
-    // 2. 에디터 텍스트 오염을 막기 위해 Body 최상단에 핸들/인디케이터 DOM 직접 렌더링
     let handle = document.getElementById('memo-block-drag-handle');
     if (!handle) {
       handle = document.createElement('div');
@@ -58,11 +56,11 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
     const editor = editorRef.current;
     if (!editor) return;
 
-    // ★ Hover 센서: 거대 블록(표, 접기 박스, 체크박스 등) 좌측에 핸들 표출
     const onMouseMove = (e) => {
       if (draggedBlockRef.current) return;
 
-      const block = e.target.closest('div[contenteditable="false"]');
+      // ★ 픽스: 껍데기가 사라진 table과 details 태그를 직접 타겟팅하도록 셀렉터 교체
+      const block = e.target.closest('table, details');
       
       if (block && editor.contains(block) && block !== editor) {
         hoveredBlockRef.current = block;
@@ -88,14 +86,13 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
       indicator.style.display = 'none';
     };
 
-    // ★ Drag Start: 블록 반투명화 및 Ghost Image 세팅
     const onDragStart = (e) => {
       if (!hoveredBlockRef.current) {
         e.preventDefault();
         return;
       }
       
-      document.activeElement?.blur(); // 텍스트 선택 간섭 방지
+      document.activeElement?.blur();
       draggedBlockRef.current = hoveredBlockRef.current;
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', 'memo-block');
@@ -119,13 +116,13 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
       indicatorTargetRef.current = null;
     };
 
-    // ★ Drag Over: 타겟 블록 감지 및 파란선(Drop Indicator) 표출
     const onDragOver = (e) => {
       if (!draggedBlockRef.current) return;
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
 
-      const targetBlock = e.target.closest('div[contenteditable="false"], p, h1, h2, h3, h4');
+      // ★ 픽스: 타겟 블록 감지에도 table과 details 태그 직접 지정
+      const targetBlock = e.target.closest('table, details, p, h1, h2, h3, h4');
 
       if (targetBlock && editor.contains(targetBlock) && targetBlock !== draggedBlockRef.current) {
         const rect = targetBlock.getBoundingClientRect();
@@ -146,7 +143,6 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
       }
     };
 
-    // ★ Drop: DOM 재배치 및 DB 자동 저장 연계
     const onDrop = (e) => {
       if (!draggedBlockRef.current) return;
       e.preventDefault();
