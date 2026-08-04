@@ -1,10 +1,11 @@
 // 파일 위치: src/components/layout/fab/memo/MemoEditor.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMemoEditor } from './hooks/useMemoEditor';
+import { useMemoEditor } from './hooks/useMemoEditor'; // ★ 상대 경로 완벽 수정 적용 완료
 import MemoEditorHeader from './MemoEditorHeader';
 import MemoFormatBar from './MemoFormatBar';
 import MemoFootnotePopover from './components/MemoFootnotePopover';
+import MemoEditorBody from './components/MemoEditorBody';
 
 const MemoEditor = (props) => {
   const navigate = useNavigate();
@@ -41,6 +42,11 @@ const MemoEditor = (props) => {
         addTableColRight={editorHooks.addTableColRight}
         delTableRow={editorHooks.delTableRow}
         delTableCol={editorHooks.delTableCol}
+        delTable={editorHooks.delTable}
+        setCellAlign={editorHooks.setCellAlign}
+        toggleHeaderRow={editorHooks.toggleHeaderRow}
+        setCellBgColor={editorHooks.setCellBgColor}
+        toggleTableWidth={editorHooks.toggleTableWidth}
         findReplaceVisible={editorHooks.findReplaceVisible}
         setFindReplaceVisible={editorHooks.setFindReplaceVisible}
         findText={editorHooks.findText}
@@ -51,22 +57,8 @@ const MemoEditor = (props) => {
         insertFootnote={editorHooks.footnoteHooks.insertFootnote}
       />
 
-      {/* ★ 메모가 렌더링될 때 센서가 완벽하게 몸체에 박히도록 React 이벤트로 위임 */}
-      <div 
-        id="memo-edit-content"
-        ref={editorHooks.editorRef}
-        contentEditable="true"
-        spellCheck="false"
-        style={{ flex: 1, overflowY: 'auto', outline: 'none', padding: '20px', background: 'var(--bg-color)', fontSize: '14px', lineHeight: 1.6, color: 'var(--text-primary)' }}
-        onInput={editorHooks.updateCharCount}
-        onClick={editorHooks.handleEditorClick}
-        onMouseUp={() => { editorHooks.checkTableFocus(); editorHooks.updateCharCount(); }}
-        onKeyUp={() => { editorHooks.checkTableFocus(); editorHooks.updateCharCount(); }}
-        onKeyDown={editorHooks.handleEditorKeyDown}
-        onCopy={editorHooks.handleCopy}
-        onMouseOver={editorHooks.footnoteHooks.handleMouseOver}
-        onMouseOut={editorHooks.footnoteHooks.handleMouseOut}
-      />
+      <MemoEditorBody editorHooks={editorHooks} />
+      
     </div>
   );
 };

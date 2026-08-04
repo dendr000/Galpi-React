@@ -1,9 +1,11 @@
-// 파일 위치: src/components/layout/fab/memo/useMemoEditor.js
+// 파일 위치: src/components/layout/fab/memo/hooks/useMemoEditor.js
 import { useState, useEffect, useRef } from 'react';
 import { useMemoSave } from './useMemoSave';
 import { useMemoFormat } from './useMemoFormat';
 import { useMemoEvents } from './useMemoEvents';
 import { useMemoFootnote } from './useMemoFootnote';
+import { useMemoTableCtrl } from './useMemoTableCtrl';
+import { useMemoFindReplace } from './useMemoFindReplace';
 
 export const useMemoEditor = (props) => {
   const editorRef = useRef(null);
@@ -39,21 +41,28 @@ export const useMemoEditor = (props) => {
   };
 
   const { saveMemo, isSaving } = useMemoSave({ ...props, titleRef, editorRef });
-  const formatHooks = useMemoFormat({ editorRef, activeCellRef, updateCharCount });
+  
+  const formatHooks = useMemoFormat({ editorRef, updateCharCount });
+  const tableCtrlHooks = useMemoTableCtrl({ editorRef, activeCellRef, updateCharCount });
+  const findReplaceHooks = useMemoFindReplace({ editorRef, updateCharCount });
   const footnoteHooks = useMemoFootnote(editorRef, updateCharCount, saveMemo);
   
-  // ★ 클릭 센서를 이벤트 훅으로 넘겨줌
+  const checkTableFocusWrapper = () => {
+    const isFocused = tableCtrlHooks.checkTableFocus();
+    if (isFocused) findReplaceHooks.setFindReplaceVisible(false);
+  };
+
   const eventHooks = useMemoEvents({ 
     editorRef, 
     saveMemo, 
     updateCharCount, 
-    checkTableFocus: formatHooks.checkTableFocus,
+    checkTableFocus: checkTableFocusWrapper,
     insertFootnote: footnoteHooks.insertFootnote,
     handleFootnoteClick: footnoteHooks.handleFootnoteClick
   });
 
   return {
     editorRef, titleRef, charCount, isSaving, saveMemo, updateCharCount,
-    ...formatHooks, ...eventHooks, footnoteHooks
+    ...formatHooks, ...tableCtrlHooks, ...findReplaceHooks, ...eventHooks, footnoteHooks
   };
 };
