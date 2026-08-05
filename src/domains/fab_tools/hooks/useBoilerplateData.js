@@ -1,6 +1,6 @@
 // 파일 위치: src/domains/fab_tools/hooks/useBoilerplateData.js
-// 기능 요약: 상용구 폴더 관리, CRUD 비즈니스 로직, 벌크 매크로 제어를 전담하는 커스텀 훅
-// 버전: v2.0.0
+// 기능 요약: 상용구 폴더 관리, 환경설정 로컬 저장소 동기화, 벌크 매크로 제어를 전담하는 커스텀 훅
+// 버전: v2.1.0
 
 import { useState, useEffect } from 'react';
 import api from '../../../api/axiosCore';
@@ -19,6 +19,10 @@ export const useBoilerplateData = (showToast) => {
   const [bpBulk, setBpBulk] = useState('');
   const [isBpBulkMode, setIsBpBulkMode] = useState(false);
 
+  // 환경설정 토글 상태 관리 (LocalStorage 연동)
+  const [isBpAuto, setIsBpAuto] = useState(() => localStorage.getItem('galpi-bp-auto') !== 'false');
+  const [isBpPreview, setIsBpPreview] = useState(() => localStorage.getItem('galpi-bp-preview') !== 'false');
+
   useEffect(() => {
     fetchBoilerplates();
   }, []);
@@ -33,6 +37,16 @@ export const useBoilerplateData = (showToast) => {
   const changeFolder = (folder) => {
     setActiveFolder(folder);
     localStorage.setItem('galpi-bp-active-folder', folder);
+  };
+
+  const toggleBpAuto = (e) => {
+    setIsBpAuto(e.target.checked);
+    localStorage.setItem('galpi-bp-auto', String(e.target.checked));
+  };
+
+  const toggleBpPreview = (e) => {
+    setIsBpPreview(e.target.checked);
+    localStorage.setItem('galpi-bp-preview', String(e.target.checked));
   };
 
   const handleAddFolder = () => {
@@ -186,6 +200,7 @@ export const useBoilerplateData = (showToast) => {
     bpList: filteredList, bpFolders, activeFolder, changeFolder,
     handleAddFolder, handleEditFolder, handleDeleteFolder,
     bpInput, setBpInput, editingId, handleBpSave, handleBpEdit, handleBpCancelEdit, handleBpDelete,
-    bpBulk, setBpBulk, isBpBulkMode, setIsBpBulkMode, handleBpBulk
+    bpBulk, setBpBulk, isBpBulkMode, setIsBpBulkMode, handleBpBulk,
+    isBpAuto, isBpPreview, toggleBpAuto, toggleBpPreview
   };
 };

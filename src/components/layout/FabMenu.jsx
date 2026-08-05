@@ -1,17 +1,23 @@
 // 파일 위치: src/components/layout/FabMenu.jsx
+// 기능 요약: 글로벌 모달 트리거들을 감싸고 있으며, 사전 및 상용구 데이터를 전역으로 패치하여 백그라운드 키보드 감시망에 연결하는 컴포넌트
+// 버전: v2.5.0
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useModalStore } from '../../store/useModalStore';
 import api from '../../api/axiosCore';
 
-// 분리된 모달 컴포넌트 Import
 import ClipboardModal from '../../domains/fab_tools/ClipboardModal';
 import DictModal from '../../domains/fab_tools/DictModal';
-import BoilerplateModal from '../../domains/fab_tools/BoilerplateModal';
 import SearchModal from '../../domains/fab_tools/SearchModal';
 import RecentModal from '../../domains/fab_tools/RecentModal';
 import MemoModal from '../../domains/memo/MemoModal';
+
+// 상용구 모듈 신규 인젝션
+import BoilerplateModal from '../../domains/fab_tools/BoilerplateModal';
+import BoilerplateSuggestPopup from '../../domains/fab_tools/BoilerplateSuggestPopup';
+import { useBoilerplateCore } from '../../domains/fab_tools/hooks/useBoilerplateCore';
+import { useBoilerplateListener } from '../../domains/fab_tools/hooks/useBoilerplateListener';
 
 const FabMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,8 +27,8 @@ const FabMenu = () => {
 
   const currentWorkId = new URLSearchParams(location.search).get('workId') || location.pathname.match(/\/work\/(\d+)/)?.[1] || 'global';
 
-  // 단축키용 글로벌 사전 상태 (모달 오픈 여부와 무관하게 Alt+H 지원)
   const [globalDictList, setGlobalDictList] = useState([]);
+  const [globalBpList, setGlobalBpList] = useState([]); // 글로벌 상용구 상태 추가
   const [toastMsg, setToastMsg] = useState('');
 
   const showToast = (msg) => {
@@ -30,14 +36,22 @@ const FabMenu = () => {
     setTimeout(() => setToastMsg(''), 2000);
   };
 
-  // 백그라운드 사전 동기화 (Alt+H 단축키 대응)
+  // 사전 동기화
   useEffect(() => {
     if (currentWorkId !== 'global') {
       api.get(`/api/dicts?workId=${currentWorkId}`).then(res => setGlobalDictList(res.data)).catch(() => {});
     }
   }, [currentWorkId]);
 
-  // 전역 클립보드 스크랩 인프라 및 단축키 인터랙션 가로채기
+  // 상용구 동기화
+  useEffect(() => {
+    api.get('/api/boilerplates').then(res => setGlobalBpList(res.data)).catch(() => {});
+  }, []);
+
+  // 상용구 코어 엔진 및 전역 리스너 마운트
+  const bpCore = useBoilerplateCore(showToast);
+  useBoilerplateListener({ globalBpList, bpCore, showToast });
+
   useEffect(() => {
     const handleCopy = () => {
       const text = window.getSelection().toString();
@@ -50,7 +64,6 @@ const FabMenu = () => {
         openModal('clipboard');
       }
       
-      // Alt + H 고유명사 한자 실시간 벡터 순환 치환 연산
       if (e.altKey && e.key.toLowerCase() === 'h' && e.target.tagName.match(/INPUT|TEXTAREA/)) {
         e.preventDefault(); e.stopPropagation();
         const input = e.target;
@@ -94,6 +107,13 @@ const FabMenu = () => {
 
   return (
     <>
+      {/* 팝업 UI 독립 렌더링 컨테이너 */}
+      <BoilerplateSuggestPopup 
+        popupState={bpCore.bpPopupState} 
+        commitBpExpansion={bpCore.commitBpExpansion} 
+        updatePopupState={bpCore.updatePopupState} 
+      />
+
       <div className="galpi-fab-wrap" style={{ position: 'fixed', bottom: '40px', right: '40px', zIndex: 9000, display: 'flex', flexDirection: 'column-reverse', alignItems: 'center', gap: '15px' }}>
         <button 
           id="galpi-fab-main"
@@ -105,10 +125,7 @@ const FabMenu = () => {
 
         <div className="galpi-fab-menu" style={{ display: 'flex', flexDirection: 'column-reverse', gap: '12px', opacity: isOpen ? 1 : 0, pointerEvents: isOpen ? 'auto' : 'none', transform: isOpen ? 'translateY(0)' : 'translateY(20px)', transition: '0.3s' }}>
           <button className="galpi-fab-item" onClick={() => { setIsOpen(false); navigate(`/bulk?workId=${currentWorkId}`); }} style={btnSty} title="일괄 수정"><img src="/img/svg/character.svg" alt="일괄수정" style={{width:'100%', height:'100%', objectFit:'contain'}}/></button>
-          
-          {/* ★ 메모 아이콘 클릭 시 메모장 모달 오버레이 오픈으로 변경 */}
           <button className="galpi-fab-item" onClick={() => { setIsOpen(false); openModal('memo'); }} style={btnSty} title="가상 메모장"><img src="/img/svg/memo.svg" alt="메모" style={{width:'100%', height:'100%', objectFit:'contain'}}/></button>
-          
           {currentWorkId && currentWorkId !== 'global' && <button className="galpi-fab-item" onClick={() => openModal('search')} style={btnSty} title="현재 작품 캐릭터 검색"><img src="/img/svg/search.svg" alt="검색" style={{width:'100%', height:'100%', objectFit:'contain'}}/></button>}
           <button className="galpi-fab-item" onClick={() => openModal('dict')} style={btnSty} title="고유명사 사전 (Alt+H)"><img src="/img/svg/dictionary.svg" alt="사전" style={{width:'100%', height:'100%', objectFit:'contain'}}/></button>
           <button className="galpi-fab-item" onClick={() => openModal('boilerplate')} style={btnSty} title="스마트 상용구"><img src="/img/svg/boilerplate.svg" alt="상용구" style={{width:'100%', height:'100%', objectFit:'contain'}}/></button>
@@ -124,7 +141,6 @@ const FabMenu = () => {
         </div>
       )}
 
-      {/* 분리된 모달 컴포넌트 마운트 */}
       {activeModal === 'clipboard' && <ClipboardModal showToast={showToast} />}
       {activeModal === 'dict' && <DictModal currentWorkId={currentWorkId} showToast={showToast} globalDictList={globalDictList} setGlobalDictList={setGlobalDictList} />}
       {activeModal === 'boilerplate' && <BoilerplateModal showToast={showToast} />}

@@ -1,6 +1,6 @@
 // 파일 위치: src/domains/fab_tools/BoilerplateModal.jsx
-// 기능 요약: 비즈니스 훅(useBoilerplateData)을 주입받아 폴더/리스트/폼 UI를 그리는 컨테이너
-// 버전: v2.1.1 (입력창 레이아웃 높이 고정 패치 완비)
+// 기능 요약: 비즈니스 훅을 주입받아 폴더/리스트/폼 및 환경설정 스위치를 그리는 팝업 컨테이너
+// 버전: v2.2.0
 
 import React from 'react';
 import ModalOverlay from '../../components/common/ModalOverlay';
@@ -12,7 +12,6 @@ const BoilerplateModal = ({ showToast }) => {
   const { closeModal } = useModalStore();
   const bpData = useBoilerplateData(showToast);
 
-  // 패딩과 보더가 높이를 뚫지 않도록 boxSizing: 'border-box' 추가
   const inpSty = { padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '13px', background: 'var(--surface-color)', color: 'var(--text-primary)', outline: 'none', boxSizing: 'border-box' };
 
   return (
@@ -40,7 +39,19 @@ const BoilerplateModal = ({ showToast }) => {
         </div>
       </div>
 
-      {/* 2. 상용구 단건 입력 폼 (높이 36px 강제 고정 및 텍스트 박스 100% 팽창) */}
+      {/* 2. 환경설정 토글 영역 신설 */}
+      <div style={{ display: 'flex', gap: '15px', marginBottom: '12px', padding: '10px', background: 'var(--table-bg-alt)', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-primary)', cursor: 'pointer', fontWeight: 'bold' }}>
+          <input type="checkbox" checked={bpData.isBpAuto} onChange={bpData.toggleBpAuto} style={{ accentColor: 'var(--primary-color)', width: '14px', height: '14px', cursor: 'pointer' }} />
+          스페이스바 자동 치환 발동
+        </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-primary)', cursor: 'pointer', fontWeight: 'bold' }}>
+          <input type="checkbox" checked={bpData.isBpPreview} onChange={bpData.toggleBpPreview} style={{ accentColor: 'var(--primary-color)', width: '14px', height: '14px', cursor: 'pointer' }} />
+          타이핑 중 실시간 추천 팝업 표시
+        </label>
+      </div>
+
+      {/* 3. 상용구 단건 입력 폼 */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', height: '36px' }}>
         <input type="text" placeholder="단축어 명칭 (!검성)" value={bpData.bpInput.title} onChange={e => bpData.setBpInput({...bpData.bpInput, title: e.target.value})} style={{...inpSty, width: '120px'}} autoComplete="off" />
         <textarea placeholder="치환 본문 (커서: {#})" value={bpData.bpInput.content} onChange={e => bpData.setBpInput({...bpData.bpInput, content: e.target.value})} style={{...inpSty, flex: 1, resize: 'none', height: '100%', fontFamily: 'inherit'}} autoComplete="off" />
@@ -48,17 +59,17 @@ const BoilerplateModal = ({ showToast }) => {
         {bpData.editingId ? (
           <div style={{ display: 'flex', gap: '4px' }}>
             <button className="wiki-btn" onClick={bpData.handleBpSave} style={{ padding: '8px 12px', background: '#10b981', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}><IconSave size={14} /> 저장</button>
-            <button className="wiki-btn outline-btn gray" onClick={bpData.handleBpCancelEdit} style={{ padding: '8px', background: 'var(--table-bg-alt)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '6px' }}>취소</button>
+            <button className="wiki-btn outline-btn gray" onClick={bpData.handleBpCancelEdit} style={{ padding: '8px', background: 'var(--surface-color)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '6px' }}>취소</button>
           </div>
         ) : (
           <div style={{ display: 'flex', gap: '4px' }}>
             <button className="wiki-btn primary-btn" onClick={bpData.handleBpSave} style={{ padding: '8px 16px', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}><IconPlus size={14} /> 추가</button>
-            <button className="wiki-btn outline-btn gray" onClick={() => bpData.setIsBpBulkMode(!bpData.isBpBulkMode)} style={{ padding: '8px 10px', background: 'var(--table-bg-alt)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '4px' }}>일괄 <IconChevronDown size={14} /></button>
+            <button className="wiki-btn outline-btn gray" onClick={() => bpData.setIsBpBulkMode(!bpData.isBpBulkMode)} style={{ padding: '8px 10px', background: 'var(--surface-color)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '4px' }}>일괄 <IconChevronDown size={14} /></button>
           </div>
         )}
       </div>
       
-      {/* 3. 일괄 등록 벌크 모드 */}
+      {/* 4. 일괄 등록 벌크 모드 */}
       {bpData.isBpBulkMode && (
          <div style={{ padding: '10px', background: 'rgba(59,91,219,0.05)', border: '1px dashed var(--primary-color)', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
            <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '4px' }}><IconFileText size={14} /> 상용구 벌크 매크로 세션 등록 (단축어::::본문 양식 구분)</span>
@@ -67,7 +78,7 @@ const BoilerplateModal = ({ showToast }) => {
          </div>
       )}
       
-      {/* 4. 상용구 목록 리스트 */}
+      {/* 5. 상용구 목록 리스트 */}
       <div style={{ flex: 1, overflowY: 'auto', maxHeight: '300px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {bpData.bpList.map(b => (
           <div key={b.id} className="bp-item" style={{ display: 'flex', padding: '10px 12px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '6px', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
