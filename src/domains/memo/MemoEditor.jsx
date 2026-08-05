@@ -2,19 +2,25 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMemoEditor } from './hooks/useMemoEditor'; 
+import { useMemoBlockDrag } from './hooks/useMemoBlockDrag';
 import MemoEditorHeader from './MemoEditorHeader';
 import MemoFormatBar from './MemoFormatBar';
 import MemoFootnotePopover from './components/MemoFootnotePopover';
 import MemoEditorBody from './components/MemoEditorBody';
 import MemoTagBar from './components/MemoTagBar';
-import TagSearchModal from './components/TagSearchModal'; // ★ 신규 모달 임포트
+import TagSearchModal from './components/TagSearchModal'; 
 
 const MemoEditor = (props) => {
   const navigate = useNavigate();
   const editorHooks = useMemoEditor(props);
-  
-  // ★ 태그 검색 모달 제어용 로컬 상태
   const [searchTagModal, setSearchTagModal] = useState(null);
+
+  // 물리 엔진을 컴포넌트에 마운트하여 센서를 활성화시킵니다.
+  useMemoBlockDrag({
+    editorRef: editorHooks.editorRef,
+    updateCharCount: editorHooks.updateCharCount,
+    saveMemo: editorHooks.saveMemo
+  });
 
   if (!props.activeMemo) {
     return (
@@ -64,14 +70,12 @@ const MemoEditor = (props) => {
 
       <MemoEditorBody editorHooks={editorHooks} />
       
-      {/* ★ onTagClick 이벤트로 모달 호출 상태 업데이트 */}
       <MemoTagBar 
         memoTags={editorHooks.memoTags} 
         setMemoTags={editorHooks.setMemoTags} 
         onTagClick={(tag) => setSearchTagModal(tag)} 
       />
 
-      {/* ★ 제텔카스텐(Zettelkasten)식 연관 메모 검색 팝업 마운트 */}
       {searchTagModal && (
         <TagSearchModal 
           tag={searchTagModal}

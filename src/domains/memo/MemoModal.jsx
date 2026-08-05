@@ -1,5 +1,4 @@
-// 파일 위치: src/components/domains/memo/MemoModal.jsx
-
+// src/components/domains/memo/MemoModal.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axiosCore';
 import { useModalStore } from '../../store/useModalStore';
@@ -9,15 +8,17 @@ import MemoEditor from './MemoEditor';
 const MemoModal = () => {
   const { closeModal } = useModalStore();
   const [memoData, setMemoData] = useState([]);
-  const [memoFolders, setMemoFolders] = useState(["전체 메모", "설정 아이디어", "기타"]);
-  const [currentFolder, setCurrentFolder] = useState("전체 메모");
+  
+  // ★ 레거시 더미 데이터 완벽 삭제
+  const [memoFolders, setMemoFolders] = useState(["기타"]);
+  const [currentFolder, setCurrentFolder] = useState("기타");
   const [activeMemoId, setActiveMemoId] = useState(null);
   const [sortMap, setSortMap] = useState({});
+  const [selectedTag, setSelectedTag] = useState(null); // 모달용 태그 상태 연동
 
   useEffect(() => {
     try {
-      // 1. 로컬 스토리지에 저장된 폴더 내역 불러오기
-      let localFolders = ["전체 메모", "설정 아이디어", "기타"];
+      let localFolders = ["기타"];
       const storedFolders = JSON.parse(localStorage.getItem('galpi-memo-folders'));
       if (storedFolders) {
         localFolders = [...new Set([...localFolders, ...storedFolders])];
@@ -30,13 +31,11 @@ const MemoModal = () => {
       const storedMemos = JSON.parse(localStorage.getItem('galpi-memos')) || [];
       setMemoData(storedMemos);
 
-      // 2. 서버 통신 후 메모 및 DB 내 고유 폴더명 병합 스캔
       api.get('/api/memos').then(res => {
         if (res.data && res.data.length > 0) {
           setMemoData(res.data);
           localStorage.setItem('galpi-memos', JSON.stringify(res.data));
 
-          // ★ 누락되었던 DB 기반 폴더 동적 스캔 및 병합 로직
           const dbFolders = [...new Set(res.data.map(m => m.folder).filter(Boolean))];
           const mergedFolders = [...new Set([...localFolders, ...dbFolders])];
           
@@ -57,7 +56,8 @@ const MemoModal = () => {
 
   const handleCreateMemo = useCallback(() => {
     const newId = `local_${Date.now()}`;
-    const targetFolder = currentFolder === "전체 메모" ? "기타" : currentFolder;
+    // ★ 가상 폴더나 레거시 폴더 상태일 경우 '기타'로 튕겨냄
+    const targetFolder = ["전체 메모", "최근 7일", "미분류"].includes(currentFolder) ? "기타" : currentFolder;
     const newMemo = { id: newId, folder: targetFolder, title: "새로운 메모", content: "", updatedAt: Date.now(), sortOrder: -1 };
     
     setMemoData(prev => {
@@ -86,6 +86,7 @@ const MemoModal = () => {
           activeMemoId={activeMemoId} setActiveMemoId={setActiveMemoId}
           sortMap={sortMap} setSortMap={setSortMap}
           handleCreateMemo={handleCreateMemo}
+          selectedTag={selectedTag} setSelectedTag={setSelectedTag} // ★ 프롭스 연동
         />
         <MemoEditor 
           activeMemo={activeMemo} 

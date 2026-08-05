@@ -1,3 +1,4 @@
+// 파일 위치: src/domains/memo/MemoSidebar.jsx
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useMemoSidebar } from './hooks/useMemoSidebar';
@@ -28,40 +29,56 @@ const MemoSidebar = (props) => {
 
     return (
       <div key={node.path} style={{ marginLeft: node.depth === 0 ? 0 : 12 }}>
-        <div 
-          className="galpi-tree-folder"
-          style={{ 
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-            padding: '6px 8px', borderRadius: '4px', cursor: 'pointer',
-            background: props.currentFolder === node.path ? 'rgba(59,91,219,0.08)' : 'transparent',
-            color: props.currentFolder === node.path ? 'var(--primary-color)' : 'var(--text-primary)',
-            fontWeight: 'bold', fontSize: '13px', transition: 'background 0.2s'
-          }}
-          onClick={() => {
-            sidebarHooks.toggleFolder(node.path);
-            props.setCurrentFolder(node.path);
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
-            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '16px', opacity: 0.7 }}>
-              {isFolderExpanded ? '▼' : '▶'}
-            </span>
-            <FolderIcon />
-            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {node.name}
-            </span>
-          </div>
+        
+        {/* 폴더 노드를 드롭 타겟으로 감싸기 */}
+        <Droppable droppableId={`folder_drop_${node.path}`}>
+          {(provided, snapshot) => (
+            <div
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              className="galpi-tree-folder"
+              style={{ 
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+                padding: '6px 8px', borderRadius: '4px', cursor: 'pointer',
+                background: snapshot.isDraggingOver
+                  ? 'rgba(59,91,219,0.2)' 
+                  : (props.currentFolder === node.path ? 'rgba(59,91,219,0.08)' : 'transparent'),
+                color: props.currentFolder === node.path ? 'var(--primary-color)' : 'var(--text-primary)',
+                fontWeight: 'bold', fontSize: '13px', transition: 'background 0.2s'
+              }}
+              onClick={() => {
+                sidebarHooks.toggleFolder(node.path);
+                props.setCurrentFolder(node.path);
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '16px', opacity: 0.7 }}>
+                  {isFolderExpanded ? '▼' : '▶'}
+                </span>
+                <FolderIcon />
+                <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {node.name}
+                </span>
+              </div>
 
-          <div className="folder-actions" style={{ display: 'flex', gap: '4px' }}>
-            <button className="wiki-btn" onClick={(e) => { e.stopPropagation(); sidebarHooks.handleAddFolder(node.path); }} style={{ background:'transparent', border:'none', color:'var(--text-secondary)', padding:'2px', display:'flex' }} title="하위 폴더 추가"><FolderPlusIcon /></button>
-            <button className="wiki-btn" onClick={(e) => { e.stopPropagation(); sidebarHooks.handleEditFolder(node.path); }} style={{ background:'transparent', border:'none', color:'var(--text-secondary)', padding:'2px', display:'flex' }} title="이름 변경"><EditIcon /></button>
-            <button className="wiki-btn" onClick={(e) => { e.stopPropagation(); sidebarHooks.handleDeleteFolder(node.path); }} style={{ background:'transparent', border:'none', color:'#e53e3e', padding:'2px', display:'flex' }} title="삭제"><XIcon size={12} /></button>
-          </div>
-        </div>
+              <div className="folder-actions" style={{ display: 'flex', gap: '4px' }}>
+                <button className="wiki-btn" onClick={(e) => { e.stopPropagation(); sidebarHooks.handleAddFolder(node.path); }} style={{ background:'transparent', border:'none', color:'var(--text-secondary)', padding:'2px', display:'flex' }} title="하위 폴더 추가"><FolderPlusIcon /></button>
+                <button className="wiki-btn" onClick={(e) => { e.stopPropagation(); sidebarHooks.handleEditFolder(node.path); }} style={{ background:'transparent', border:'none', color:'var(--text-secondary)', padding:'2px', display:'flex' }} title="이름 변경"><EditIcon /></button>
+                <button className="wiki-btn" onClick={(e) => { e.stopPropagation(); sidebarHooks.handleDeleteFolder(node.path); }} style={{ background:'transparent', border:'none', color:'#e53e3e', padding:'2px', display:'flex' }} title="삭제"><XIcon size={12} /></button>
+              </div>
+              
+              {/* 애니메이션 고스트 현상 방지를 위해 display: none 대신 부피를 0으로 숨김 처리 */}
+              <div style={{ width: 0, height: 0, margin: 0, padding: 0, overflow: 'hidden', lineHeight: 0 }}>
+                {provided.placeholder}
+              </div>
+            </div>
+          )}
+        </Droppable>
 
         {isFolderExpanded && (
           <div style={{ borderLeft: '1px solid var(--border-color)', marginLeft: '8px', paddingLeft: '4px', marginTop: '2px' }}>
             {Object.values(node.children).map(renderTreeNodes)}
+            
             <Droppable droppableId={node.path}>
               {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef} style={{ minHeight: '5px' }}>
@@ -111,11 +128,11 @@ const MemoSidebar = (props) => {
       <style>{`
         .galpi-binder-tab { position: absolute; top: 12px; left: 12px; width: 36px; height: 36px; background: transparent; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100; color: var(--text-secondary); transition: 0.2s color, 0.2s transform; }
         .galpi-binder-tab:hover { color: var(--primary-color); transform: scale(1.1); }
-        .galpi-active-menu-btn { border: 1px solid #e53e3e !important; color: #e53e3e !important; background: rgba(229, 62, 62, 0.05) !important; }
+        .galpi-active-menu-btn { border: 1px solid var(--primary-color) !important; color: var(--primary-color) !important; background: rgba(59, 91, 219, 0.05) !important; }
         .galpi-tree-folder .folder-actions { opacity: 0; pointer-events: none; transition: opacity 0.1s; }
         .galpi-tree-folder:hover .folder-actions { opacity: 1; pointer-events: auto; }
         .galpi-tree-folder .folder-actions button:hover { background: var(--border-color) !important; border-radius: 4px; }
-        
+        .memo-editor-header { padding-left: ${isExpanded ? '20px' : '50px'} !important; transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .galpi-sidebar-scroll::-webkit-scrollbar { width: 6px; }
         .galpi-sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
         .galpi-sidebar-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
@@ -129,7 +146,7 @@ const MemoSidebar = (props) => {
 
         <div style={{ width: '300px', height: '100%', opacity: isExpanded ? 1 : 0, pointerEvents: isExpanded ? 'auto' : 'none', transition: 'opacity 0.2s', display: 'flex', flexDirection: 'column' }}>
           
-          <div style={{ padding: '15px 15px 15px 60px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <div style={{ padding: '15px 15px 15px 50px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '4px' }}>
               <button className="wiki-btn" onClick={() => sidebarHooks.handleAddFolder('')} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', padding: '4px', cursor: 'pointer' }} title="새 최상위 폴더"><FolderPlusIcon /></button>
               <button className="wiki-btn" onClick={props.handleCreateMemo} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', padding: '4px', cursor: 'pointer' }} title="새 메모"><EditIcon /></button>
@@ -142,13 +159,12 @@ const MemoSidebar = (props) => {
               setCurrentFolder={props.setCurrentFolder} 
             />
 
-            {(["최근 7일", "잠긴 메모", "미분류"].includes(props.currentFolder) || props.selectedTag) ? (
+            {(["최근 7일", "미분류"].includes(props.currentFolder) || props.selectedTag) ? (
               <div style={{ padding: '5px 0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 8px', marginBottom: '10px' }}>
                   <span style={{ fontSize: '11px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
                     {props.selectedTag ? `#${props.selectedTag} 검색 결과` : `${props.currentFolder} 결과`} ({sidebarHooks.filteredMemos.length}건)
                   </span>
-                  {/* ★ 트리뷰로 복귀하는 닫기 버튼 추가 */}
                   <button 
                     onClick={() => {
                       if (props.selectedTag) props.setSelectedTag(null);

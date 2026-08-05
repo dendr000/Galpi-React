@@ -1,6 +1,4 @@
 // 파일 위치: src/domains/memo/hooks/useMemoBlockDrag.js
-// 기능 요약: 노션(Notion) 스타일의 블록 드래그 핸들 [⋮⋮] 표출 및 HTML5 Native DnD 블록 재배치 물리 엔진
-// 버전: v1.1.0 (순수 표 및 아코디언 직접 타겟팅 버그 픽스)
 import { useEffect, useRef } from 'react';
 
 export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
@@ -8,6 +6,11 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
   const hoveredBlockRef = useRef(null);
   const indicatorTargetRef = useRef(null);
   const indicatorPosRef = useRef(null);
+  const callbacksRef = useRef({ updateCharCount, saveMemo });
+
+  useEffect(() => {
+    callbacksRef.current = { updateCharCount, saveMemo };
+  }, [updateCharCount, saveMemo]);
 
   useEffect(() => {
     if (!document.getElementById('memo-block-drag-styles')) {
@@ -15,20 +18,19 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
       style.id = 'memo-block-drag-styles';
       style.innerHTML = `
         .memo-block-drag-handle {
-          position: absolute; width: 18px; height: 24px; border-radius: 4px;
+          position: fixed; width: 20px; height: 24px; border-radius: 4px;
           display: none; align-items: center; justify-content: center;
-          cursor: grab; z-index: 99999; color: var(--text-secondary);
-          font-size: 14px; font-weight: bold; letter-spacing: -2px; line-height: 1;
+          cursor: grab; z-index: 9999999; color: var(--text-secondary);
           background: transparent; transition: background 0.2s, color 0.2s;
-          user-select: none; padding-bottom: 4px;
+          user-select: none;
         }
         .memo-block-drag-handle:hover {
           background: var(--table-bg-alt); color: var(--primary-color);
         }
         .memo-block-drag-handle:active { cursor: grabbing; }
         .memo-drop-indicator {
-          position: absolute; height: 3px; background: var(--primary-color);
-          border-radius: 2px; display: none; z-index: 99999; pointer-events: none;
+          position: fixed; height: 3px; background: var(--primary-color);
+          border-radius: 2px; display: none; z-index: 9999999; pointer-events: none;
           box-shadow: 0 0 6px rgba(59,91,219,0.5);
         }
       `;
@@ -40,7 +42,7 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
       handle = document.createElement('div');
       handle.id = 'memo-block-drag-handle';
       handle.className = 'memo-block-drag-handle';
-      handle.innerHTML = '⋮⋮';
+      handle.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>';
       handle.draggable = true;
       document.body.appendChild(handle);
     }
@@ -53,37 +55,52 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
       document.body.appendChild(indicator);
     }
 
-    const editor = editorRef.current;
-    if (!editor) return;
-
     const onMouseMove = (e) => {
       if (draggedBlockRef.current) return;
 
-      // ★ 픽스: 껍데기가 사라진 table과 details 태그를 직접 타겟팅하도록 셀렉터 교체
-      const block = e.target.closest('table, details');
+      const editor = editorRef?.current || document.getElementById('memo-edit-content');
+      if (!editor) return;
+
+      let foundBlock = null;
       
-      if (block && editor.contains(block) && block !== editor) {
-        hoveredBlockRef.current = block;
-        const rect = block.getBoundingClientRect();
-        const editorRect = editor.getBoundingClientRect();
-        
+      // 마우스가 표 바깥의 왼쪽 여백에 있더라도 Y축 레이캐스팅을 통해 표를 감지합니다.
+      const blocks = editor.querySelectorAll('table, details');
+      for (let i = 0; i < blocks.length; i++) {
+        const rect = blocks[i].getBoundingClientRect();
+        if (e.clientY >= rect.top && e.clientY <= rect.bottom) {
+          // 블록의 좌측 60px 이내 여백이거나 블록 내부일 경우 표적 획득
+          if (e.clientX >= rect.left - 60 && e.clientX <= rect.right) {
+            foundBlock = blocks[i];
+            break;
+          }
+        }
+      }
+
+      if (foundBlock) {
+        hoveredBlockRef.current = foundBlock;
+        const rect = foundBlock.getBoundingClientRect();
+
         handle.style.display = 'flex';
-        handle.style.top = `${rect.top + window.scrollY}px`;
-        handle.style.left = `${editorRect.left + window.scrollX + 2}px`;
+        handle.style.top = `${rect.top}px`;
+        handle.style.left = `${rect.left - 24}px`;
       } else {
-        const hRect = handle.getBoundingClientRect();
-        const inHandle = e.clientX >= hRect.left - 5 && e.clientX <= hRect.right + 5 &&
-                         e.clientY >= hRect.top - 5 && e.clientY <= hRect.bottom + 5;
-        if (!inHandle) {
-          handle.style.display = 'none';
-          hoveredBlockRef.current = null;
+        if (handle.style.display === 'flex') {
+          const hRect = handle.getBoundingClientRect();
+          const inHandle = e.clientX >= hRect.left - 15 && e.clientX <= hRect.right + 15 &&
+                           e.clientY >= hRect.top - 15 && e.clientY <= hRect.bottom + 15;
+          if (!inHandle) {
+            handle.style.display = 'none';
+            hoveredBlockRef.current = null;
+          }
         }
       }
     };
 
     const onScroll = () => {
-      handle.style.display = 'none';
-      indicator.style.display = 'none';
+      if (handle.style.display === 'flex') {
+        handle.style.display = 'none';
+        indicator.style.display = 'none';
+      }
     };
 
     const onDragStart = (e) => {
@@ -116,7 +133,6 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
       indicatorTargetRef.current = null;
     };
 
-    // ★ 브라우저 텍스트 커서 개입 방어용 DragEnter 센서 추가
     const onDragEnter = (e) => {
       if (!draggedBlockRef.current) return;
       e.preventDefault();
@@ -126,26 +142,27 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
     const onDragOver = (e) => {
       if (!draggedBlockRef.current) return;
       e.preventDefault();
-      e.stopPropagation(); // ★ 브라우저 기본 텍스트 드래그 간섭 강제 차단
+      e.stopPropagation(); 
       e.dataTransfer.dropEffect = 'move';
 
-      // ★ 픽스: 일반 텍스트(div)를 포함시켜 줄바꿈 사이에도 드롭 가능하도록 타겟 확장
+      const editor = editorRef?.current || document.getElementById('memo-edit-content');
+      if (!editor) return;
+
       const targetBlock = e.target.closest('table, details, p, h1, h2, h3, h4, div');
 
-      // 에디터 전체 컨테이너 자체가 타겟으로 잡히는 것을 방지
       if (targetBlock && editor.contains(targetBlock) && targetBlock !== draggedBlockRef.current && targetBlock.id !== 'memo-edit-content') {
         const rect = targetBlock.getBoundingClientRect();
         const midY = rect.top + rect.height / 2;
 
         indicator.style.display = 'block';
-        indicator.style.left = `${rect.left + window.scrollX}px`;
+        indicator.style.left = `${rect.left}px`;
         indicator.style.width = `${rect.width}px`;
 
         if (e.clientY < midY) {
-          indicator.style.top = `${rect.top + window.scrollY - 2}px`;
+          indicator.style.top = `${rect.top - 2}px`;
           indicatorPosRef.current = 'before';
         } else {
-          indicator.style.top = `${rect.bottom + window.scrollY + 2}px`;
+          indicator.style.top = `${rect.bottom + 2}px`;
           indicatorPosRef.current = 'after';
         }
         indicatorTargetRef.current = targetBlock;
@@ -155,7 +172,7 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
     const onDrop = (e) => {
       if (!draggedBlockRef.current) return;
       e.preventDefault();
-      e.stopPropagation(); // ★ 드롭 시에도 브라우저 기본 동작 차단
+      e.stopPropagation(); 
 
       const target = indicatorTargetRef.current;
       const pos = indicatorPosRef.current;
@@ -167,31 +184,31 @@ export const useMemoBlockDrag = ({ editorRef, updateCharCount, saveMemo }) => {
          } else if (pos === 'after') {
              target.parentNode.insertBefore(dragged, target.nextSibling);
          }
-         updateCharCount();
-         setTimeout(saveMemo, 100);
+         if (callbacksRef.current.updateCharCount) callbacksRef.current.updateCharCount();
+         if (callbacksRef.current.saveMemo) setTimeout(callbacksRef.current.saveMemo, 100);
       }
       onDragEnd();
     };
 
-    editor.addEventListener('mousemove', onMouseMove);
-    editor.addEventListener('scroll', onScroll);
-    editor.addEventListener('dragenter', onDragEnter); // ★ 간섭 방어용 리스너 추가
-    editor.addEventListener('dragover', onDragOver);
-    editor.addEventListener('drop', onDrop);
+    document.addEventListener('mousemove', onMouseMove, true);
+    window.addEventListener('scroll', onScroll, true); 
+    document.addEventListener('dragenter', onDragEnter, true); 
+    document.addEventListener('dragover', onDragOver, true);
+    document.addEventListener('drop', onDrop, true);
+    
     handle.addEventListener('dragstart', onDragStart);
     handle.addEventListener('dragend', onDragEnd);
 
     return () => {
-      editor.removeEventListener('mousemove', onMouseMove);
-      editor.removeEventListener('scroll', onScroll);
-      editor.removeEventListener('dragenter', onDragEnter);
-      editor.removeEventListener('dragover', onDragOver);
-      editor.removeEventListener('drop', onDrop);
+      document.removeEventListener('mousemove', onMouseMove, true);
+      window.removeEventListener('scroll', onScroll, true);
+      document.removeEventListener('dragenter', onDragEnter, true);
+      document.removeEventListener('dragover', onDragOver, true);
+      document.removeEventListener('drop', onDrop, true);
       handle.removeEventListener('dragstart', onDragStart);
       handle.removeEventListener('dragend', onDragEnd);
     };
-
-  }, [editorRef, saveMemo, updateCharCount]);
+  }, [editorRef]);
 
   return {};
 };
