@@ -1,4 +1,3 @@
-// 파일 위치: src/domains/memo/hooks/useMemoFootnote.js
 import { useState, useEffect, useRef } from 'react';
 
 export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
@@ -21,8 +20,6 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
 
   const openPopover = (node, mode = 'view') => {
     const rect = node.getBoundingClientRect();
-    
-    // ★ fixed 포지셔닝에 맞춰 뷰포트 절대 좌표를 그대로 주입합니다.
     setPopover({
       isOpen: true,
       x: rect.left,
@@ -34,7 +31,6 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
   };
 
   const closePopover = () => {
-    // 창이 닫힐 때 시스템 내부 상태도 무조건 'view'(보기) 모드로 초기화하여 호버 센서 먹통 현상 원천 차단
     setPopover(prev => ({ ...prev, isOpen: false, mode: 'view' }));
   };
 
@@ -46,10 +42,11 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
     if (!editorRef.current) return;
     editorRef.current.focus();
     const fnId = `fn_${Date.now()}`;
-    const html = `<sup class="memo-footnote" data-id="${fnId}" data-note="" contenteditable="false"></sup>`;
+    const html = `<sup class="memo-footnote" data-id="${fnId}" data-note=""></sup>&nbsp;`;
+    
     document.execCommand('insertHTML', false, html);
-    updateCharCount();
-
+    if (updateCharCount) updateCharCount();
+    
     setTimeout(() => {
       const node = editorRef.current.querySelector(`.memo-footnote[data-id="${fnId}"]`);
       if (node) openPopover(node, 'edit');
@@ -59,9 +56,8 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
   const updateFootnote = (newContent) => {
     if (popover.targetNode) {
       popover.targetNode.setAttribute('data-note', newContent);
-      // 저장 후 뷰 모드(까만 툴팁)로 스위칭
       setPopover(prev => ({ ...prev, content: newContent, mode: 'view' }));
-      setTimeout(saveMemo, 100);
+      if (saveMemo) setTimeout(saveMemo, 100);
     }
   };
 
@@ -69,24 +65,49 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
     if (popover.targetNode) {
       popover.targetNode.remove();
       closePopover();
-      updateCharCount();
-      setTimeout(saveMemo, 100);
+      if (updateCharCount) updateCharCount();
+      if (saveMemo) setTimeout(saveMemo, 100);
     }
   };
 
-  const handleMouseOver = (e) => {
-    clearTimeout(timeoutRef.current);
-    if (popover.mode === 'edit') return; 
-    const node = e.target.closest('.memo-footnote');
-    if (node) openPopover(node, 'view');
-  };
+  // ★ 컴포넌트 프롭스에 의존하지 않고, 내부에서 독립적으로 마우스 호버 센서를 전역 부착합니다.
+  useEffect(() => {
+    const handleOver = (e) => {
+      const target = e.target.closest('.memo-footnote');
+      if (target) {
+        clearTimeout(timeoutRef.current);
+        // 함수형 업데이트를 통해 mode 상태를 실시간으로 안전하게 조회합니다.
+        setPopover(prev => {
+          if (prev.mode === 'edit') return prev;
+          const rect = target.getBoundingClientRect();
+          return {
+            isOpen: true,
+            x: rect.left,
+            y: rect.bottom + 6,
+            mode: 'view',
+            content: target.getAttribute('data-note') || '',
+            targetNode: target
+          };
+        });
+      }
+    };
 
-  const handleMouseOut = (e) => {
-    if (popover.mode === 'edit') return;
-    timeoutRef.current = setTimeout(() => {
-      setPopover(p => p.mode === 'view' ? { ...p, isOpen: false } : p);
-    }, 250); 
-  };
+    const handleOut = (e) => {
+      const target = e.target.closest('.memo-footnote');
+      if (target) {
+        timeoutRef.current = setTimeout(() => {
+          setPopover(p => p.mode === 'view' ? { ...p, isOpen: false } : p);
+        }, 250);
+      }
+    };
+
+    document.addEventListener('mouseover', handleOver);
+    document.addEventListener('mouseout', handleOut);
+    return () => {
+      document.removeEventListener('mouseover', handleOver);
+      document.removeEventListener('mouseout', handleOut);
+    };
+  }, []);
 
   const handleFootnoteClick = (e) => {
     const node = e.target.closest('.memo-footnote');
@@ -97,9 +118,5 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
     }
   };
 
-  return { 
-    popover, insertFootnote, closePopover, switchToEdit, 
-    updateFootnote, deleteFootnote, timeoutRef, 
-    handleMouseOver, handleMouseOut, handleFootnoteClick 
-  };
+  return { popover, insertFootnote, closePopover, switchToEdit, updateFootnote, deleteFootnote, timeoutRef, handleFootnoteClick };
 };

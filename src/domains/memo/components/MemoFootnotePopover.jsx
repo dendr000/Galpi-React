@@ -64,6 +64,7 @@ const MemoFootnotePopover = ({ popover, closePopover, switchToEdit, updateFootno
           fontSize: '12px',
           lineHeight: 1.5,
           wordBreak: 'keep-all',
+          whiteSpace: 'pre-wrap', // ★ HTML이 줄바꿈(\n)을 띄어쓰기로 뭉개지 않고 그대로 렌더링하도록 강제
           boxSizing: 'border-box'
         }}
       >
