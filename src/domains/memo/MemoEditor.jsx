@@ -7,10 +7,10 @@ import MemoFootnotePopover from './components/MemoFootnotePopover';
 import MemoLinkPopover from './components/MemoLinkPopover';
 import MemoEditorBody from './components/MemoEditorBody';
 import MemoTagBar from './components/MemoTagBar';
+import BoilerplateSuggestPopup from '../fab_tools/BoilerplateSuggestPopup'; // ★ 상용구 추천 팝업 임포트
 
 const MemoEditor = (props) => {
   const navigate = useNavigate();
-  // ★ 부모로부터 받은 props에 navigate를 끼워 넣어 훅으로 전달
   const editorHooks = useMemoEditor({ ...props, navigate });
 
   if (!props.activeMemo) {
@@ -24,6 +24,13 @@ const MemoEditor = (props) => {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg-color)', position: 'relative' }}>
       
+      {/* ★ 상용구 실시간 추천 팝업 컴포넌트 마운트 */}
+      <BoilerplateSuggestPopup 
+        popupState={editorHooks.bpPopupState}
+        commitBpExpansion={editorHooks.commitBpExpansion}
+        updatePopupState={editorHooks.updatePopupState}
+      />
+
       <MemoFootnotePopover {...editorHooks.footnoteHooks} />
       <MemoLinkPopover {...editorHooks.linkHooks} />
 

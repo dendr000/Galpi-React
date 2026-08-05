@@ -1,14 +1,13 @@
 // 파일 위치: src/domains/fab_tools/hooks/useBoilerplateCore.js
-// 기능 요약: 상용구 삽입 시 Undo 보존, 픽셀 단위 좌표 추적, 커서 텔레포트를 제어하는 물리 엔진
-// 버전: v1.0.0
+// 기능 요약: 상용구 삽입 시 Undo 보존, 픽셀 단위 좌표 추적, 커서 텔레포트를 제어하는 물리 엔진 (Textarea & ContentEditable 하이브리드 지원)
+// 버전: v2.0.0
 
 import { useState, useCallback, useRef } from 'react';
 
 export const useBoilerplateCore = (showToast) => {
-  // UI 렌더링을 위한 팝업 상태 관리
   const [bpPopupState, setBpPopupState] = useState({
     active: false,
-    mode: 'suggest', // 'suggest' | 'choice'
+    mode: 'suggest',
     matches: [],
     selectedIdx: 0,
     keywordLength: 0,
@@ -16,11 +15,9 @@ export const useBoilerplateCore = (showToast) => {
     y: 0
   });
 
-  // DOM 엘리먼트와 최신 상태를 이벤트 리스너에서 직접 참조하기 위한 Ref
   const targetEditorRef = useRef(null);
   const popupStateRef = useRef(bpPopupState);
 
-  // 상태와 Ref를 동시에 동기화하는 업데이트 래퍼 함수
   const updatePopupState = useCallback((newState) => {
     setBpPopupState(prev => {
       const updated = typeof newState === 'function' ? newState(prev) : { ...prev, ...newState };
@@ -29,33 +26,39 @@ export const useBoilerplateCore = (showToast) => {
     });
   }, []);
 
-  // 1. 에디터 내 커서 좌표(X,Y) 추출 (팝업창 위치를 잡기 위한 픽셀 단위 정밀 연산)
+  // ★ 1. 에디터 내 커서 좌표 추출 (ContentEditable의 Range API 완벽 호환)
   const getCaretCoordinates = useCallback((element, position) => {
+    if (element.isContentEditable) {
+      const sel = window.getSelection();
+      if (!sel.rangeCount) return { x: 0, y: 0, h: 14 };
+      const range = sel.getRangeAt(0);
+      let rect = range.getBoundingClientRect();
+      
+      // 빈 줄에서 커서 좌표를 따기 위한 Zero-width space 임시 삽입 트릭
+      if (rect.width === 0 && rect.height === 0) {
+        const span = document.createElement('span');
+        span.appendChild(document.createTextNode('\u200b'));
+        range.insertNode(span);
+        rect = span.getBoundingClientRect();
+        span.parentNode.removeChild(span);
+      }
+      return { x: rect.left, y: rect.bottom, h: rect.height || 14 };
+    }
+
+    // 기존 Textarea 처리 로직
     const div = document.createElement('div');
     const style = window.getComputedStyle(element);
-    
-    for (const prop of style) {
-      div.style[prop] = style[prop];
-    }
-    
+    for (const prop of style) { div.style[prop] = style[prop]; }
     div.style.position = 'absolute';
     div.style.visibility = 'hidden';
     div.style.whiteSpace = 'pre-wrap';
     div.style.wordWrap = 'break-word';
-
     div.textContent = element.value.substring(0, position);
-    
     const span = document.createElement('span');
     span.textContent = element.value.substring(position) || '.';
     div.appendChild(span);
     document.body.appendChild(div);
-
-    const coords = {
-      x: span.offsetLeft,
-      y: span.offsetTop,
-      h: parseInt(style.fontSize) || 14
-    };
-    
+    const coords = { x: span.offsetLeft, y: span.offsetTop, h: parseInt(style.fontSize) || 14 };
     document.body.removeChild(div);
     return coords;
   }, []);
@@ -65,7 +68,7 @@ export const useBoilerplateCore = (showToast) => {
     targetEditorRef.current = null;
   }, [updatePopupState]);
 
-  // 2 & 3. Undo 보존 삽입 및 스마트 커서 텔레포트 엔진
+  // ★ 2 & 3. Undo 보존 삽입 및 스마트 커서 텔레포트 엔진
   const commitBpExpansion = useCallback((overrideIdx = null) => {
     const state = popupStateRef.current;
     const editor = targetEditorRef.current;
@@ -76,41 +79,49 @@ export const useBoilerplateCore = (showToast) => {
     const bp = state.matches[idx];
     if (!bp) return;
 
-    const pos = editor.selectionStart;
     const kwLen = state.keywordLength;
-
-    // 1단계: 단축어 지울 부분을 브라우저 Selection으로 블록 지정
-    editor.setSelectionRange(pos - kwLen, pos);
-
     const content = bp.content;
     const cursorOffset = content.indexOf('{#}');
     const cleanContent = content.replace('{#}', '');
 
-    // 2단계: 브라우저 내장 execCommand로 삽입하여 Ctrl+Z(실행 취소) 히스토리 완벽 보존
     editor.focus();
-    document.execCommand('insertText', false, cleanContent);
 
-    // 3단계: 치환 본문에 {#} 마커가 있었다면 해당 위치로 커서 정밀 텔레포트
-    if (cursorOffset !== -1) {
-      const targetPos = (pos - kwLen) + cursorOffset;
-      editor.setSelectionRange(targetPos, targetPos);
+    if (editor.isContentEditable) {
+      const sel = window.getSelection();
+      if (!sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+
+      // 단축어 길이를 기반으로 텍스트 노드 내에서 블록 역방향 선택
+      if (range.startContainer.nodeType === 3) {
+        const startOffset = Math.max(0, range.startOffset - kwLen);
+        range.setStart(range.startContainer, startOffset);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+
+      document.execCommand('insertText', false, cleanContent);
+
+      if (cursorOffset !== -1) {
+        const moveBack = cleanContent.length - cursorOffset;
+        for (let i = 0; i < moveBack; i++) {
+          sel.modify('move', 'backward', 'character');
+        }
+      }
+    } else {
+      const pos = editor.selectionStart;
+      editor.setSelectionRange(pos - kwLen, pos);
+      document.execCommand('insertText', false, cleanContent);
+
+      if (cursorOffset !== -1) {
+        const targetPos = (pos - kwLen) + cursorOffset;
+        editor.setSelectionRange(targetPos, targetPos);
+      }
     }
 
-    // React 상태 시스템(onChange/onInput) 동기화를 위한 수동 이벤트 트리거
     editor.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
-
     if (showToast) showToast("상용구 변환 완료");
-
     closeBpPopup();
   }, [closeBpPopup, showToast]);
 
-  return {
-    bpPopupState,
-    updatePopupState,
-    targetEditorRef,
-    popupStateRef,
-    getCaretCoordinates,
-    closeBpPopup,
-    commitBpExpansion
-  };
+  return { bpPopupState, updatePopupState, targetEditorRef, popupStateRef, getCaretCoordinates, closeBpPopup, commitBpExpansion };
 };

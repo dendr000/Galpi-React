@@ -6,7 +6,11 @@ import { useMemoFootnote } from './useMemoFootnote';
 import { useMemoTableCtrl } from './useMemoTableCtrl';
 import { useMemoFindReplace } from './useMemoFindReplace';
 import { useMemoLink } from './useMemoLink';
-import { useMemoBlockDrag } from './useMemoBlockDrag'; // ★ 누락되었던 물리 엔진 임포트 복구
+import { useMemoBlockDrag } from './useMemoBlockDrag';
+import api from '../../../api/axiosCore';
+// ★ 상용구 엔진 임포트
+import { useBoilerplateCore } from '../../fab_tools/hooks/useBoilerplateCore';
+import { useBoilerplateListener } from '../../fab_tools/hooks/useBoilerplateListener';
 
 export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder, setActiveMemoId, navigate }) => {
   const editorRef = useRef(null);
@@ -15,12 +19,12 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
   
   const [charCount, setCharCount] = useState({ selected: 0, total: 0 });
   const [memoTags, setMemoTags] = useState("");
+  const [globalBpList, setGlobalBpList] = useState([]); // ★ 상용구 데이터 보관함
 
   const updateCharCount = () => {
     if (!editorRef.current) return;
     const text = editorRef.current.innerText || "";
     const total = text.replace(/\s/g, '').length;
-    
     const selection = window.getSelection();
     let selected = 0;
     if (selection.rangeCount > 0 && !selection.isCollapsed && editorRef.current.contains(selection.anchorNode)) {
@@ -43,6 +47,11 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
     setMemoTags(activeMemo.tags || "");
   }, [activeMemo?.id]);
 
+  // ★ 백그라운드 상용구 데이터 로드
+  useEffect(() => {
+    api.get('/api/boilerplates').then(res => setGlobalBpList(res.data)).catch(() => {});
+  }, []);
+
   const saveHooks = useMemoSave({
     activeMemo, memoData, setMemoData, currentFolder, setActiveMemoId,
     titleRef, editorRef, memoTags
@@ -56,13 +65,13 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
     setFindReplaceVisible: findReplaceHooks.setFindReplaceVisible
   });
 
-  // ★ 픽스 1: 객체({})가 아닌 순서대로 파라미터를 넘겨주어 각주 먹통 버그 해결
   const footnoteHooks = useMemoFootnote(editorRef, updateCharCount, saveHooks.saveMemo);
-  
   const linkHooks = useMemoLink({ updateCharCount, saveMemo: saveHooks.saveMemo });
-
-  // ★ 픽스 2: 누락되었던 표/아코디언 드래그 앤 드롭 물리 엔진 재가동
   useMemoBlockDrag({ editorRef, updateCharCount, saveMemo: saveHooks.saveMemo });
+
+  // ★ 상용구 코어 엔진 생성 및 글로벌 리스너 부착
+  const bpCore = useBoilerplateCore();
+  useBoilerplateListener({ globalBpList, bpCore });
 
   const eventHooks = useMemoEvents({
     editorRef,
@@ -86,6 +95,10 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
     ...findReplaceHooks,
     ...eventHooks,
     footnoteHooks,
-    linkHooks
+    linkHooks,
+    // ★ 상용구 UI 팝업용 상태 노출
+    bpPopupState: bpCore.bpPopupState,
+    commitBpExpansion: bpCore.commitBpExpansion,
+    updatePopupState: bpCore.updatePopupState
   };
 };
