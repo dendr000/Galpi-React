@@ -1,6 +1,6 @@
 // 파일 위치: src/domains/fab_tools/BoilerplateModal.jsx
 // 기능 요약: 비즈니스 훅(useBoilerplateData)을 주입받아 폴더/리스트/폼 UI를 그리는 컨테이너
-// 버전: v2.1.0
+// 버전: v2.1.1 (입력창 레이아웃 높이 고정 패치 완비)
 
 import React from 'react';
 import ModalOverlay from '../../components/common/ModalOverlay';
@@ -12,6 +12,7 @@ const BoilerplateModal = ({ showToast }) => {
   const { closeModal } = useModalStore();
   const bpData = useBoilerplateData(showToast);
 
+  // 패딩과 보더가 높이를 뚫지 않도록 boxSizing: 'border-box' 추가
   const inpSty = { padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '13px', background: 'var(--surface-color)', color: 'var(--text-primary)', outline: 'none', boxSizing: 'border-box' };
 
   return (
@@ -39,10 +40,10 @@ const BoilerplateModal = ({ showToast }) => {
         </div>
       </div>
 
-      {/* 2. 상용구 단건 입력 폼 */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+      {/* 2. 상용구 단건 입력 폼 (높이 36px 강제 고정 및 텍스트 박스 100% 팽창) */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', height: '36px' }}>
         <input type="text" placeholder="단축어 명칭 (!검성)" value={bpData.bpInput.title} onChange={e => bpData.setBpInput({...bpData.bpInput, title: e.target.value})} style={{...inpSty, width: '120px'}} autoComplete="off" />
-        <textarea placeholder="치환 본문 (커서: {#})" value={bpData.bpInput.content} onChange={e => bpData.setBpInput({...bpData.bpInput, content: e.target.value})} style={{...inpSty, flex: 1, resize: 'none', height: '36px', fontFamily: 'inherit'}} autoComplete="off" />
+        <textarea placeholder="치환 본문 (커서: {#})" value={bpData.bpInput.content} onChange={e => bpData.setBpInput({...bpData.bpInput, content: e.target.value})} style={{...inpSty, flex: 1, resize: 'none', height: '100%', fontFamily: 'inherit'}} autoComplete="off" />
         
         {bpData.editingId ? (
           <div style={{ display: 'flex', gap: '4px' }}>
