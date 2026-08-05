@@ -1,11 +1,18 @@
-// 파일 위치: src/domains/memo/hooks/useMemoEvents.js
 import { useMemoSelection } from './events/useMemoSelection';
 import { useMemoTableNav } from './events/useMemoTableNav';
 
-export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTableFocus, insertFootnote, handleFootnoteClick }) => {
-  // 하위 이벤트 모듈 마운트
+// ★ closeLinkPopover 속성 수신
+export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTableFocus, insertFootnote, handleFootnoteClick, triggerLinkEdit, closeLinkPopover, navigate, setActiveMemoId }) => {
   const { handleSelectAll, handleCopy } = useMemoSelection({ editorRef, updateCharCount });
   const { handleTableNavigation } = useMemoTableNav({ editorRef, updateCharCount });
+
+  const insertMarkdownLink = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (triggerLinkEdit) triggerLinkEdit();
+  };
 
   const handleTitleKeyDown = (e) => {
     if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
@@ -27,7 +34,6 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
   };
 
   const handleEditorKeyDown = (e) => {
-    // 저장 및 각주 단축키
     if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
       e.preventDefault(); e.stopPropagation(); saveMemo(); return;
     }
@@ -35,12 +41,16 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
       e.preventDefault(); e.stopPropagation(); if (insertFootnote) insertFootnote(); return;
     }
 
-    // Ctrl+A 격리 모드 스캐너 (하위 모듈 위임)
+    if (e.altKey && (e.key === 'w' || e.key === 'W')) {
+      e.preventDefault(); e.stopPropagation();
+      insertMarkdownLink();
+      return;
+    }
+
     if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
       if (handleSelectAll(e)) return;
     }
 
-    // 엑셀식 스마트 Tab / Enter 표 네비게이션 (하위 모듈 위임)
     if (e.key === 'Tab' || (e.key === 'Enter' && !e.shiftKey)) {
       if (handleTableNavigation(e)) return;
     }
@@ -61,9 +71,36 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
         nextSpan.style.textDecoration = isChecked ? 'line-through' : 'none';
         nextSpan.style.color = isChecked ? 'var(--text-secondary)' : 'var(--text-primary)';
       }
-      setTimeout(saveMemo, 100); 
+      if (saveMemo) setTimeout(saveMemo, 100); 
+    }
+
+    const linkNode = e.target.closest('.memo-internal-link');
+    if (linkNode) {
+        e.preventDefault();
+        const href = linkNode.getAttribute('href');
+
+        if (href) {
+            try {
+                const url = new URL(href, window.location.origin);
+                const memoId = url.searchParams.get('id');
+
+                if (memoId && setActiveMemoId) {
+                    if (saveMemo) saveMemo(); 
+                    if (closeLinkPopover) closeLinkPopover(); // ★ DOM 교체 전 툴팁 강제 철거
+                    
+                    const parsedId = isNaN(Number(memoId)) ? memoId : Number(memoId);
+                    setActiveMemoId(parsedId);
+                    console.log(`[useMemoEvents] 내부 링크 클릭 캡처 - 메모 ${parsedId}번으로 스위칭`);
+                } else if (navigate) {
+                    if (closeLinkPopover) closeLinkPopover(); // ★ 라우팅 전 툴팁 강제 철거
+                    navigate(href);
+                }
+            } catch (err) {
+                console.error("[useMemoEvents] URL 파싱 오류:", err);
+            }
+        }
     }
   };
 
-  return { handleTitleKeyDown, handleEditorKeyDown, handleCopy, handleEditorClick };
+  return { handleTitleKeyDown, handleEditorKeyDown, handleCopy, handleEditorClick, insertMarkdownLink };
 };

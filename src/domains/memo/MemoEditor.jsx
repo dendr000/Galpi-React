@@ -1,26 +1,17 @@
-// 파일 위치: src/domains/memo/MemoEditor.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMemoEditor } from './hooks/useMemoEditor'; 
-import { useMemoBlockDrag } from './hooks/useMemoBlockDrag';
 import MemoEditorHeader from './MemoEditorHeader';
 import MemoFormatBar from './MemoFormatBar';
 import MemoFootnotePopover from './components/MemoFootnotePopover';
+import MemoLinkPopover from './components/MemoLinkPopover';
 import MemoEditorBody from './components/MemoEditorBody';
 import MemoTagBar from './components/MemoTagBar';
-import TagSearchModal from './components/TagSearchModal'; 
 
 const MemoEditor = (props) => {
   const navigate = useNavigate();
-  const editorHooks = useMemoEditor(props);
-  const [searchTagModal, setSearchTagModal] = useState(null);
-
-  // 물리 엔진을 컴포넌트에 마운트하여 센서를 활성화시킵니다.
-  useMemoBlockDrag({
-    editorRef: editorHooks.editorRef,
-    updateCharCount: editorHooks.updateCharCount,
-    saveMemo: editorHooks.saveMemo
-  });
+  // ★ 부모로부터 받은 props에 navigate를 끼워 넣어 훅으로 전달
+  const editorHooks = useMemoEditor({ ...props, navigate });
 
   if (!props.activeMemo) {
     return (
@@ -34,6 +25,7 @@ const MemoEditor = (props) => {
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg-color)', position: 'relative' }}>
       
       <MemoFootnotePopover {...editorHooks.footnoteHooks} />
+      <MemoLinkPopover {...editorHooks.linkHooks} />
 
       <MemoEditorHeader 
         titleRef={editorHooks.titleRef}
@@ -66,6 +58,7 @@ const MemoEditor = (props) => {
         setReplaceText={editorHooks.setReplaceText}
         executeFindReplace={editorHooks.executeFindReplace}
         insertFootnote={editorHooks.footnoteHooks.insertFootnote}
+        insertMarkdownLink={editorHooks.insertMarkdownLink}
       />
 
       <MemoEditorBody editorHooks={editorHooks} />
@@ -73,17 +66,7 @@ const MemoEditor = (props) => {
       <MemoTagBar 
         memoTags={editorHooks.memoTags} 
         setMemoTags={editorHooks.setMemoTags} 
-        onTagClick={(tag) => setSearchTagModal(tag)} 
       />
-
-      {searchTagModal && (
-        <TagSearchModal 
-          tag={searchTagModal}
-          memoData={props.memoData}
-          onClose={() => setSearchTagModal(null)}
-          onSelectMemo={props.setActiveMemoId}
-        />
-      )}
 
     </div>
   );

@@ -1,9 +1,11 @@
 // 파일 위치: src/components/layout/fab/memo/MemoFormatBar.jsx
+// 기능 요약: 텍스트 에디터 서식 제어 및 하이퍼링크 SVG 버튼 UI 레이아웃
+
 import React from 'react';
 import {
   BoldIcon, ItalicIcon, StrikethroughIcon, FootnoteIcon, TableIcon, TodoIcon, FoldIcon, SearchIcon,
   RowPlusIcon, ColPlusIcon, RowMinusIcon, ColMinusIcon, AlignLeftIcon, AlignCenterIcon, AlignRightIcon,
-  HeadingToggleIcon, WidthFitIcon, TrashIcon
+  HeadingToggleIcon, WidthFitIcon, TrashIcon, LinkIcon
 } from './components/MemoIcons';
 
 const MemoFormatBar = ({
@@ -11,16 +13,13 @@ const MemoFormatBar = ({
   addTableRowBelow, addTableColRight, delTableRow, delTableCol, delTable,
   setCellAlign, toggleHeaderRow, setCellBgColor, toggleTableWidth,
   findReplaceVisible, setFindReplaceVisible, findText, setFindText,
-  replaceText, setReplaceText, executeFindReplace, insertFootnote
+  replaceText, setReplaceText, executeFindReplace, insertFootnote, insertMarkdownLink
 }) => {
   const svgClose = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
   const svgPlay = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
 
   const checkHTML = `<div style="display:flex; align-items:center; gap:8px; margin:4px 0;" contenteditable="false"><button type="button" onclick="this.parentElement.remove()" style="background:transparent; color:#e53e3e; border:none; cursor:pointer; font-size:14px; padding:0; outline:none; display:flex; align-items:center; justify-content:center;" title="삭제">${svgClose}</button><input type="checkbox" style="cursor:pointer; width:16px; height:16px;"><span contenteditable="true" style="outline:none; flex:1; font-size:13px; min-width:50px;">할 일 입력...</span></div>`;
-  
-  // ★ 수정: table-layout: fixed; 속성을 해제하여, 브라우저가 공간 부족 시 셀을 강제로 수축시키는 간섭을 제거
   const tableHTML = `<table style="width:max-content; min-width:100%; border-collapse:collapse; text-align:center; font-size:13px; background:var(--surface-color); word-break:break-all; margin: 15px 0;"><tbody><tr><th style="border:1px solid var(--border-color); padding:10px; background:var(--table-bg-alt); color:var(--primary-color); min-width:60px; resize:horizontal; overflow:hidden;">제목1</th><th style="border:1px solid var(--border-color); padding:10px; background:var(--table-bg-alt); color:var(--primary-color); min-width:60px; resize:horizontal; overflow:hidden;">제목2</th></tr><tr><td style="border:1px solid var(--border-color); padding:10px; min-width:60px; resize:horizontal; overflow:hidden;">내용1</td><td style="border:1px solid var(--border-color); padding:10px; min-width:60px; resize:horizontal; overflow:hidden;">내용2</td></tr></tbody></table><div><br></div>`;
-  
   const foldHTML = `<div style="position:relative; margin:15px 0; padding-top:15px;" contenteditable="false"><button type="button" onclick="this.parentElement.remove()" style="position:absolute; top:0; right:0; background:#e53e3e; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:11px; font-weight:bold; z-index:10; display:flex; align-items:center; gap:4px;">${svgClose} 박스 삭제</button><details style="border: 1px solid var(--border-color); border-radius: 8px; background: var(--table-bg-alt); overflow: hidden; font-size:13px;"><summary style="padding: 10px 15px; font-weight: 900; cursor: pointer; color: var(--primary-color); outline: none; list-style:none; display:flex; align-items:center; gap:8px;"><span style="display:flex; align-items:center; justify-content:center;">${svgPlay}</span><span contenteditable="true" style="outline:none;">펼쳐보기 (클릭하여 제목 수정)</span></summary><div contenteditable="true" style="padding: 15px; border-top: 1px dashed var(--border-color); line-height: 1.6; background: var(--surface-color); outline:none;">숨길 내용을 입력하세요...</div></details></div><div><br></div>`;
 
   const PASTEL_COLORS = [
@@ -52,6 +51,11 @@ const MemoFormatBar = ({
         
         <button className="wiki-btn" onClick={insertFootnote} style={iconBtnStyle} title="각주 삽입 (Ctrl+Q)">
           <FootnoteIcon />
+        </button>
+
+        {/* ★ 하이퍼링크 삽입 버튼 추가 */}
+        <button className="wiki-btn" onClick={insertMarkdownLink} style={iconBtnStyle} title="링크 삽입 (Alt+W)">
+          <LinkIcon />
         </button>
 
         <button className="wiki-btn" onClick={() => insertHtml(tableHTML)} style={btnStyle} title="표 삽입">

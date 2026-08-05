@@ -1,9 +1,10 @@
 // 파일 위치: src/domains/memo/MemoSidebar.jsx
+
 import React, { useState } from 'react';
 import { useMemoSidebar } from './hooks/useMemoSidebar';
 import { 
   FolderPlusIcon, EditIcon, XIcon, FileTextIcon, 
-  MoreVerticalIcon, FolderIcon 
+  MoreVerticalIcon, FolderIcon, LinkIcon, TagIcon 
 } from './components/MemoIcons';
 import MemoSmartFolders from './components/MemoSmartFolders';
 import MemoTagExplorer from './components/MemoTagExplorer';
@@ -13,6 +14,18 @@ const MemoSidebar = (props) => {
   const sidebarHooks = useMemoSidebar(props);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isTagExplorerOpen, setIsTagExplorerOpen] = useState(false); 
+
+  // ★ 절대 경로(Shift) 로직 및 알럿 제거, 오직 상대 경로만 조용히 복사
+  const handleCopyPath = (e, type, target) => {
+    e.stopPropagation();
+    const path = type === 'memo' ? `/memo?id=${target}` : `/memo?folder=${encodeURIComponent(target)}`;
+
+    navigator.clipboard.writeText(path).then(() => {
+      console.log(`[MemoSidebar] 경로 복사 완료: ${path}`);
+    }).catch(err => {
+      console.error("[MemoSidebar] 클립보드 복사 실패:", err);
+    });
+  };
 
   const renderTreeContent = (node) => {
     const isRoot = node.depth === -1;
@@ -49,6 +62,7 @@ const MemoSidebar = (props) => {
                 </div>
 
                 <div className="folder-actions" style={{ display: 'flex', gap: '4px' }}>
+                  <button className="wiki-btn" onClick={(e) => handleCopyPath(e, 'folder', childNode.path)} style={{ background:'transparent', border:'none', color:'var(--text-secondary)', padding:'2px', display:'flex' }} title="경로 복사"><LinkIcon /></button>
                   <button className="wiki-btn" onClick={(e) => { e.stopPropagation(); sidebarHooks.handleAddFolder(childNode.path); }} style={{ background:'transparent', border:'none', color:'var(--text-secondary)', padding:'2px', display:'flex' }} title="하위 폴더 추가"><FolderPlusIcon /></button>
                   <button className="wiki-btn" onClick={(e) => { e.stopPropagation(); sidebarHooks.handleEditFolder(childNode.path); }} style={{ background:'transparent', border:'none', color:'var(--text-secondary)', padding:'2px', display:'flex' }} title="이름 변경"><EditIcon /></button>
                   <button className="wiki-btn" onClick={(e) => { e.stopPropagation(); sidebarHooks.handleDeleteFolder(childNode.path); }} style={{ background:'transparent', border:'none', color:'#e53e3e', padding:'2px', display:'flex' }} title="삭제"><XIcon size={12} /></button>
@@ -87,7 +101,10 @@ const MemoSidebar = (props) => {
             {m.title || '제목 없음'}
           </span>
         </div>
-        <button onClick={(e) => sidebarHooks.openMoveMenu(e, m.id)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MoreVerticalIcon /></button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <button className="wiki-btn" onClick={(e) => handleCopyPath(e, 'memo', m.id)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="경로 복사"><LinkIcon /></button>
+          <button onClick={(e) => sidebarHooks.openMoveMenu(e, m.id)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MoreVerticalIcon /></button>
+        </div>
       </div>
     );
   };
@@ -159,13 +176,24 @@ const MemoSidebar = (props) => {
             )}
           </div>
 
-          <MemoTagExplorer 
-            isTagExplorerOpen={isTagExplorerOpen}
-            setIsTagExplorerOpen={setIsTagExplorerOpen}
-            tagList={sidebarHooks.tagList}
-            selectedTag={props.selectedTag}
-            setSelectedTag={props.setSelectedTag}
-          />
+          <div style={{ borderTop: '1px solid var(--border-color)' }}>
+            <button 
+              onClick={() => setIsTagExplorerOpen(!isTagExplorerOpen)}
+              style={{ width: '100%', padding: '10px 15px', background: 'var(--surface-color)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', color: 'var(--text-primary)', fontWeight: 'bold', fontSize: '13px' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <TagIcon /> 태그 탐색기
+              </div>
+              <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{isTagExplorerOpen ? '▼' : '▲'}</span>
+            </button>
+            {isTagExplorerOpen && (
+              <MemoTagExplorer 
+                tagList={sidebarHooks.tagList}
+                selectedTag={props.selectedTag}
+                setSelectedTag={props.setSelectedTag}
+              />
+            )}
+          </div>
         </div>
 
         <MemoContextMenu 
