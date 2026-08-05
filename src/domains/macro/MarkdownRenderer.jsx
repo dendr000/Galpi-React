@@ -41,7 +41,8 @@ const MarkdownRenderer = ({ rawText, onNodeClick, startH1 = 1 }) => {
     rawHtml = rawHtml.replace(/(?:<p>)?\[게이지:(.*?)\](?:<\/p>)?/g, (m, p1) => createBarGraphHtml(p1.replace(/<[^>]*>?/gm, ''))); 
     rawHtml = rawHtml.replace(/(?:<p>)?\[TIMELINE\]([\s\S]*?)\[\/TIMELINE\](?:<\/p>)?/g, (m, content) => createTimelineHtml(content.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>?/gm, ''))); 
     rawHtml = rawHtml.replace(/(?:<p>)?\[RELATION_GRAPH\]([\s\S]*?)\[\/RELATION_GRAPH\](?:<\/p>)?/g, (m, content) => createRelationGraphHtml(content.replace(/<[^>]*>?/gm, '')));
-    rawHtml = rawHtml.replace(/(?:<p>)?(\[TAB:.*?\][\s\S]*?\[\/TAB\])(?:<\/p>)?/g, (m, content) => createTabHtml(content));
+    // 매크로 함수명 일치(createLogTabHtml) 및 탭 이름(p1)과 본문(p2)을 정확히 분리하여 파라미터로 전달
+    rawHtml = rawHtml.replace(/(?:<p>)?\[로그탭:(.*?)\]([\s\S]*?)\[\/로그탭\](?:<\/p>)?/g, (m, p1, p2) => createLogTabHtml(p1, p2.replace(/<[^>]*>?/gm, '')));
 
     return processMarkdownHtml(rawHtml, startH1);
   }, [rawText, startH1]);
