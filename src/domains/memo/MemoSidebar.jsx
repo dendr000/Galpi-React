@@ -1,10 +1,8 @@
-// 파일 위치: src/domains/memo/MemoSidebar.jsx
-
 import React, { useState } from 'react';
 import { useMemoSidebar } from './hooks/useMemoSidebar';
 import { 
   FolderPlusIcon, EditIcon, XIcon, FileTextIcon, 
-  MoreVerticalIcon, FolderIcon, LinkIcon, TagIcon 
+  MoreVerticalIcon, FolderIcon, LinkIcon
 } from './components/MemoIcons';
 import MemoSmartFolders from './components/MemoSmartFolders';
 import MemoTagExplorer from './components/MemoTagExplorer';
@@ -13,9 +11,7 @@ import MemoContextMenu from './components/MemoContextMenu';
 const MemoSidebar = (props) => {
   const sidebarHooks = useMemoSidebar(props);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isTagExplorerOpen, setIsTagExplorerOpen] = useState(false); 
 
-  // ★ 절대 경로(Shift) 로직 및 알럿 제거, 오직 상대 경로만 조용히 복사
   const handleCopyPath = (e, type, target) => {
     e.stopPropagation();
     const path = type === 'memo' ? `/memo?id=${target}` : `/memo?folder=${encodeURIComponent(target)}`;
@@ -176,24 +172,12 @@ const MemoSidebar = (props) => {
             )}
           </div>
 
-          <div style={{ borderTop: '1px solid var(--border-color)' }}>
-            <button 
-              onClick={() => setIsTagExplorerOpen(!isTagExplorerOpen)}
-              style={{ width: '100%', padding: '10px 15px', background: 'var(--surface-color)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', color: 'var(--text-primary)', fontWeight: 'bold', fontSize: '13px' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <TagIcon /> 태그 탐색기
-              </div>
-              <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{isTagExplorerOpen ? '▼' : '▲'}</span>
-            </button>
-            {isTagExplorerOpen && (
-              <MemoTagExplorer 
-                tagList={sidebarHooks.tagList}
-                selectedTag={props.selectedTag}
-                setSelectedTag={props.setSelectedTag}
-              />
-            )}
-          </div>
+          {/* ★ 중복 버튼을 걷어내고 독립 컴포넌트로 깔끔하게 분리 장착 */}
+          <MemoTagExplorer 
+            tagList={sidebarHooks.tagList}
+            selectedTag={props.selectedTag}
+            setSelectedTag={props.setSelectedTag}
+          />
         </div>
 
         <MemoContextMenu 

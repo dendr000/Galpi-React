@@ -1,33 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TagIcon } from './MemoIcons';
 
-const MemoTagExplorer = ({ 
-  isTagExplorerOpen, setIsTagExplorerOpen, 
-  tagList, selectedTag, setSelectedTag 
-}) => {
+const MemoTagExplorer = ({ tagList = [], selectedTag, setSelectedTag }) => {
+  const [isOpen, setIsOpen] = useState(false); // ★ 자체적인 아코디언 열림/닫힘 상태 관리
+
   return (
     <div style={{ borderTop: '1px solid var(--border-color)', background: 'var(--table-bg-alt)', flexShrink: 0 }}>
       <div 
-        onClick={() => setIsTagExplorerOpen(!isTagExplorerOpen)}
+        onClick={() => setIsOpen(!isOpen)}
         style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 15px', cursor: 'pointer', userSelect: 'none' }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>
           <TagIcon /> 태그 탐색기
         </div>
-        <span style={{ fontSize: '10px', color: 'var(--text-secondary)', transform: isTagExplorerOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+        <span style={{ fontSize: '10px', color: 'var(--text-secondary)', transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
           ▼
         </span>
       </div>
       
       <div className="galpi-sidebar-scroll" style={{ 
         display: 'flex', flexWrap: 'wrap', gap: '6px', 
-        maxHeight: isTagExplorerOpen ? '150px' : '0', 
-        padding: isTagExplorerOpen ? '0 15px 15px 15px' : '0 15px',
-        opacity: isTagExplorerOpen ? 1 : 0,
+        maxHeight: isOpen ? '150px' : '0', 
+        padding: isOpen ? '0 15px 15px 15px' : '0 15px',
+        opacity: isOpen ? 1 : 0,
         overflowY: 'auto', 
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' 
       }}>
-        {tagList.length === 0 ? (
+        {(!tagList || tagList.length === 0) ? (
           <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>등록된 태그가 없습니다.</span>
         ) : (
           tagList.map(t => (

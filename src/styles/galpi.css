@@ -1,3 +1,4 @@
+/* src\styles\galpi.css */
 .wiki-title-area { border-bottom: 2px solid var(--primary-color); margin-top: 40px; margin-bottom: 20px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
 .wiki-title { font-size: 36px; font-weight: 900; margin: 0; color: var(--primary-color); }
 
@@ -283,4 +284,17 @@
     margin: 15px auto;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     box-sizing: border-box;
+}
+
+/* 메모장 내부 링크 보라색 변색 및 밑줄 강제 차단 */
+.memo-internal-link,
+.memo-internal-link:visited,
+.memo-internal-link:active {
+    color: var(--primary-color) !important;
+    text-decoration: none !important;
+}
+
+/* 마우스를 올렸을 때만 반응하도록 설정 */
+.memo-internal-link:hover {
+    text-decoration: underline !important;
 }

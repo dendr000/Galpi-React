@@ -1,3 +1,5 @@
+// 파일 위치: src/domains/memo/hooks/useMemoLink.js
+
 import { useState, useEffect, useRef } from 'react';
 
 export const useMemoLink = ({ updateCharCount, saveMemo }) => {
@@ -75,7 +77,9 @@ export const useMemoLink = ({ updateCharCount, saveMemo }) => {
       selection.addRange(linkPopover.range);
 
       const displayText = (newText && newText.trim() !== '') ? newText.trim() : linkPopover.text;
-      const htmlLink = `<a href="${url.trim()}" class="memo-internal-link" style="color: var(--primary-color); text-decoration: none; font-weight: bold; cursor: pointer;">${displayText}</a>&nbsp;`;
+      
+      // ★ 인라인 스타일에도 CSS 변수 대신 고정 Hex 코드(#3b5bdb)를 사용하여 보안 정책 우회
+      const htmlLink = `<a href="${url.trim()}" class="memo-internal-link" style="color: #3b5bdb; text-decoration: none; font-weight: bold; cursor: pointer;">${displayText}</a>&nbsp;`;
       document.execCommand('insertHTML', false, htmlLink);
       
       if (updateCharCount) updateCharCount();
@@ -87,6 +91,24 @@ export const useMemoLink = ({ updateCharCount, saveMemo }) => {
   const closeLinkPopover = () => setLinkPopover(prev => ({ ...prev, isOpen: false }));
 
   useEffect(() => {
+    // ★ 브라우저 보안 정책(:visited에서 CSS 변수 무시)을 뚫기 위해 Hex 코드를 강제 주입하는 글로벌 스타일
+    if (!document.getElementById('memo-link-override-styles')) {
+      const style = document.createElement('style');
+      style.id = 'memo-link-override-styles';
+      style.innerHTML = `
+        .memo-internal-link,
+        .memo-internal-link:visited,
+        .memo-internal-link:active {
+          color: #3b5bdb !important; 
+          text-decoration: none !important;
+        }
+        .memo-internal-link:hover {
+          text-decoration: underline !important;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
     const handleOver = (e) => {
       const target = e.target.closest('.memo-internal-link');
       if (target) {

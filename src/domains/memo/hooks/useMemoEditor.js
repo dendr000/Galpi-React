@@ -8,9 +8,10 @@ import { useMemoFindReplace } from './useMemoFindReplace';
 import { useMemoLink } from './useMemoLink';
 import { useMemoBlockDrag } from './useMemoBlockDrag';
 import api from '../../../api/axiosCore';
-// ★ 상용구 엔진 임포트
+// 상용구 엔진 임포트
 import { useBoilerplateCore } from '../../fab_tools/hooks/useBoilerplateCore';
 import { useBoilerplateListener } from '../../fab_tools/hooks/useBoilerplateListener';
+import { useMemoAutoSave } from './useMemoAutoSave'; // ★ 자동 저장 센서 임포트
 
 export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder, setActiveMemoId, navigate }) => {
   const editorRef = useRef(null);
@@ -55,6 +56,14 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
   const saveHooks = useMemoSave({
     activeMemo, memoData, setMemoData, currentFolder, setActiveMemoId,
     titleRef, editorRef, memoTags
+  });
+
+  // ★ 3초 디바운스 백그라운드 자동 저장 센서 마운트
+  useMemoAutoSave({
+    editorRef,
+    titleRef,
+    saveMemo: saveHooks.saveMemo,
+    activeMemoId: activeMemo?.id
   });
 
   const formatHooks = useMemoFormat({ editorRef, updateCharCount });

@@ -225,3 +225,16 @@ body { margin: 0; padding: 0; }
     padding-bottom: 8px;
     cursor: move;
 }
+
+/* 메모장 내부 링크 보라색 변색 및 밑줄 강제 차단 */
+.memo-internal-link,
+.memo-internal-link:visited,
+.memo-internal-link:active {
+    color: var(--primary-color) !important;
+    text-decoration: none !important;
+}
+
+/* 마우스를 올렸을 때만 반응하도록 설정 */
+.memo-internal-link:hover {
+    text-decoration: underline !important;
+}
