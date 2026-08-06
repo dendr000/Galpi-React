@@ -8,9 +8,21 @@ import { useModalStore } from '../../store/useModalStore';
 import { useBoilerplateData } from './hooks/useBoilerplateData';
 import { IconFolder, IconPlus, IconEdit, IconTrash, IconChevronDown, IconZap, IconFileText, IconRocket, IconSave } from './components/FabIcons';
 
+import { useEffect } from 'react'; // ★ useEffect 임포트 누락 시 추가
+
 const BoilerplateModal = ({ showToast }) => {
   const { closeModal } = useModalStore();
   const bpData = useBoilerplateData(showToast);
+
+  // ★ 모달이 열릴 때, 드래그해서 넘겨진 HTML 템플릿 초안이 있는지 스캔하여 자동 입력합니다.
+  useEffect(() => {
+    const draftHtml = localStorage.getItem('galpi-draft-bp');
+    if (draftHtml) {
+      bpData.setBpInput(prev => ({ ...prev, content: draftHtml }));
+      localStorage.removeItem('galpi-draft-bp');
+      if (showToast) showToast("✅ 선택된 영역이 템플릿 본문으로 로드되었습니다.");
+    }
+  }, [bpData.setBpInput, showToast]);
 
   const inpSty = { padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '13px', background: 'var(--surface-color)', color: 'var(--text-primary)', outline: 'none', boxSizing: 'border-box' };
 

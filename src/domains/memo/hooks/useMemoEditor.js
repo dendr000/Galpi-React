@@ -12,8 +12,10 @@ import { useBoilerplateCore } from '../../fab_tools/hooks/useBoilerplateCore';
 import { useBoilerplateListener } from '../../fab_tools/hooks/useBoilerplateListener';
 import { useMemoAutoSave } from './useMemoAutoSave';
 import { useMemoBookmark } from './useMemoBookmark';
+import { useModalStore } from '../../../store/useModalStore'; // ★ 스토어 임포트
 
 export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder, setActiveMemoId, navigate }) => {
+  const { openModal } = useModalStore(); // ★ 모달 제어기 할당
   const editorRef = useRef(null);
   const titleRef = useRef(null);
   const activeCellRef = useRef(null);
@@ -85,6 +87,28 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
     bpCore.openTemplateList(globalBpList, editorRef.current);
   };
 
+  // ★ 선택된 영역의 HTML을 복제하여 템플릿 모달로 쏴주는 파이프라인
+  const saveAsTemplate = () => {
+    const sel = window.getSelection();
+    if (!sel.rangeCount || sel.isCollapsed) {
+      alert("템플릿으로 저장할 텍스트나 표를 먼저 드래그(선택)해 주십시오.");
+      return;
+    }
+
+    // 드래그된 노드의 순수 HTML 트리를 완벽하게 복제
+    const range = sel.getRangeAt(0);
+    const div = document.createElement('div');
+    div.appendChild(range.cloneContents());
+
+    // 각주 ID가 복제되는 것을 방지하기 위해 템플릿용 마커로 초기화
+    let html = div.innerHTML;
+    html = html.replace(/data-id="fn_[^"]+"/g, 'data-id="fn_template"');
+
+    // 로컬스토리지에 임시 저장 후 상용구 관리 모달 호출
+    localStorage.setItem('galpi-draft-bp', html);
+    openModal('boilerplate');
+  };
+
   const eventHooks = useMemoEvents({
     editorRef,
     saveMemo: saveHooks.saveMemo,
@@ -114,6 +138,7 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
     bpPopupState: bpCore.bpPopupState,
     commitBpExpansion: bpCore.commitBpExpansion,
     updatePopupState: bpCore.updatePopupState,
-    openTemplateList // ★ 렌더링 컨테이너로 전달
+    openTemplateList, 
+    saveAsTemplate // ★ 렌더링 컨테이너로 전달
   };
 };

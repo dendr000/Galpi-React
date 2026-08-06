@@ -1,12 +1,15 @@
 // 파일 위치: src/domains/fab_tools/hooks/useBoilerplateListener.js
 // 기능 요약: 텍스트 입력망을 전역 감시하여 상용구를 즉각 추천하고 발동시키는 물리 이벤트 스캐너
-// 버전: v2.0.0 (ContentEditable 타겟팅 및 뷰포트 절대 좌표 변환 지원)
+// 버전: v2.1.0 (모달 내부 입력 보호 방어막 추가)
 
 import { useEffect } from 'react';
 
 export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
   useEffect(() => {
     const handleInput = (e) => {
+      // ★ 픽스: 모달창 내부에서 발생한 입력은 상용구 센서가 간섭하지 않고 즉시 무시합니다.
+      if (e.target.closest('.modal-overlay')) return;
+
       const isTextarea = e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT';
       const isContentEditable = e.target.isContentEditable;
       if (!isTextarea && !isContentEditable) return;
@@ -17,7 +20,6 @@ export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
       const editor = e.target;
       let textBefore = "";
 
-      // ★ ContentEditable 문자열 스캔 지원
       if (isContentEditable) {
         const sel = window.getSelection();
         if (sel.rangeCount > 0) {
@@ -83,6 +85,9 @@ export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
     };
 
     const handleKeydown = (e) => {
+      // ★ 픽스: 모달창 내부에서 발생한 단축키 이벤트는 낚아채지 않고 즉시 방생시킵니다.
+      if (e.target.closest('.modal-overlay')) return;
+
       const isTextarea = e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT';
       const isContentEditable = e.target.isContentEditable;
       if (!isTextarea && !isContentEditable) return;
