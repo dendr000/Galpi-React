@@ -8,6 +8,7 @@ import MemoLinkPopover from './components/MemoLinkPopover';
 import MemoEditorBody from './components/MemoEditorBody';
 import MemoTagBar from './components/MemoTagBar';
 import BoilerplateSuggestPopup from '../fab_tools/BoilerplateSuggestPopup'; // ★ 상용구 추천 팝업 임포트
+import MemoBookmarkModal from './components/MemoBookmarkModal'; // ★ 찾아가기 팝업 임포트
 
 const MemoEditor = (props) => {
   const navigate = useNavigate();
@@ -24,6 +25,14 @@ const MemoEditor = (props) => {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg-color)', position: 'relative' }}>
       
+      {/* ★ 찾아가기 모달 컴포넌트 마운트 */}
+      <MemoBookmarkModal 
+        isOpen={editorHooks.bookmarkHooks.isBookmarkModalOpen}
+        bookmarks={editorHooks.bookmarkHooks.bookmarks}
+        onClose={editorHooks.bookmarkHooks.closeBookmarkModal}
+        onNavigate={editorHooks.bookmarkHooks.scrollToBookmark}
+      />
+
       {/* ★ 상용구 실시간 추천 팝업 컴포넌트 마운트 */}
       <BoilerplateSuggestPopup 
         popupState={editorHooks.bpPopupState}

@@ -12,6 +12,7 @@ import api from '../../../api/axiosCore';
 import { useBoilerplateCore } from '../../fab_tools/hooks/useBoilerplateCore';
 import { useBoilerplateListener } from '../../fab_tools/hooks/useBoilerplateListener';
 import { useMemoAutoSave } from './useMemoAutoSave'; // ★ 자동 저장 센서 임포트
+import { useMemoBookmark } from './useMemoBookmark'; // ★ 책갈피 제어 엔진 임포트
 
 export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder, setActiveMemoId, navigate }) => {
   const editorRef = useRef(null);
@@ -78,6 +79,9 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
   const linkHooks = useMemoLink({ updateCharCount, saveMemo: saveHooks.saveMemo });
   useMemoBlockDrag({ editorRef, updateCharCount, saveMemo: saveHooks.saveMemo });
 
+  // ★ 책갈피 물리 엔진 마운트
+  const bookmarkHooks = useMemoBookmark({ editorRef, updateCharCount, saveMemo: saveHooks.saveMemo });
+
   // ★ 상용구 코어 엔진 생성 및 글로벌 리스너 부착
   const bpCore = useBoilerplateCore();
   useBoilerplateListener({ globalBpList, bpCore });
@@ -91,6 +95,8 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
     handleFootnoteClick: footnoteHooks.handleFootnoteClick,
     triggerLinkEdit: linkHooks.triggerLinkEdit,
     closeLinkPopover: linkHooks.closeLinkPopover,
+    insertBookmark: bookmarkHooks.insertBookmark, // ★ 책갈피 주입
+    openBookmarkModal: bookmarkHooks.openBookmarkModal, // ★ 찾아가기 주입
     navigate,
     setActiveMemoId
   });
@@ -105,6 +111,7 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
     ...eventHooks,
     footnoteHooks,
     linkHooks,
+    bookmarkHooks, // ★ 렌더링 컨테이너에 책갈피 훅 반환
     // ★ 상용구 UI 팝업용 상태 노출
     bpPopupState: bpCore.bpPopupState,
     commitBpExpansion: bpCore.commitBpExpansion,

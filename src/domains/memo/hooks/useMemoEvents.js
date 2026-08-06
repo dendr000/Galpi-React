@@ -1,8 +1,8 @@
 import { useMemoSelection } from './events/useMemoSelection';
 import { useMemoTableNav } from './events/useMemoTableNav';
 
-// ★ closeLinkPopover 속성 수신
-export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTableFocus, insertFootnote, handleFootnoteClick, triggerLinkEdit, closeLinkPopover, navigate, setActiveMemoId }) => {
+// ★ 책갈피 관련 파라미터 추가 수신
+export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTableFocus, insertFootnote, handleFootnoteClick, triggerLinkEdit, closeLinkPopover, navigate, setActiveMemoId, insertBookmark, openBookmarkModal }) => {
   const { handleSelectAll, handleCopy } = useMemoSelection({ editorRef, updateCharCount });
   const { handleTableNavigation } = useMemoTableNav({ editorRef, updateCharCount });
 
@@ -40,11 +40,21 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
     if ((e.ctrlKey || e.metaKey) && (e.key === 'q' || e.key === 'Q')) {
       e.preventDefault(); e.stopPropagation(); if (insertFootnote) insertFootnote(); return;
     }
+    
+    // ★ 책갈피 등록 단축키 (Ctrl + K)
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+      e.preventDefault(); e.stopPropagation(); if (insertBookmark) insertBookmark(); return;
+    }
 
     if (e.altKey && (e.key === 'w' || e.key === 'W')) {
       e.preventDefault(); e.stopPropagation();
       insertMarkdownLink();
       return;
+    }
+    
+    // ★ 찾아가기 모달 호출 단축키 (Alt + G)
+    if (e.altKey && (e.key === 'g' || e.key === 'G')) {
+      e.preventDefault(); e.stopPropagation(); if (openBookmarkModal) openBookmarkModal(); return;
     }
 
     if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
