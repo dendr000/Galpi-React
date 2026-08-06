@@ -1,17 +1,20 @@
+// 파일 위치: src/domains/memo/MemoSidebar.jsx
+// 기능 요약: 스마트 폴더, 재귀 폴더 트리, 태그 탐색기 등 분리된 서브 모듈들을 조합하여 화면 좌측 탐색기를 렌더링하는 허브 래퍼
+
 import React, { useState } from 'react';
 import { useMemoSidebar } from './hooks/useMemoSidebar';
-import { 
-  FolderPlusIcon, EditIcon, XIcon, FileTextIcon, 
-  MoreVerticalIcon, FolderIcon, LinkIcon
-} from './components/MemoIcons';
+import { FolderPlusIcon, EditIcon, XIcon, FolderIcon } from './components/MemoIcons';
 import MemoSmartFolders from './components/MemoSmartFolders';
 import MemoTagExplorer from './components/MemoTagExplorer';
 import MemoContextMenu from './components/MemoContextMenu';
+import MemoTreeRenderer from './components/MemoTreeRenderer';
+import MemoItem from './components/MemoItem';
 
 const MemoSidebar = (props) => {
   const sidebarHooks = useMemoSidebar(props);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // 절대 경로(Shift) 로직 및 알럿 제거, 오직 상대 경로만 조용히 복사
   const handleCopyPath = (e, type, target) => {
     e.stopPropagation();
     const path = type === 'memo' ? `/memo?id=${target}` : `/memo?folder=${encodeURIComponent(target)}`;
@@ -21,88 +24,6 @@ const MemoSidebar = (props) => {
     }).catch(err => {
       console.error("[MemoSidebar] 클립보드 복사 실패:", err);
     });
-  };
-
-  const renderTreeContent = (node) => {
-    const isRoot = node.depth === -1;
-
-    return (
-      <div style={{ paddingLeft: isRoot ? 0 : '16px', minHeight: '5px' }}>
-        {Object.values(node.children).map((childNode) => {
-          const isChildExpanded = sidebarHooks.expandedFolders[childNode.path];
-
-          return (
-            <div key={`folder_${childNode.path}`}>
-              <div
-                className="galpi-tree-folder"
-                style={{ 
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-                  padding: '6px 8px', borderRadius: '4px', cursor: 'pointer',
-                  background: props.currentFolder === childNode.path ? 'rgba(59,91,219,0.08)' : 'transparent',
-                  color: props.currentFolder === childNode.path ? 'var(--primary-color)' : 'var(--text-primary)',
-                  fontWeight: 'bold', fontSize: '13px', transition: 'all 0.2s'
-                }}
-                onClick={() => {
-                  sidebarHooks.toggleFolder(childNode.path);
-                  props.setCurrentFolder(childNode.path);
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '16px', opacity: 0.7 }}>
-                    {isChildExpanded ? '▼' : '▶'}
-                  </span>
-                  <FolderIcon />
-                  <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {childNode.name}
-                  </span>
-                </div>
-
-                <div className="folder-actions" style={{ display: 'flex', gap: '4px' }}>
-                  <button className="wiki-btn" onClick={(e) => handleCopyPath(e, 'folder', childNode.path)} style={{ background:'transparent', border:'none', color:'var(--text-secondary)', padding:'2px', display:'flex' }} title="경로 복사"><LinkIcon /></button>
-                  <button className="wiki-btn" onClick={(e) => { e.stopPropagation(); sidebarHooks.handleAddFolder(childNode.path); }} style={{ background:'transparent', border:'none', color:'var(--text-secondary)', padding:'2px', display:'flex' }} title="하위 폴더 추가"><FolderPlusIcon /></button>
-                  <button className="wiki-btn" onClick={(e) => { e.stopPropagation(); sidebarHooks.handleEditFolder(childNode.path); }} style={{ background:'transparent', border:'none', color:'var(--text-secondary)', padding:'2px', display:'flex' }} title="이름 변경"><EditIcon /></button>
-                  <button className="wiki-btn" onClick={(e) => { e.stopPropagation(); sidebarHooks.handleDeleteFolder(childNode.path); }} style={{ background:'transparent', border:'none', color:'#e53e3e', padding:'2px', display:'flex' }} title="삭제"><XIcon size={12} /></button>
-                </div>
-              </div>
-
-              {isChildExpanded && renderTreeContent(childNode)}
-            </div>
-          );
-        })}
-
-        <div style={{ minHeight: '5px' }}>
-          {node.memos.map((m, idx) => renderMemoItem(m, idx))}
-        </div>
-      </div>
-    );
-  };
-
-  const renderMemoItem = (m, index) => {
-    const isActive = String(props.activeMemoId) === String(m.id);
-    
-    return (
-      <div
-        key={String(m.id)}
-        onClick={() => props.setActiveMemoId(m.id)}
-        className={isActive ? 'galpi-active-menu-btn' : ''}
-        style={{
-          padding: '6px 10px 6px 20px', borderRadius: '4px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          background: 'transparent',
-          opacity: 1, transition: 'background 0.2s', marginTop: '2px'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
-          <FileTextIcon />
-          <span style={{ fontSize: '13px', color: isActive ? 'var(--primary-color)' : 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {m.title || '제목 없음'}
-          </span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <button className="wiki-btn" onClick={(e) => handleCopyPath(e, 'memo', m.id)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="경로 복사"><LinkIcon /></button>
-          <button onClick={(e) => sidebarHooks.openMoveMenu(e, m.id)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MoreVerticalIcon /></button>
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -161,18 +82,34 @@ const MemoSidebar = (props) => {
                   <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: 'bold' }}>해당하는 메모가 없습니다.</div>
                 ) : (
                   <div>
-                    {sidebarHooks.filteredMemos.map((m, idx) => renderMemoItem(m, idx))}
+                    {sidebarHooks.filteredMemos.map((m) => (
+                      <MemoItem
+                        key={String(m.id)}
+                        m={m}
+                        isActive={String(props.activeMemoId) === String(m.id)}
+                        setActiveMemoId={props.setActiveMemoId}
+                        handleCopyPath={handleCopyPath}
+                        openMoveMenu={sidebarHooks.openMoveMenu}
+                      />
+                    ))}
                   </div>
                 )}
               </div>
             ) : (
               <div>
-                {renderTreeContent(sidebarHooks.treeData)}
+                <MemoTreeRenderer
+                  node={sidebarHooks.treeData}
+                  sidebarHooks={sidebarHooks}
+                  currentFolder={props.currentFolder}
+                  setCurrentFolder={props.setCurrentFolder}
+                  handleCopyPath={handleCopyPath}
+                  activeMemoId={props.activeMemoId}
+                  setActiveMemoId={props.setActiveMemoId}
+                />
               </div>
             )}
           </div>
 
-          {/* ★ 중복 버튼을 걷어내고 독립 컴포넌트로 깔끔하게 분리 장착 */}
           <MemoTagExplorer 
             tagList={sidebarHooks.tagList}
             selectedTag={props.selectedTag}
