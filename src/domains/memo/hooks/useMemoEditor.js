@@ -8,11 +8,10 @@ import { useMemoFindReplace } from './useMemoFindReplace';
 import { useMemoLink } from './useMemoLink';
 import { useMemoBlockDrag } from './useMemoBlockDrag';
 import api from '../../../api/axiosCore';
-// 상용구 엔진 임포트
 import { useBoilerplateCore } from '../../fab_tools/hooks/useBoilerplateCore';
 import { useBoilerplateListener } from '../../fab_tools/hooks/useBoilerplateListener';
-import { useMemoAutoSave } from './useMemoAutoSave'; // ★ 자동 저장 센서 임포트
-import { useMemoBookmark } from './useMemoBookmark'; // ★ 책갈피 제어 엔진 임포트
+import { useMemoAutoSave } from './useMemoAutoSave';
+import { useMemoBookmark } from './useMemoBookmark';
 
 export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder, setActiveMemoId, navigate }) => {
   const editorRef = useRef(null);
@@ -21,7 +20,7 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
   
   const [charCount, setCharCount] = useState({ selected: 0, total: 0 });
   const [memoTags, setMemoTags] = useState("");
-  const [globalBpList, setGlobalBpList] = useState([]); // ★ 상용구 데이터 보관함
+  const [globalBpList, setGlobalBpList] = useState([]);
 
   const updateCharCount = () => {
     if (!editorRef.current) return;
@@ -49,7 +48,6 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
     setMemoTags(activeMemo.tags || "");
   }, [activeMemo?.id]);
 
-  // ★ 백그라운드 상용구 데이터 로드
   useEffect(() => {
     api.get('/api/boilerplates').then(res => setGlobalBpList(res.data)).catch(() => {});
   }, []);
@@ -59,7 +57,6 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
     titleRef, editorRef, memoTags
   });
 
-  // ★ 3초 디바운스 백그라운드 자동 저장 센서 마운트
   useMemoAutoSave({
     editorRef,
     titleRef,
@@ -78,13 +75,15 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
   const footnoteHooks = useMemoFootnote(editorRef, updateCharCount, saveHooks.saveMemo);
   const linkHooks = useMemoLink({ updateCharCount, saveMemo: saveHooks.saveMemo });
   useMemoBlockDrag({ editorRef, updateCharCount, saveMemo: saveHooks.saveMemo });
-
-  // ★ 책갈피 물리 엔진 마운트
   const bookmarkHooks = useMemoBookmark({ editorRef, updateCharCount, saveMemo: saveHooks.saveMemo });
 
-  // ★ 상용구 코어 엔진 생성 및 글로벌 리스너 부착
   const bpCore = useBoilerplateCore();
   useBoilerplateListener({ globalBpList, bpCore });
+
+  // ★ 툴바 버튼을 통해 수동으로 템플릿 목록 팝업을 열어주는 래퍼 함수
+  const openTemplateList = () => {
+    bpCore.openTemplateList(globalBpList, editorRef.current);
+  };
 
   const eventHooks = useMemoEvents({
     editorRef,
@@ -95,8 +94,8 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
     handleFootnoteClick: footnoteHooks.handleFootnoteClick,
     triggerLinkEdit: linkHooks.triggerLinkEdit,
     closeLinkPopover: linkHooks.closeLinkPopover,
-    insertBookmark: bookmarkHooks.insertBookmark, // ★ 책갈피 주입
-    openBookmarkModal: bookmarkHooks.openBookmarkModal, // ★ 찾아가기 주입
+    insertBookmark: bookmarkHooks.insertBookmark,
+    openBookmarkModal: bookmarkHooks.openBookmarkModal,
     navigate,
     setActiveMemoId
   });
@@ -111,10 +110,10 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
     ...eventHooks,
     footnoteHooks,
     linkHooks,
-    bookmarkHooks, // ★ 렌더링 컨테이너에 책갈피 훅 반환
-    // ★ 상용구 UI 팝업용 상태 노출
+    bookmarkHooks,
     bpPopupState: bpCore.bpPopupState,
     commitBpExpansion: bpCore.commitBpExpansion,
-    updatePopupState: bpCore.updatePopupState
+    updatePopupState: bpCore.updatePopupState,
+    openTemplateList // ★ 렌더링 컨테이너로 전달
   };
 };

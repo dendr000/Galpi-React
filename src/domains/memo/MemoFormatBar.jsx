@@ -1,11 +1,8 @@
-// 파일 위치: src/components/layout/fab/memo/MemoFormatBar.jsx
-// 기능 요약: 텍스트 에디터 서식 제어 및 하이퍼링크 SVG 버튼 UI 레이아웃
-
 import React from 'react';
 import {
   BoldIcon, ItalicIcon, StrikethroughIcon, FootnoteIcon, TableIcon, TodoIcon, FoldIcon, SearchIcon,
   RowPlusIcon, ColPlusIcon, RowMinusIcon, ColMinusIcon, AlignLeftIcon, AlignCenterIcon, AlignRightIcon,
-  HeadingToggleIcon, WidthFitIcon, TrashIcon, LinkIcon
+  HeadingToggleIcon, WidthFitIcon, TrashIcon, LinkIcon, TemplateIcon // ★ 템플릿 전용 아이콘 불러오기
 } from './components/MemoIcons';
 
 const MemoFormatBar = ({
@@ -13,7 +10,8 @@ const MemoFormatBar = ({
   addTableRowBelow, addTableColRight, delTableRow, delTableCol, delTable,
   setCellAlign, toggleHeaderRow, setCellBgColor, toggleTableWidth,
   findReplaceVisible, setFindReplaceVisible, findText, setFindText,
-  replaceText, setReplaceText, executeFindReplace, insertFootnote, insertMarkdownLink
+  replaceText, setReplaceText, executeFindReplace, insertFootnote, insertMarkdownLink,
+  openTemplateList // ★ 메인 훅에서 내려주는 템플릿 오픈 함수 프롭스 수신
 }) => {
   const svgClose = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
   const svgPlay = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
@@ -38,7 +36,7 @@ const MemoFormatBar = ({
   return (
     <div 
       id="memo-format-bar" 
-      onMouseDown={(e) => e.preventDefault()} // ★ 툴바를 클릭해도 에디터의 커서가 날아가지 않도록 포커스 도둑질 원천 차단
+      onMouseDown={(e) => e.preventDefault()}
       style={{ display: 'flex', flexDirection: 'column', width: '100%', background: 'var(--table-bg-alt)', borderBottom: '1px solid var(--border-color)', userSelect: 'none', padding: '6px 10px', boxSizing: 'border-box' }}
     >
       
@@ -57,9 +55,13 @@ const MemoFormatBar = ({
           <FootnoteIcon />
         </button>
 
-        {/* ★ 하이퍼링크 삽입 버튼 추가 */}
         <button className="wiki-btn" onClick={insertMarkdownLink} style={iconBtnStyle} title="링크 삽입 (Alt+W)">
           <LinkIcon />
+        </button>
+
+        {/* ★ 템플릿(상용구) 삽입 버튼 추가 (텍스트 없이 아이콘과 툴팁만 렌더링) */}
+        <button className="wiki-btn" onClick={openTemplateList} style={iconBtnStyle} title="템플릿/양식 삽입">
+          <TemplateIcon />
         </button>
 
         <button className="wiki-btn" onClick={() => insertHtml(tableHTML)} style={btnStyle} title="표 삽입">
