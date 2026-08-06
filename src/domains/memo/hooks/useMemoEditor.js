@@ -1,3 +1,6 @@
+// 파일 위치: src/domains/memo/hooks/useMemoEditor.js
+// 기능 요약: 에디터 렌더링에 필요한 API 통신, 폰트 글로벌 CSS 동적 주입, 하위 서식 모듈 훅을 결합하는 중앙 관제탑
+
 import { useState, useEffect, useRef } from 'react';
 import { useMemoSave } from './useMemoSave';
 import { useMemoFormat } from './useMemoFormat';
@@ -12,10 +15,10 @@ import { useBoilerplateCore } from '../../fab_tools/hooks/useBoilerplateCore';
 import { useBoilerplateListener } from '../../fab_tools/hooks/useBoilerplateListener';
 import { useMemoAutoSave } from './useMemoAutoSave';
 import { useMemoBookmark } from './useMemoBookmark';
-import { useModalStore } from '../../../store/useModalStore'; // ★ 스토어 임포트
+import { useModalStore } from '../../../store/useModalStore';
 
 export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder, setActiveMemoId, navigate }) => {
-  const { openModal } = useModalStore(); // ★ 모달 제어기 할당
+  const { openModal } = useModalStore();
   const editorRef = useRef(null);
   const titleRef = useRef(null);
   const activeCellRef = useRef(null);
@@ -23,6 +26,9 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
   const [charCount, setCharCount] = useState({ selected: 0, total: 0 });
   const [memoTags, setMemoTags] = useState("");
   const [globalBpList, setGlobalBpList] = useState([]);
+  
+  // ★ 신규 추가: 백엔드에서 스캔된 폰트 목록 상태
+  const [fontList, setFontList] = useState([]);
 
   const updateCharCount = () => {
     if (!editorRef.current) return;
@@ -46,12 +52,35 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
       }
       editorRef.current.innerHTML = content;
       updateCharCount();
+      
+      // ★ 새 메모장을 켜더라도 로컬 스토리지에 기억된 디폴트 폰트를 자동으로 씌움
+      const savedFont = localStorage.getItem('galpi-default-font') || 'default';
+      editorRef.current.style.fontFamily = savedFont === 'default' ? 'inherit' : `'${savedFont}', sans-serif`;
     }
     setMemoTags(activeMemo.tags || "");
   }, [activeMemo?.id]);
 
   useEffect(() => {
     api.get('/api/boilerplates').then(res => setGlobalBpList(res.data)).catch(() => {});
+    
+    // ★ 신규 추가: 백엔드 폰트 스캔 API 연동 및 글로벌 CSS 강제 주입
+    api.get('/api/fonts').then(res => {
+      if (res.data && res.data.length > 0) {
+        setFontList(res.data);
+        const styleId = 'galpi-dynamic-fonts';
+        if (!document.getElementById(styleId)) {
+          const style = document.createElement('style');
+          style.id = styleId;
+          let css = '';
+          res.data.forEach(f => {
+            // 외부 폴더 경로(/fonts/)로 font-face 선언을 동적 생성
+            css += `@font-face { font-family: '${f.fontFamily}'; src: url('/fonts/${f.filename}'); }\n`;
+          });
+          style.innerHTML = css;
+          document.head.appendChild(style);
+        }
+      }
+    }).catch(e => console.warn("[useMemoEditor] 폰트 스캔 실패:", e));
   }, []);
 
   const saveHooks = useMemoSave({
@@ -82,12 +111,10 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
   const bpCore = useBoilerplateCore();
   useBoilerplateListener({ globalBpList, bpCore });
 
-  // ★ 툴바 버튼을 통해 수동으로 템플릿 목록 팝업을 열어주는 래퍼 함수
   const openTemplateList = () => {
     bpCore.openTemplateList(globalBpList, editorRef.current);
   };
 
-  // ★ 선택된 영역의 HTML을 복제하여 템플릿 모달로 쏴주는 파이프라인
   const saveAsTemplate = () => {
     const sel = window.getSelection();
     if (!sel.rangeCount || sel.isCollapsed) {
@@ -95,16 +122,13 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
       return;
     }
 
-    // 드래그된 노드의 순수 HTML 트리를 완벽하게 복제
     const range = sel.getRangeAt(0);
     const div = document.createElement('div');
     div.appendChild(range.cloneContents());
 
-    // 각주 ID가 복제되는 것을 방지하기 위해 템플릿용 마커로 초기화
     let html = div.innerHTML;
     html = html.replace(/data-id="fn_[^"]+"/g, 'data-id="fn_template"');
 
-    // 로컬스토리지에 임시 저장 후 상용구 관리 모달 호출
     localStorage.setItem('galpi-draft-bp', html);
     openModal('boilerplate');
   };
@@ -139,6 +163,7 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
     commitBpExpansion: bpCore.commitBpExpansion,
     updatePopupState: bpCore.updatePopupState,
     openTemplateList, 
-    saveAsTemplate // ★ 렌더링 컨테이너로 전달
+    saveAsTemplate,
+    fontList // ★ 툴바 UI로 폰트 목록 전달
   };
 };

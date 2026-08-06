@@ -1,5 +1,5 @@
 // 파일 위치: src/domains/memo/components/MemoFormatMainBar.jsx
-// 기능 요약: 텍스트 서식(볼드 등), 링크, 각주, 표 생성, 템플릿 로드/저장 버튼을 포함하는 기본 메인 툴바 구역입니다.
+// 기능 요약: 텍스트 서식(볼드 등), 링크, 표 생성, 템플릿 로드/저장 및 폰트 변경(Select) 기능을 제공하는 기본 메인 툴바입니다.
 
 import React from 'react';
 import {
@@ -10,7 +10,8 @@ import {
 const MemoFormatMainBar = ({
   executeCmd, insertFootnote, insertMarkdownLink, insertHtml,
   findReplaceVisible, setFindReplaceVisible, setTableCtrlVisible,
-  openTemplateList, saveAsTemplate
+  openTemplateList, saveAsTemplate,
+  fontList, applyFont // ★ 폰트 상태 및 물리 엔진 수신
 }) => {
   const svgClose = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
   const svgPlay = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
@@ -23,6 +24,20 @@ const MemoFormatMainBar = ({
 
   return (
     <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+      
+      {/* ★ 폰트 선택 드롭다운 폼 (글꼴 변경 로직 연동) */}
+      <select 
+        onChange={(e) => applyFont(e.target.value)}
+        defaultValue={localStorage.getItem('galpi-default-font') || 'default'}
+        title="선택한 영역 또는 전체 글꼴 변경"
+        style={{ padding: '3px 6px', fontSize: '11px', fontWeight: 'bold', border: '1px solid var(--border-color)', borderRadius: '4px', background: 'var(--surface-color)', color: 'var(--text-primary)', outline: 'none', cursor: 'pointer', minWidth: '110px' }}
+      >
+        <option value="default">기본 폰트</option>
+        {fontList?.map(f => (
+          <option key={f.filename} value={f.fontFamily}>{f.displayName}</option>
+        ))}
+      </select>
+
       <button className="wiki-btn" onClick={() => executeCmd('bold')} style={iconBtnStyle} title="굵게 (Ctrl+B)">
         <BoldIcon />
       </button>
