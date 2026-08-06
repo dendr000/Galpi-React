@@ -36,7 +36,11 @@ const MemoFormatBar = ({
   const iconBtnStyle = { ...btnStyle, padding: '4px 6px' };
 
   return (
-    <div id="memo-format-bar" style={{ display: 'flex', flexDirection: 'column', width: '100%', background: 'var(--table-bg-alt)', borderBottom: '1px solid var(--border-color)', userSelect: 'none', padding: '6px 10px', boxSizing: 'border-box' }}>
+    <div 
+      id="memo-format-bar" 
+      onMouseDown={(e) => e.preventDefault()} // ★ 툴바를 클릭해도 에디터의 커서가 날아가지 않도록 포커스 도둑질 원천 차단
+      style={{ display: 'flex', flexDirection: 'column', width: '100%', background: 'var(--table-bg-alt)', borderBottom: '1px solid var(--border-color)', userSelect: 'none', padding: '6px 10px', boxSizing: 'border-box' }}
+    >
       
       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
         <button className="wiki-btn" onClick={() => executeCmd('bold')} style={iconBtnStyle} title="굵게 (Ctrl+B)">

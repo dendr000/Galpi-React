@@ -10,7 +10,21 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
       style.id = 'memo-footnote-styles';
       style.innerHTML = `
         #memo-edit-content { counter-reset: memo-footnote-counter; }
-        .memo-footnote { counter-increment: memo-footnote-counter; color: var(--primary-color); font-weight: 900; background: var(--table-bg-alt); padding: 0 2px; margin: 0; border-radius: 3px; cursor: pointer; font-size: 0.85em; vertical-align: super; text-decoration: none; user-select: none; }
+        .memo-footnote { 
+            counter-increment: memo-footnote-counter; 
+            color: var(--primary-color); 
+            font-weight: 900; 
+            background: var(--table-bg-alt); 
+            padding: 0 2px; 
+            margin: 0; 
+            border-radius: 3px; 
+            cursor: pointer; 
+            font-size: 0.85em; 
+            vertical-align: super; 
+            text-decoration: none; 
+            user-select: none; 
+            display: inline; /* ★ 블록 끊김 현상을 막기 위해 순수 인라인 요소로 유지 */
+        }
         .memo-footnote::before { content: "[" counter(memo-footnote-counter) "]"; }
         .memo-footnote:hover { background: rgba(59,91,219,0.2); }
       `;
@@ -42,7 +56,10 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
     if (!editorRef.current) return;
     editorRef.current.focus();
     const fnId = `fn_${Date.now()}`;
-    const html = `<sup class="memo-footnote" data-id="${fnId}" data-note=""></sup>&nbsp;`;
+    
+    // ★ contenteditable="false" 부여 및 좌우 투명 발판(&#8203;) 삽입
+    // 이 발판 덕분에 브라우저가 각주 옆에 커서를 안전하게 내려놓을 수 있어 줄바꿈(튕김) 현상이 사라집니다.
+    const html = `&#8203;<sup class="memo-footnote" contenteditable="false" data-id="${fnId}" data-note=""></sup>&#8203;`;
     
     document.execCommand('insertHTML', false, html);
     if (updateCharCount) updateCharCount();
@@ -70,13 +87,11 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
     }
   };
 
-  // ★ 컴포넌트 프롭스에 의존하지 않고, 내부에서 독립적으로 마우스 호버 센서를 전역 부착합니다.
   useEffect(() => {
     const handleOver = (e) => {
       const target = e.target.closest('.memo-footnote');
       if (target) {
         clearTimeout(timeoutRef.current);
-        // 함수형 업데이트를 통해 mode 상태를 실시간으로 안전하게 조회합니다.
         setPopover(prev => {
           if (prev.mode === 'edit') return prev;
           const rect = target.getBoundingClientRect();

@@ -1,18 +1,20 @@
-// 파일 위치: src/domains/memo/components/MemoFootnotePopover.jsx
 import React, { useState, useEffect, useRef } from 'react';
 
 const MemoFootnotePopover = ({ popover, closePopover, switchToEdit, updateFootnote, deleteFootnote, timeoutRef }) => {
-  const [editValue, setEditValue] = useState('');
   const popoverRef = useRef(null);
+  const textareaRef = useRef(null); // ★ 상용구 충돌을 막기 위한 비제어(useRef) 폼
   const [adjustedX, setAdjustedX] = useState(0);
 
   useEffect(() => {
+    // 모달이 열릴 때 한 번만 기존 각주 내용을 세팅합니다.
     if (popover.isOpen && popover.mode === 'edit') {
-      setEditValue(popover.content);
+      if (textareaRef.current) {
+        textareaRef.current.value = popover.content || '';
+        textareaRef.current.focus();
+      }
     }
   }, [popover.isOpen, popover.mode, popover.content]);
 
-  // ★ fixed 기반 자동 좌표 보정 (우측 잘림 방지)
   useEffect(() => {
     if (popover.isOpen && popoverRef.current) {
       const rect = popoverRef.current.getBoundingClientRect();
@@ -24,7 +26,6 @@ const MemoFootnotePopover = ({ popover, closePopover, switchToEdit, updateFootno
     }
   }, [popover.isOpen, popover.x, popover.mode]);
 
-  // ★ 편집 모드일 때만 외부 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (popover.isOpen && popover.mode === 'edit' && popoverRef.current && !popoverRef.current.contains(e.target)) {
@@ -39,18 +40,15 @@ const MemoFootnotePopover = ({ popover, closePopover, switchToEdit, updateFootno
 
   if (!popover.isOpen) return null;
 
-  // ==========================================
-  // [모드 1] 마우스 호버 시: 나무위키 스타일의 까만색 심플 툴팁
-  // ==========================================
   if (popover.mode === 'view') {
     return (
       <div
         ref={popoverRef}
         onMouseEnter={() => clearTimeout(timeoutRef.current)}
         onMouseLeave={() => closePopover()}
-        onClick={switchToEdit} // 툴팁을 클릭하면 편집 모드로 즉시 변환
+        onClick={switchToEdit}
         style={{
-          position: 'fixed', // ★ absolute에서 fixed로 변경하여 뷰포트 좌표 일치
+          position: 'fixed',
           top: popover.y,
           left: adjustedX || popover.x,
           zIndex: 999999,
@@ -64,7 +62,7 @@ const MemoFootnotePopover = ({ popover, closePopover, switchToEdit, updateFootno
           fontSize: '12px',
           lineHeight: 1.5,
           wordBreak: 'keep-all',
-          whiteSpace: 'pre-wrap', // ★ HTML이 줄바꿈(\n)을 띄어쓰기로 뭉개지 않고 그대로 렌더링하도록 강제
+          whiteSpace: 'pre-wrap', 
           boxSizing: 'border-box'
         }}
       >
@@ -73,15 +71,12 @@ const MemoFootnotePopover = ({ popover, closePopover, switchToEdit, updateFootno
     );
   }
 
-  // ==========================================
-  // [모드 2] 클릭 시: 노션 스타일의 입력/수정/삭제 모달 패널
-  // ==========================================
   return (
     <div
       ref={popoverRef}
       onMouseEnter={() => clearTimeout(timeoutRef.current)}
       style={{
-        position: 'fixed', // ★ absolute에서 fixed로 변경하여 뷰포트 좌표 일치
+        position: 'fixed',
         top: popover.y,
         left: adjustedX || popover.x,
         zIndex: 999999,
@@ -100,16 +95,18 @@ const MemoFootnotePopover = ({ popover, closePopover, switchToEdit, updateFootno
           <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--primary-color)' }}>📌 각주 편집</span>
           <button onClick={closePopover} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '14px', padding: 0 }}>✖</button>
         </div>
+        
+        {/* ★ 상태(Value/onChange) 연결을 해제하고 물리 렌더링에 의존시켜 먹통 픽스 */}
         <textarea
-          autoFocus
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
+          ref={textareaRef} 
           placeholder="각주 설명을 입력하세요..."
           style={{ width: '100%', height: '80px', padding: '8px', fontSize: '13px', background: 'var(--bg-color)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '4px', outline: 'none', resize: 'none', boxSizing: 'border-box' }}
         />
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
           <button className="wiki-btn" onClick={deleteFootnote} style={{ padding: '4px 8px', fontSize: '11px', background: 'transparent', color: '#e53e3e', border: '1px solid rgba(229,62,62,0.3)', borderRadius: '4px' }}>🗑️ 삭제</button>
-          <button className="wiki-btn" onClick={() => updateFootnote(editValue)} style={{ padding: '4px 12px', fontSize: '11px', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>💾 적용</button>
+          
+          {/* ★ 적용 시 textareaRef에 입력된 값을 다이렉트로 읽어와 저장합니다. */}
+          <button className="wiki-btn" onClick={() => updateFootnote(textareaRef.current.value)} style={{ padding: '4px 12px', fontSize: '11px', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>💾 적용</button>
         </div>
       </div>
     </div>
