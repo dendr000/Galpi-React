@@ -12,7 +12,8 @@ const MemoFormatBar = (props) => {
     <div 
       id="memo-format-bar" 
       onMouseDown={(e) => {
-        if (e.target.tagName === 'INPUT') return;
+        // ★ 픽스: INPUT뿐만 아니라 SELECT(드롭다운)도 포커스 차단 방어막에서 예외 처리
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
         e.preventDefault();
       }}
       style={{ display: 'flex', flexDirection: 'column', width: '100%', background: 'var(--table-bg-alt)', borderBottom: '1px solid var(--border-color)', userSelect: 'none', padding: '6px 10px', boxSizing: 'border-box' }}

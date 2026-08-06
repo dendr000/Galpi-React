@@ -1,3 +1,4 @@
+// src/domains/memo/FabMemoWidget.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axiosCore';
 import MemoSidebar from './MemoSidebar';
@@ -8,7 +9,6 @@ const FabMemoWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [memoData, setMemoData] = useState([]);
   
-  // ★ 초기 상태값을 '기타' 단일 항목으로 고정하여 레거시 폴더 부활 방지
   const [memoFolders, setMemoFolders] = useState(["기타"]);
   const [currentFolder, setCurrentFolder] = useState("기타");
   const [activeMemoId, setActiveMemoId] = useState(null);
@@ -20,31 +20,41 @@ const FabMemoWidget = () => {
       const storedSortMap = JSON.parse(localStorage.getItem('galpi-memo-sort-map'));
       if (storedSortMap) setSortMap(storedSortMap);
 
-      // ★ 로컬 동기화의 기준점(Fallback)을 '기타'로 단일 고정
       let localFolders = ["기타"];
       const storedFolders = JSON.parse(localStorage.getItem('galpi-memo-folders'));
       if (storedFolders) localFolders = [...new Set([...localFolders, ...storedFolders])];
-      
       setMemoFolders(localFolders);
 
+      // ★ 픽스 1: 앱이 켜지자마자 0.1초의 공백도 없이 로컬 데이터를 '동기식'으로 즉각 장전합니다.
+      const storedMemos = JSON.parse(localStorage.getItem('galpi-memos')) || [];
+      setMemoData(storedMemos);
+
+      const lastId = localStorage.getItem('galpi-last-active-memo');
+      if (lastId && storedMemos.find(m => String(m.id) === String(lastId))) {
+        setActiveMemoId(isNaN(Number(lastId)) ? lastId : Number(lastId));
+      }
+
+      // ★ 픽스 2: 그 이후 DB 데이터를 비동기로 받아오되, 덮어쓰지 않고 '안전하게 병합'합니다.
       api.get('/api/memos').then(res => {
-        if (res.data && res.data.length > 0) {
-          setMemoData(res.data);
-          localStorage.setItem('galpi-memos', JSON.stringify(res.data));
+        if (res.data) {
+          setMemoData(prev => {
+            // 아직 DB에 안 넘어간 새로 만든 메모(local_...)만 추출해서 살려둠
+            const localMemos = prev.filter(m => String(m.id).startsWith('local_'));
+            const merged = [...localMemos, ...res.data];
+            localStorage.setItem('galpi-memos', JSON.stringify(merged));
+            return merged;
+          });
 
           const dbFolders = [...new Set(res.data.map(m => m.folder).filter(Boolean))];
           const mergedFolders = [...new Set([...localFolders, ...dbFolders])];
-          
           setMemoFolders(mergedFolders);
           localStorage.setItem('galpi-memo-folders', JSON.stringify(mergedFolders));
         }
       }).catch(err => {
-        const storedMemos = JSON.parse(localStorage.getItem('galpi-memos')) || [];
-        setMemoData(storedMemos);
+         // 통신 실패 시 이미 로컬 데이터가 로드되어 있으므로 무시
       });
       
-    } catch (e) {
-    }
+    } catch (e) {}
   }, []);
 
   useEffect(() => {
@@ -66,12 +76,10 @@ const FabMemoWidget = () => {
 
   const toggleModal = () => {
     setIsOpen(!isOpen);
-    if (!isOpen) {
-      if (memoData.length === 0) {
-        handleCreateMemo();
-      } else if (!activeMemoId) {
-        setActiveMemoId(memoData[0].id);
-      }
+    if (!isOpen && memoData.length === 0) {
+      handleCreateMemo();
+    } else if (!isOpen && !activeMemoId && memoData.length > 0) {
+      setActiveMemoId(memoData[0].id);
     }
   };
 
@@ -93,6 +101,12 @@ const FabMemoWidget = () => {
   }, [currentFolder]);
 
   const activeMemo = memoData.find(m => String(m.id) === String(activeMemoId));
+
+  useEffect(() => {
+    if (activeMemoId) {
+      localStorage.setItem('galpi-last-active-memo', activeMemoId);
+    }
+  }, [activeMemoId]);
 
   return (
     <>
