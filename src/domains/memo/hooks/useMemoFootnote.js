@@ -57,9 +57,8 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
     editorRef.current.focus();
     const fnId = `fn_${Date.now()}`;
     
-    // ★ contenteditable="false" 부여 및 좌우 투명 발판(&#8203;) 삽입
-    // 이 발판 덕분에 브라우저가 각주 옆에 커서를 안전하게 내려놓을 수 있어 줄바꿈(튕김) 현상이 사라집니다.
-    const html = `&#8203;<sup class="memo-footnote" contenteditable="false" data-id="${fnId}" data-note=""></sup>&#8203;`;
+    // ★ 픽스: 부작용을 일으키던 가짜 투명 발판(&#8203;)을 완전히 제거하고 순수 태그만 삽입합니다.
+    const html = `<sup class="memo-footnote" contenteditable="false" data-id="${fnId}" data-note=""></sup>`;
     
     document.execCommand('insertHTML', false, html);
     if (updateCharCount) updateCharCount();

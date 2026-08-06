@@ -74,7 +74,7 @@ const MemoEditor = (props) => {
         insertFootnote={editorHooks.footnoteHooks.insertFootnote}
         insertMarkdownLink={editorHooks.insertMarkdownLink}
         openTemplateList={editorHooks.openTemplateList} 
-        saveAsTemplate={editorHooks.saveAsTemplate} // ★ 저장 함수 프롭스 전달
+        saveAsTemplate={editorHooks.saveAsTemplate}
       />
 
       <MemoEditorBody editorHooks={editorHooks} />

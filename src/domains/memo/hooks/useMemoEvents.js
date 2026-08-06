@@ -1,8 +1,8 @@
+// src/domains/memo/hooks/useMemoEvents.js
 import { useMemoSelection } from './events/useMemoSelection';
 import { useMemoTableNav } from './events/useMemoTableNav';
 
-// ★ 책갈피 관련 파라미터 추가 수신
-export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTableFocus, insertFootnote, handleFootnoteClick, triggerLinkEdit, closeLinkPopover, navigate, setActiveMemoId, insertBookmark, openBookmarkModal }) => {
+export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTableFocus, insertFootnote, handleFootnoteClick, triggerLinkEdit, closeLinkPopover, insertBookmark, openBookmarkModal, navigate, setActiveMemoId }) => {
   const { handleSelectAll, handleCopy } = useMemoSelection({ editorRef, updateCharCount });
   const { handleTableNavigation } = useMemoTableNav({ editorRef, updateCharCount });
 
@@ -34,33 +34,70 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
   };
 
   const handleEditorKeyDown = (e) => {
+    // 1. 단축키 시스템 (저장, 각주, 북마크, 링크)
     if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
       e.preventDefault(); e.stopPropagation(); saveMemo(); return;
     }
     if ((e.ctrlKey || e.metaKey) && (e.key === 'q' || e.key === 'Q')) {
       e.preventDefault(); e.stopPropagation(); if (insertFootnote) insertFootnote(); return;
     }
-    
-    // ★ 책갈피 등록 단축키 (Ctrl + K)
     if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
       e.preventDefault(); e.stopPropagation(); if (insertBookmark) insertBookmark(); return;
     }
-
     if (e.altKey && (e.key === 'w' || e.key === 'W')) {
-      e.preventDefault(); e.stopPropagation();
-      insertMarkdownLink();
-      return;
+      e.preventDefault(); e.stopPropagation(); insertMarkdownLink(); return;
     }
-    
-    // ★ 찾아가기 모달 호출 단축키 (Alt + G)
     if (e.altKey && (e.key === 'g' || e.key === 'G')) {
       e.preventDefault(); e.stopPropagation(); if (openBookmarkModal) openBookmarkModal(); return;
     }
 
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const anchor = selection.anchorNode;
+      const element = anchor.nodeType === 3 ? anchor.parentNode : anchor;
+
+      // ★ 픽스 3: 접기 박스 전용 스마트 제어 (Tab 텔레포트 및 Backspace 방어)
+      const foldTitle = element.closest ? element.closest('.fold-title') : null;
+      if (foldTitle) {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          e.stopPropagation();
+          const details = foldTitle.closest('details');
+          if (details) {
+            details.open = true; // 무조건 열기
+            const contentBox = details.querySelector('.fold-content');
+            if (contentBox) {
+              contentBox.focus();
+              const range = document.createRange();
+              range.selectNodeContents(contentBox);
+              range.collapse(false);
+              selection.removeAllRanges();
+              selection.addRange(range);
+            }
+          }
+          return;
+        }
+
+        if (e.key === 'Backspace') {
+          const range = selection.getRangeAt(0);
+          if (range.collapsed && range.startOffset === 0) {
+            // 커서가 맨 앞 텍스트 노드에 있거나 foldTitle 본체일 경우 백스페이스 무시 (▶ 삭제 방어)
+            if (range.startContainer === foldTitle || range.startContainer === foldTitle.firstChild) {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
+          }
+        }
+      }
+    }
+
+    // 2. Ctrl+A 격리 모드
     if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
       if (handleSelectAll(e)) return;
     }
 
+    // 3. 표 네비게이션
     if (e.key === 'Tab' || (e.key === 'Enter' && !e.shiftKey)) {
       if (handleTableNavigation(e)) return;
     }
@@ -96,13 +133,13 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
 
                 if (memoId && setActiveMemoId) {
                     if (saveMemo) saveMemo(); 
-                    if (closeLinkPopover) closeLinkPopover(); // ★ DOM 교체 전 툴팁 강제 철거
+                    if (closeLinkPopover) closeLinkPopover();
                     
                     const parsedId = isNaN(Number(memoId)) ? memoId : Number(memoId);
                     setActiveMemoId(parsedId);
                     console.log(`[useMemoEvents] 내부 링크 클릭 캡처 - 메모 ${parsedId}번으로 스위칭`);
                 } else if (navigate) {
-                    if (closeLinkPopover) closeLinkPopover(); // ★ 라우팅 전 툴팁 강제 철거
+                    if (closeLinkPopover) closeLinkPopover();
                     navigate(href);
                 }
             } catch (err) {
