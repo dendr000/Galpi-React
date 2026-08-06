@@ -108,7 +108,8 @@ export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
             return;
           }
         } else if (state.mode === 'suggest') {
-          if (e.key === 'Tab' || e.key === 'Enter') {
+          // ★ Tab 키는 표 네비게이션을 방해하지 않도록 상용구 확정 단축키에서 완전히 제외합니다.
+          if (e.key === 'Enter') {
             if (e.isComposing) return;
             e.preventDefault(); bpCore.commitBpExpansion(); return;
           }
