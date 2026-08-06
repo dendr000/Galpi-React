@@ -1,3 +1,4 @@
+  ```bash
 src/
  ├── App.jsx                                    # 애플리케이션 최상위 라우팅 및 전역 환경설정 주입 코어 파일
  ├── main.jsx                                   # React 웹 애플리케이션 DOM 주입 및 서비스 구동 진입점 파일
@@ -117,3 +118,6 @@ src/
      └── WorkDetail/
          ├── WorkDetail.module.css              # 작품 상세 정보 화면 전용 모듈 CSS 스타일시트
          └── WorkDetailPage.jsx                 # 데이터 패치 및 도메인 UI 컴포넌트 총괄 조립 페이지
+```
+  
+Fab-Memo 관련 트리를 보려면 [이 링크](./domains/fab/memo.md)로 이동하세요.
