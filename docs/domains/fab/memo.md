@@ -1,4 +1,4 @@
-memo
+memo/
 ├── components/                            # [사이드바 및 에디터 하위 UI 컴포넌트]
 │   ├── MemoContextMenu.jsx                # 메모 및 폴더 제어용 우클릭/더보기 컨텍스트 팝업 메뉴
 │   ├── MemoEditorBody.jsx                 # ContentEditable 기반의 실제 텍스트 입력 및 DOM 렌더링 구역
