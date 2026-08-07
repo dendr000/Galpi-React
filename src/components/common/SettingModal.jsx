@@ -1,3 +1,4 @@
+// src/components/common/SettingModal.jsx
 import React, { useState } from 'react';
 import useSettingStore from '../../store/useSettingStore';
 

@@ -1,3 +1,4 @@
+// 파일 위치: src/components/layout/Gnb.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 

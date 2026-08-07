@@ -1,3 +1,4 @@
+// src/components/common/ModalOverlay.jsx
 import React, { useEffect } from 'react';
 
 const ModalOverlay = ({ title, onClose, children, width = '500px', actions }) => {

@@ -1,3 +1,4 @@
+// 파일 위치: src/components/layout/GlobalContextMenu.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../../api/axiosCore';

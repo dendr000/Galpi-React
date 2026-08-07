@@ -1,3 +1,4 @@
+// src/components/common/BossBlindLayer.jsx
 import React, { useEffect, useRef } from 'react';
 import useSettingStore from '../../store/useSettingStore';
 
