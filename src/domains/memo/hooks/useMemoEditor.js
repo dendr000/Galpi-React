@@ -1,5 +1,4 @@
 // 파일 위치: src/domains/memo/hooks/useMemoEditor.js
-// 기능 요약: 에디터 렌더링에 필요한 API 통신, 폰트 글로벌 CSS 동적 주입, 하위 서식 모듈 훅을 결합하는 중앙 관제탑
 
 import { useState, useEffect, useRef } from 'react';
 import { useMemoSave } from './useMemoSave';
@@ -26,8 +25,6 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
   const [charCount, setCharCount] = useState({ selected: 0, total: 0 });
   const [memoTags, setMemoTags] = useState("");
   const [globalBpList, setGlobalBpList] = useState([]);
-  
-  // ★ 신규 추가: 백엔드에서 스캔된 폰트 목록 상태
   const [fontList, setFontList] = useState([]);
 
   const updateCharCount = () => {
@@ -53,7 +50,6 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
       editorRef.current.innerHTML = content;
       updateCharCount();
       
-      // ★ 새 메모장을 켜더라도 로컬 스토리지에 기억된 디폴트 폰트를 자동으로 씌움
       const savedFont = localStorage.getItem('galpi-default-font') || 'default';
       editorRef.current.style.fontFamily = savedFont === 'default' ? 'inherit' : `'${savedFont}', sans-serif`;
     }
@@ -63,17 +59,18 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
   useEffect(() => {
     api.get('/api/boilerplates').then(res => setGlobalBpList(res.data)).catch(() => {});
     
-    // ★ 신규 추가: 백엔드 폰트 스캔 API 연동 및 글로벌 CSS 강제 주입
     api.get('/api/fonts').then(res => {
       if (res.data && res.data.length > 0) {
-        setFontList(res.data);
+        // ★ 백엔드 데이터를 프론트에서 가나다순으로 즉각 정렬
+        const sortedFonts = res.data.sort((a, b) => a.displayName.localeCompare(b.displayName, 'ko-KR'));
+        setFontList(sortedFonts);
+
         const styleId = 'galpi-dynamic-fonts';
         if (!document.getElementById(styleId)) {
           const style = document.createElement('style');
           style.id = styleId;
           let css = '';
-          res.data.forEach(f => {
-            // 외부 폴더 경로(/fonts/)로 font-face 선언을 동적 생성
+          sortedFonts.forEach(f => {
             css += `@font-face { font-family: '${f.fontFamily}'; src: url('/fonts/${f.filename}'); }\n`;
           });
           style.innerHTML = css;
@@ -121,7 +118,6 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
       alert("템플릿으로 저장할 텍스트나 표를 먼저 드래그(선택)해 주십시오.");
       return;
     }
-
     const range = sel.getRangeAt(0);
     const div = document.createElement('div');
     div.appendChild(range.cloneContents());
@@ -164,6 +160,6 @@ export const useMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder
     updatePopupState: bpCore.updatePopupState,
     openTemplateList, 
     saveAsTemplate,
-    fontList // ★ 툴바 UI로 폰트 목록 전달
+    fontList
   };
 };
