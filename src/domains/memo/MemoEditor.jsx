@@ -75,6 +75,8 @@ const MemoEditor = (props) => {
         insertMarkdownLink={editorHooks.insertMarkdownLink}
         openTemplateList={editorHooks.openTemplateList} 
         saveAsTemplate={editorHooks.saveAsTemplate}
+        fontList={editorHooks.fontList} 
+        applyFont={editorHooks.applyFont}
       />
 
       <MemoEditorBody editorHooks={editorHooks} />
