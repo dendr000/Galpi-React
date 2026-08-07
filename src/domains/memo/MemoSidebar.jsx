@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import { useMemoSidebar } from './hooks/useMemoSidebar';
-import { FolderPlusIcon, EditIcon, XIcon, FolderIcon } from './components/MemoIcons';
+import { FolderPlusIcon, EditIcon, XIcon, FolderIcon, FilePlusIcon } from './components/MemoIcons';
 import MemoSmartFolders from './components/MemoSmartFolders';
 import MemoTagExplorer from './components/MemoTagExplorer';
 import MemoContextMenu from './components/MemoContextMenu';
@@ -52,7 +52,7 @@ const MemoSidebar = (props) => {
           <div style={{ padding: '15px 15px 15px 50px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '4px' }}>
               <button className="wiki-btn" onClick={() => sidebarHooks.handleAddFolder('')} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', padding: '4px', cursor: 'pointer' }} title="새 최상위 폴더"><FolderPlusIcon /></button>
-              <button className="wiki-btn" onClick={props.handleCreateMemo} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', padding: '4px', cursor: 'pointer' }} title="새 메모"><EditIcon /></button>
+              <button className="wiki-btn" onClick={props.handleCreateMemo} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', padding: '4px', cursor: 'pointer' }} title="새 메모"><FilePlusIcon /></button>
             </div>
           </div>
 
