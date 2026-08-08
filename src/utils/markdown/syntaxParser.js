@@ -46,15 +46,54 @@ export const parseWikiText = (text) => {
             if (inQuote) { newLines.push(`\n<div class="galpi-ext-quote">${quoteBuffer.join('<br>')}</div>\n`); inQuote = false; quoteBuffer = []; }
             if (!inTable) { 
                 inTable = true; 
-                tableBuffer.push('<div style="overflow-x:auto; margin: 15px 0;"><table style="width:100%; border-collapse:collapse; background:var(--surface-color); font-size:13px; text-align:center; border-radius:8px; border-style:hidden; box-shadow:0 0 0 1px var(--border-color), 0 2px 8px rgba(0,0,0,0.02);"><tbody>'); 
+                tableBuffer.push('<div style="overflow-x:auto; margin: 15px 0;"><table style="width:100%; border-collapse:collapse; background:var(--surface-color); font-size:13px; border-radius:8px; border-style:hidden; box-shadow:0 0 0 1px var(--border-color), 0 2px 8px rgba(0,0,0,0.02);"><tbody>'); 
             }
             let cells = trimmed.substring(2, trimmed.length - 2).split('||');
             let isHeader = tableBuffer.length === 1;
             tableBuffer.push('<tr style="border-bottom: 1px solid var(--border-color); transition: background 0.2s;">');
+            
             cells.forEach(cell => {
+                let cellContent = cell.trim();
+                let align = isHeader ? 'center' : 'left'; // 헤더 기본 중앙, 내용 기본 좌측 정렬
+                let colSpan = 1;
+                let rowSpan = 1;
+                
+                // 기능: 표 옵션 태그(<left>, <center>, <-2>, <|2> 등)를 파싱하여 속성(Attribute)으로 변환
+                if (cellContent.startsWith('<') && cellContent.includes('>')) {
+                    const closeIdx = cellContent.indexOf('>');
+                    const tagContent = cellContent.substring(1, closeIdx);
+                    cellContent = cellContent.substring(closeIdx + 1).trim();
+                    
+                    tagContent.split(',').forEach(tag => {
+                        const t = tag.trim();
+                        if (t === 'left') align = 'left';
+                        else if (t === 'center') align = 'center';
+                        else if (t === 'right') align = 'right';
+                        else if (t.startsWith('-')) {
+                            const spanNum = parseInt(t.substring(1), 10);
+                            if (!isNaN(spanNum)) colSpan = spanNum;
+                        } else if (t.startsWith('|')) {
+                            const spanNum = parseInt(t.substring(1), 10);
+                            if (!isNaN(spanNum)) rowSpan = spanNum;
+                        }
+                    });
+                }
+
+                // 굵은 서식(~) 및 줄바꿈([br]) 지원 복구
+                if (cellContent.startsWith('~') && cellContent.endsWith('~')) {
+                    cellContent = `<strong>${cellContent.substring(1, cellContent.length - 1)}</strong>`;
+                }
+                cellContent = cellContent.replace(/\[br\]/g, '<br>');
+
                 let bg = isHeader ? 'background:var(--table-bg-alt); font-weight:900; color:var(--primary-color);' : 'color:var(--text-primary);';
                 let tag = isHeader ? 'th' : 'td';
-                tableBuffer.push(`<${tag} style="border:1px solid var(--border-color); padding:10px 14px; ${bg}">${cell.trim()}</${tag}>`);
+                
+                // 병합 속성(HTML DOM colspan, rowspan) 문자열 조립
+                let spanAttrs = '';
+                if (colSpan > 1) spanAttrs += ` colspan="${colSpan}"`;
+                if (rowSpan > 1) spanAttrs += ` rowspan="${rowSpan}"`;
+
+                tableBuffer.push(`<${tag}${spanAttrs} style="border:1px solid var(--border-color); padding:10px 14px; text-align:${align}; ${bg}">${cellContent}</${tag}>`);
             });
             tableBuffer.push('</tr>');
             continue;

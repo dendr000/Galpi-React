@@ -1,3 +1,4 @@
+/* src/pages/Editor/EditorPage.module.css */
 .editorHeader {
 position: sticky;
 top: 0;
@@ -64,11 +65,9 @@ box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 
 /* 화면 전체를 사용하기 위한 브레이크아웃(Full Bleed) 클래스 */
 .editorFullBleed {
-  width: 100vw;
-  min-width: 1200px;
+  width: 100%; /* 100vw로 인한 스크롤바 겹침 버그 방지 및 반응형 넓이 적용 */
+  min-width: 320px; /* 창을 극한으로 줄였을 때 UI가 깨지지 않는 최소 방어선 */
   position: relative;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   height: 100vh;
