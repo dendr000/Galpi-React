@@ -1,5 +1,5 @@
-// 파일 위치: src/pages/Editor/components/EditorWritePane.jsx
-// 기능 요약: 속성 패널을 모달로 이관하고 마크다운 본문 편집에만 집중할 수 있도록 경량화된 작성 컴포넌트
+// 절대 경로: src/pages/Editor/components/EditorWritePane.jsx
+// 기능 요약: 텍스트 입력과 서식 단축키를 처리하고 스크롤 튐 방지가 적용된 메인 편집 패널
 import React, { useEffect, useCallback } from 'react';
 import styles from '../EditorPage.module.css';
 import EditorToolbar from './EditorToolbar';
@@ -8,6 +8,7 @@ const EditorWritePane = ({
   docType, title, setTitle, rawText, setRawText, editorRef, handleEditorKeyDown
 }) => {
 
+  // 내부 서식 단축키(Ctrl+B, Ctrl+I 등) 적용을 위한 로직
   const applyTextFormat = useCallback((prefix, suffix) => {
     const textarea = editorRef.current;
     if (!textarea) return;
@@ -36,28 +37,6 @@ const EditorWritePane = ({
     }, 0);
   }, [editorRef, setRawText]);
 
-  const sortSelectedLines = useCallback(() => {
-    const textarea = editorRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    if (start === end) return alert("정렬할 텍스트 라인들을 드래그로 선택해 주세요.");
-
-    const text = textarea.value;
-    const selected = text.substring(start, end);
-    const lines = selected.split('\n');
-    
-    lines.sort((a, b) => a.localeCompare(b, 'ko-KR'));
-    const sortedText = lines.join('\n');
-
-    setRawText(text.substring(0, start) + sortedText + text.substring(end));
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start, start + sortedText.length);
-    }, 0);
-  }, [editorRef, setRawText]);
-
   const handleLocalKeyDown = (e) => {
     if (e.ctrlKey || e.metaKey) {
       switch (e.key.toLowerCase()) {
@@ -71,10 +50,14 @@ const EditorWritePane = ({
 
   const adjustTextareaHeight = useCallback((element) => {
     if (element) {
-      // 불필요한 scroll 텔레포트를 걷어내어 부드러운 순정 스크롤 보장
+      // ★ 핵심 픽스: 높이를 리셋할 때 브라우저 스크롤이 위로 튕기는 현상(Scroll Jumping)을 원천 차단
+      const currentScrollY = window.scrollY; // 현재 스크롤 좌표 캡처
+      
       element.style.setProperty('height', 'auto', 'important');
       const targetHeight = element.scrollHeight + 5;
       element.style.setProperty('height', targetHeight + 'px', 'important');
+      
+      window.scrollTo(0, currentScrollY); // 스크롤 좌표 즉시 원상 복구
     }
   }, []);
 
@@ -85,7 +68,6 @@ const EditorWritePane = ({
   }, [rawText, adjustTextareaHeight, editorRef]);
 
   return (
-    /* ★ Flex 제약을 해제하는 display: 'block' 부여로 아래 방향으로의 화면 무한 팽창 허용 */
     <div className={styles.writePane} style={{ paddingLeft: '80px', boxSizing: 'border-box', maxWidth: '100%', display: 'block' }}>
       <input 
         className={styles.editorTitleInput} 
@@ -98,9 +80,10 @@ const EditorWritePane = ({
         {docType === 'work' ? '설정 및 본문' : '문서 내용 작성'}
       </label>
 
+      {/* SVG 아이콘이 적용된 서식 툴바 (자체적으로 editorRef와 setRawText를 받아 작동) */}
       <EditorToolbar 
-        applyTextFormat={applyTextFormat} 
-        sortSelectedLines={sortSelectedLines} 
+        editorRef={editorRef}
+        setRawText={setRawText}
       />
 
       <textarea 
