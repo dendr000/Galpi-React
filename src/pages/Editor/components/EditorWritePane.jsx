@@ -50,14 +50,16 @@ const EditorWritePane = ({
 
   const adjustTextareaHeight = useCallback((element) => {
     if (element) {
-      // ★ 핵심 픽스: 높이를 리셋할 때 브라우저 스크롤이 위로 튕기는 현상(Scroll Jumping)을 원천 차단
-      const currentScrollY = window.scrollY; // 현재 스크롤 좌표 캡처
+      // ★ X축(가로)과 Y축(세로) 스크롤 좌표를 모두 캡처
+      const currentScrollX = window.scrollX;
+      const currentScrollY = window.scrollY;
       
       element.style.setProperty('height', 'auto', 'important');
       const targetHeight = element.scrollHeight + 5;
       element.style.setProperty('height', targetHeight + 'px', 'important');
       
-      window.scrollTo(0, currentScrollY); // 스크롤 좌표 즉시 원상 복구
+      // ★ 가로(X)를 0으로 강제 리셋하지 않고 원래 위치 그대로 완벽 복원
+      window.scrollTo(currentScrollX, currentScrollY);
     }
   }, []);
 
