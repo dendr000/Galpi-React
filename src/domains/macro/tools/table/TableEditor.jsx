@@ -7,7 +7,7 @@ import TableToolbar from './TableToolbar';
 import TableGrid from './TableGrid';
 import { generateMarkdownFromGrid } from '../../../../utils/markdownTableParser'; 
 
-const TableEditor = ({ selectedText, onInsert, onCancel }) => {
+export const TableEditor = ({ selectedText, onInsert, onCancel }) => {
   console.log("[TableEditor] 통합 컴포넌트 렌더링 됨");
 
   const { 
