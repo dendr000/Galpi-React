@@ -33,6 +33,7 @@ function App() {
 
   const location = useLocation();
   const isBulkMode = location.pathname.startsWith('/bulk'); // 일괄 수정 스튜디오 경로 진입 여부 판별
+  const isEditorMode = location.pathname.startsWith('/edit'); // 에디터 경로 진입 여부 판별
 
   // 브라우저 네이티브 트랙패드 스와이프 뒤로가기/앞으로가기 액션 강력 차단 (html 태그까지 확장)
   useEffect(() => {
@@ -71,7 +72,8 @@ function App() {
       <GlobalContextMenu /> 
       
       {!isBulkMode && <FabMenu />}
-      {!isBulkMode && <Gnb setIsSettingOpen={setIsSettingOpen} />}     
+      {/* 에디터 화면에서는 글로벌 헤더(Gnb)를 렌더링하지 않아 글 작성에 집중하도록 처리 */}
+      {!isBulkMode && !isEditorMode && <Gnb setIsSettingOpen={setIsSettingOpen} />}     
       {!isBulkMode && <Footer />} 
       
       <Routes>
