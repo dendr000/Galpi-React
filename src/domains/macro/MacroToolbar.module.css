@@ -1,5 +1,38 @@
-.sidebarToolbar { position: fixed; left: 15px; top: 50%; transform: translateY(-50%); background: var(--surface-color); padding: 8px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px; z-index: 9000; transition: left 0.3s ease, border-radius 0.3s ease; }
-@media (max-width: 1400px) { .sidebarToolbar { left: 0; border-radius: 0 12px 12px 0; border-left: none; padding: 6px; } }
+/* 절대 경로: src/components/macro/MacroToolbar.module.css */
+
+/* 🌟 호버 감지용 투명 센서 래퍼 */
+.toolbarWrapper {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 25px; /* 마우스가 닿기 쉬운 적절한 너비의 감지 구역 */
+  z-index: 9000;
+  background: transparent;
+}
+
+/* 툴바 본체 (평소엔 화면 왼쪽 바깥에 숨겨짐) */
+.sidebarToolbar {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translate(-100%, -50%); /* -100%로 왼쪽 바깥으로 완전히 밀어냄 */
+  background: var(--surface-color);
+  padding: 8px;
+  border-radius: 0 12px 12px 0; /* 가장자리에 붙으므로 우측만 둥글게 처리 */
+  box-shadow: 4px 4px 15px rgba(0,0,0,0.15);
+  border: 1px solid var(--border-color);
+  border-left: none; /* 좌측 테두리 제거 */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.3s ease; /* 부드러운 전환 효과 */
+}
+
+/* 마우스가 투명 래퍼 구역에 닿거나 툴바 자체에 올라가면 원래 위치(0)로 튀어나옴 */
+.toolbarWrapper:hover .sidebarToolbar {
+  transform: translate(0, -50%);
+}
 
 .toolBtn { width: 42px; height: 42px; border-radius: 8px; border: 1px solid transparent; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; position: relative; outline: none; font-size: 20px; }
 .toolBtn:hover { background: var(--table-bg-alt); border-color: var(--primary-color); transform: scale(1.1) translateY(-2px); box-shadow: 0 4px 10px rgba(59,91,219,0.15); }

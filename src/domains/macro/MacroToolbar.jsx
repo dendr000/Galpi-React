@@ -1,12 +1,11 @@
-// src/components/macro/MacroToolbar.jsx
+// 절대 경로: src/components/macro/MacroToolbar.jsx
+// 기능 요약: 위키 편집 페이지에 부착되는 그래프/타임라인 등 매크로 원터치 특수 툴바 (슬라이딩 서랍 UI 적용)
 
 import React, { useState } from 'react';
 import styles from './MacroToolbar.module.css';
 
-// 구버전 TableEditor 임포트 제거
 import { RadarEditor, BarEditor, TimelineEditor } from '../../domains/macro/BasicMacroTools';
 import RelationEditor from '../../domains/macro/RelationEditor';
-// 새로 분리된 도메인 아키텍처의 고급 표 에디터 연결
 import TableEditor from '../../domains/macro/tools/table/TableEditor';
 
 const MACRO_TOOLS = [
@@ -27,7 +26,7 @@ const MacroToolbar = ({ editorRef, onInsert }) => {
       const end = editorRef.current.selectionEnd;
       text = editorRef.current.value.substring(start, end);
     }
-    // ★ 클릭 시점에 드래그된 텍스트를 캡처하여 tool 객체에 담아 전달합니다.
+    // 클릭 시점에 드래그된 텍스트를 캡처하여 tool 객체에 담아 전달합니다.
     setActiveTool({ ...tool, selectedText: text });
   };
 
@@ -65,13 +64,16 @@ const MacroToolbar = ({ editorRef, onInsert }) => {
 
   return (
     <>
-      <div className={styles.sidebarToolbar}>
-        {MACRO_TOOLS.map(tool => (
-          <button key={tool.id} className={styles.toolBtn} onClick={() => handleOpenModal(tool)} type="button">
-            <img src={`/img/svg/${tool.icon}`} alt="" onError={(e) => e.target.style.display = 'none'} />
-            <span className={styles.toolTip}>{tool.tooltip}</span>
-          </button>
-        ))}
+      {/* 🌟 화면 좌측 투명 센서 래퍼 (Hover 감지 구역) */}
+      <div className={styles.toolbarWrapper}>
+        <div className={styles.sidebarToolbar}>
+          {MACRO_TOOLS.map(tool => (
+            <button key={tool.id} className={styles.toolBtn} onClick={() => handleOpenModal(tool)} type="button">
+              <img src={`/img/svg/${tool.icon}`} alt="" onError={(e) => e.target.style.display = 'none'} />
+              <span className={styles.toolTip}>{tool.tooltip}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {activeTool && (

@@ -7,11 +7,10 @@ import { useEditorData } from './hooks/useEditorData';
 import EditorHeader from './components/EditorHeader';
 import EditorPreviewPane from './components/EditorPreviewPane';
 import EditorWritePane from './components/EditorWritePane';
+import EditorSettingsModal from './components/EditorSettingsModal';
 import { IconBook, IconDocument, IconUser } from './components/EditorIcons';
 
 const EditorPage = () => {
-  console.log(`[EditorPage] UI 렌더링 사이클 개시`);
-  
   const {
     docType, docAction, loading,
     title, setTitle, rawText, setRawText, overviewText, setOverviewText,
@@ -20,12 +19,11 @@ const EditorPage = () => {
     workContext, isHidden, setIsHidden
   } = useEditorData();
 
-  // 듀얼/집중/뷰어 레이아웃 스위칭 상태 관리
   const [layoutMode, setLayoutMode] = useState('dual');
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
-  // 모드별 뱃지 아이콘 및 텍스트 동적 할당
   const badgeText = 
-    docType === 'work' ? (docAction === 'new' ? <><IconBook /> 새 작품 등록</> : <><IconBook /> 작품 설정 편집</>) : 
+    docType === 'work' ? (docAction === 'new' ? <><IconBook /> 새 작품 등록</> : <><IconBook /> 작품 편집</>) : 
     docType === 'page' ? (docAction === 'new' ? <><IconDocument /> 새 위키 문서</> : <><IconDocument /> 문서 편집</>) :
     (docAction === 'new' ? <><IconUser /> 새 캐릭터 추가</> : <><IconUser /> 캐릭터 상세 편집</>);
 
@@ -58,7 +56,7 @@ const EditorPage = () => {
   if (loading) return <div style={{ padding: '50px', textAlign: 'center', fontWeight: 'bold' }}>에디터 로딩 중...</div>;
 
   return (
-    <div className={styles.editorFullBleed}>
+    <div className={styles.editorFullBleed} style={{ overflowX: 'hidden' }}>
       
       <EditorSearch editorRef={editorRef} updatePreview={() => {}} />
       <MacroToolbar editorRef={editorRef} onInsert={handleMacroInsert} />
@@ -69,12 +67,42 @@ const EditorPage = () => {
         layoutMode={layoutMode}
         setLayoutMode={setLayoutMode}
         handleGoBack={handleGoBack} 
-        handleSave={handleSave} 
+        handleSave={handleSave}
+        onOpenSettings={() => setIsSettingsModalOpen(true)}
       />
 
-      <div className={styles.editorLayout}>
-        
-        <div style={{ flex: 1, display: layoutMode === 'focus' ? 'none' : 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
+      <EditorSettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        docType={docType}
+        title={title}
+        workMeta={workMeta}
+        setWorkMeta={setWorkMeta}
+        charProps={charProps}
+        setCharProps={setCharProps}
+        themeColor={themeColor}
+        setThemeColor={setThemeColor}
+        cardLabels={cardLabels}
+        setCardLabels={setCardLabels}
+        workContext={workContext}
+        isHidden={isHidden}
+        setIsHidden={setIsHidden}
+        overviewText={overviewText}
+        setOverviewText={setOverviewText}
+      />
+
+      {/* ★ 핵심: 듀얼 모드일 땐 100% 와이드, 그 외엔 1000px로 예쁘게 중앙 정렬되되, 창을 좁히면 찌그러짐 없이 100% 수축 (가로 스크롤 없음) */}
+      <div 
+        className={styles.editorLayout}
+        style={{
+          width: '100%',
+          maxWidth: layoutMode === 'dual' ? '100%' : '1000px',
+          minWidth: 0,
+          margin: '0 auto',
+          transition: 'max-width 0.3s ease'
+        }}
+      >
+        <div style={{ flex: 1, display: layoutMode === 'focus' ? 'none' : 'flex', flexDirection: 'column', minWidth: 0 }}>
             <EditorPreviewPane
               isPreviewOpen={true}
               title={title}
@@ -92,31 +120,17 @@ const EditorPage = () => {
             </div>
         )}
 
-        <div style={{ flex: 1, display: layoutMode === 'preview' ? 'none' : 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
+        <div style={{ flex: 1, display: layoutMode === 'preview' ? 'none' : 'flex', flexDirection: 'column', minWidth: 0 }}>
             <EditorWritePane
               docType={docType}
               title={title}
               setTitle={setTitle}
-              workMeta={workMeta}
-              setWorkMeta={setWorkMeta}
-              charProps={charProps}
-              setCharProps={setCharProps}
-              themeColor={themeColor}
-              setThemeColor={setThemeColor}
-              cardLabels={cardLabels}
-              setCardLabels={setCardLabels}
-              workContext={workContext}
-              isHidden={isHidden}
-              setIsHidden={setIsHidden}
-              overviewText={overviewText}
-              setOverviewText={setOverviewText}
               rawText={rawText}
               setRawText={setRawText}
               editorRef={editorRef}
               handleEditorKeyDown={handleEditorKeyDown}
             />
         </div>
-
       </div>
     </div>
   );
