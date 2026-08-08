@@ -2,7 +2,7 @@
 // 기능 요약: 기능별로 분리된 에디터 모듈(표, 차트, 게이지, 타임라인)들을 외부로 통합 노출하는 진입점(Barrel) 허브 파일
 // 버전: v2.3.0
 
-export { TableEditor } from './tools/TableEditor';
+export { TableEditor } from './tools/table/TableEditor';
 export { RadarEditor } from './tools/RadarEditor';
 export { BarEditor } from './tools/BarEditor';
 export { TimelineEditor } from './tools/TimelineEditor';

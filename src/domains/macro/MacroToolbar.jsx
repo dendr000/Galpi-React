@@ -3,8 +3,11 @@
 import React, { useState } from 'react';
 import styles from './MacroToolbar.module.css';
 
-import { TableEditor, RadarEditor, BarEditor, TimelineEditor } from '../../domains/macro/BasicMacroTools';
+// 구버전 TableEditor 임포트 제거
+import { RadarEditor, BarEditor, TimelineEditor } from '../../domains/macro/BasicMacroTools';
 import RelationEditor from '../../domains/macro/RelationEditor';
+// 새로 분리된 도메인 아키텍처의 고급 표 에디터 연결
+import TableEditor from '../../domains/macro/tools/table/TableEditor';
 
 const MACRO_TOOLS = [
   { id: 'table', icon: 'table.svg', tooltip: '엑셀형 표 생성/편집기' },
