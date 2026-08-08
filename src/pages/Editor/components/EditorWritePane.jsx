@@ -75,7 +75,15 @@ const EditorWritePane = ({
           </label>
           <textarea 
             className={styles.editorTextarea} 
-            style={{ overflow: 'hidden', minHeight: '150px', resize: 'none' }} 
+            style={{ 
+              overflow: 'hidden', 
+              minHeight: '150px', 
+              resize: 'none',
+              width: '100%',
+              boxSizing: 'border-box',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word'
+            }} 
             placeholder="개요에 들어갈 상세 내용을 마크다운으로 작성하세요..."
             value={overviewText}
             onChange={e => {
@@ -104,7 +112,15 @@ const EditorWritePane = ({
       <textarea 
         ref={editorRef}
         className={styles.editorTextarea} 
-        style={{ overflow: 'hidden', minHeight: '300px', resize: 'none' }}
+        style={{ 
+          overflow: 'hidden', 
+          minHeight: '300px', 
+          resize: 'none',
+          width: '100%',
+          boxSizing: 'border-box',
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word'
+        }}
         placeholder="마크다운으로 내용을 자유롭게 작성하세요..."
         value={rawText}
         onChange={e => {
