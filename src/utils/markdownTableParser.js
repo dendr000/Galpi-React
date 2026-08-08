@@ -42,24 +42,17 @@ export const parseMarkdownToGrid = (mdText) => {
       let text = rawCell;
 
       // 옵션 태그 파싱 (예: <left>, <-2>, <|3>, ~ 등)
-      if (text.startsWith('<') && text.includes('>')) {
-        const closeIdx = text.indexOf('>');
-        const tagContent = text.substring(1, closeIdx);
-        text = text.substring(closeIdx + 1).trim();
-
-        tagContent.split(',').forEach(tag => {
+      // 변경: <strong> 등 HTML 태그를 옵션으로 오인하지 않도록 엄격한 정규식으로 방어
+      let match = text.match(/^<([a-z0-9,\-|]+)>/i);
+      if (match) {
+        let isValid = false;
+        match[1].split(',').forEach(tag => {
           const t = tag.trim();
-          if (t === 'left') align = 'left';
-          else if (t === 'center') align = 'center';
-          else if (t === 'right') align = 'right';
-          else if (t.startsWith('-')) {
-            const spanNum = parseInt(t.substring(1), 10);
-            if (!isNaN(spanNum)) colSpan = spanNum;
-          } else if (t.startsWith('|')) {
-            const spanNum = parseInt(t.substring(1), 10);
-            if (!isNaN(spanNum)) rowSpan = spanNum;
-          }
+          if (['left', 'center', 'right'].includes(t)) { align = t; isValid = true; }
+          else if (t.startsWith('-') && !isNaN(parseInt(t.substring(1)))) { colSpan = parseInt(t.substring(1)); isValid = true; }
+          else if (t.startsWith('|') && !isNaN(parseInt(t.substring(1)))) { rowSpan = parseInt(t.substring(1)); isValid = true; }
         });
+        if (isValid) text = text.substring(match[0].length).trim();
       }
 
       // 굵은 서식 확인 (~)
@@ -105,7 +98,8 @@ export const generateMarkdownFromGrid = (grid) => {
       let options = [];
 
       // 정렬 옵션 부여
-      if (cell.align && cell.align !== 'left') {
+      // 변경: cell.align !== 'left' 조건을 지워 좌측 정렬 태그(<left>)도 무조건 생성되게 강제함
+      if (cell.align) {
         options.push(cell.align);
       }
 
