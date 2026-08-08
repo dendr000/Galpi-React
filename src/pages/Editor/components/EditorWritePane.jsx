@@ -15,6 +15,85 @@ const EditorWritePane = ({
 }) => {
   console.log(`[EditorWritePane] 컴포넌트 렌더링 됨 - 문서 타입: ${docType}`);
 
+  // 기능: 마크다운 텍스트 영역에 특정 포맷(태그)을 씌우거나 벗기는 로직을 수행합니다.
+  const applyTextFormat = useCallback((prefix, suffix) => {
+    console.log(`[EditorWritePane] 텍스트 서식 적용 호출됨 - prefix: ${prefix}, suffix: ${suffix}`);
+    const textarea = editorRef.current;
+    if (!textarea) return;
+
+    textarea.focus();
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selected = text.substring(start, end);
+
+    const before = text.substring(Math.max(0, start - prefix.length), start);
+    const after = text.substring(end, end + suffix.length);
+
+    let isUnwrap = (before === prefix && after === suffix);
+    let newInsertedText = isUnwrap ? selected : prefix + selected + suffix;
+
+    setRawText(text.substring(0, isUnwrap ? start - prefix.length : start) + newInsertedText + text.substring(isUnwrap ? end + suffix.length : end));
+
+    setTimeout(() => {
+      textarea.focus();
+      if (isUnwrap) {
+        textarea.setSelectionRange(start - prefix.length, start - prefix.length + selected.length);
+      } else {
+        textarea.setSelectionRange(start + prefix.length, start + prefix.length + selected.length);
+      }
+    }, 0);
+  }, [editorRef, setRawText]);
+
+  // 기능: 선택된 영역의 여러 줄 텍스트를 가나다순으로 정렬합니다.
+  const sortSelectedLines = useCallback(() => {
+    console.log("[EditorWritePane] 가나다 정렬 호출됨");
+    const textarea = editorRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    if (start === end) {
+      alert("정렬할 텍스트 라인들을 드래그로 선택해 주세요.");
+      return;
+    }
+
+    const text = textarea.value;
+    const selected = text.substring(start, end);
+    const lines = selected.split('\n');
+    
+    lines.sort((a, b) => a.localeCompare(b, 'ko-KR'));
+    const sortedText = lines.join('\n');
+
+    setRawText(text.substring(0, start) + sortedText + text.substring(end));
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start, start + sortedText.length);
+    }, 0);
+  }, [editorRef, setRawText]);
+
+  // 기능: 키보드 단축키(Ctrl+B, Ctrl+I 등)를 감지하여 서식을 적용하고 부모의 onKeyDown을 호출합니다.
+  const handleLocalKeyDown = (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      switch (e.key.toLowerCase()) {
+        case 'b':
+          e.preventDefault();
+          applyTextFormat('**', '**');
+          break;
+        case 'i':
+          e.preventDefault();
+          applyTextFormat('_', '_');
+          break;
+        default:
+          break;
+      }
+    }
+    // 상위(useEditorState 등)에서 전달받은 기존 키다운 로직(탭 키 등) 유지
+    if (handleEditorKeyDown) {
+      handleEditorKeyDown(e);
+    }
+  };
+
   // 기능: 텍스트 길이에 따라 textarea의 높이를 동적으로 조절하며 화면 스크롤 튐 현상을 방지합니다.
   const adjustTextareaHeight = useCallback((element) => {
     if (element) {
@@ -113,8 +192,8 @@ const EditorWritePane = ({
 
       {/* 텍스트 포맷 툴바 영역 */}
       <EditorToolbar 
-        editorRef={editorRef} 
-        setRawText={setRawText} 
+        applyTextFormat={applyTextFormat} 
+        sortSelectedLines={sortSelectedLines} 
       />
 
       {/* 메인 마크다운 텍스트 에디터 영역 */}
@@ -137,7 +216,7 @@ const EditorWritePane = ({
           setRawText(e.target.value);
           adjustTextareaHeight(e.target);
         }}
-        onKeyDown={handleEditorKeyDown}
+        onKeyDown={handleLocalKeyDown}
       />
     </div>
   );
