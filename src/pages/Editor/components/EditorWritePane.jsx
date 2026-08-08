@@ -16,10 +16,13 @@ const EditorWritePane = ({
   console.log(`[EditorWritePane] 컴포넌트 렌더링 됨 - 문서 타입: ${docType}`);
 
   // 기능: 텍스트 길이에 따라 textarea의 높이를 동적으로 조절합니다.
+  // 기능: 텍스트 길이에 따라 textarea의 높이를 동적으로 조절하며 화면 스크롤 튐 현상을 방지합니다.
   const adjustTextareaHeight = useCallback((element) => {
     if (element) {
+      const scrollY = window.scrollY; // 현재 화면 스크롤 위치 저장
       element.style.height = 'auto'; // 높이 초기화
       element.style.height = element.scrollHeight + 'px'; // 콘텐츠 길이에 맞게 재설정
+      window.scrollTo(0, scrollY); // 스크롤 위치 복구
       console.log(`[EditorWritePane] 텍스트 영역 높이 자동 조절 완료: ${element.scrollHeight}px`);
     }
   }, []);
@@ -32,7 +35,7 @@ const EditorWritePane = ({
   }, [rawText, adjustTextareaHeight, editorRef]);
 
   return (
-    <div className={styles.writePane} style={{ paddingLeft: '80px' }}>
+    <div className={styles.writePane} style={{ paddingLeft: '80px', boxSizing: 'border-box', maxWidth: '100%' }}>
       {/* 제목 입력 영역 (좌측 플로팅 툴바 침범 방지를 위해 paddingLeft 추가) */}
       <input 
         className={styles.editorTitleInput} 
@@ -76,13 +79,11 @@ const EditorWritePane = ({
           <textarea 
             className={styles.editorTextarea} 
             style={{ 
-              overflow: 'hidden', 
+              overflowY: 'hidden', 
               minHeight: '150px', 
               resize: 'none',
               width: '100%',
-              boxSizing: 'border-box',
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word'
+              boxSizing: 'border-box'
             }} 
             placeholder="개요에 들어갈 상세 내용을 마크다운으로 작성하세요..."
             value={overviewText}
@@ -113,13 +114,11 @@ const EditorWritePane = ({
         ref={editorRef}
         className={styles.editorTextarea} 
         style={{ 
-          overflow: 'hidden', 
+          overflowY: 'hidden', 
           minHeight: '300px', 
           resize: 'none',
           width: '100%',
-          boxSizing: 'border-box',
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word'
+          boxSizing: 'border-box'
         }}
         placeholder="마크다운으로 내용을 자유롭게 작성하세요..."
         value={rawText}
