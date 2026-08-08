@@ -15,15 +15,21 @@ const EditorWritePane = ({
 }) => {
   console.log(`[EditorWritePane] 컴포넌트 렌더링 됨 - 문서 타입: ${docType}`);
 
-  // 기능: 텍스트 길이에 따라 textarea의 높이를 동적으로 조절합니다.
   // 기능: 텍스트 길이에 따라 textarea의 높이를 동적으로 조절하며 화면 스크롤 튐 현상을 방지합니다.
   const adjustTextareaHeight = useCallback((element) => {
     if (element) {
       const scrollY = window.scrollY; // 현재 화면 스크롤 위치 저장
-      element.style.height = 'auto'; // 높이 초기화
-      element.style.height = element.scrollHeight + 'px'; // 콘텐츠 길이에 맞게 재설정
+      
+      // 기존 CSS 파일에 강제(important)로 지정된 높이나 억제 속성이 있을 경우를 완벽히 돌파하기 위해
+      // setProperty를 사용하여 최우선 순위로 높이를 제어합니다.
+      element.style.setProperty('height', 'auto', 'important');
+      
+      // 텍스트 밑부분이 잘리는 현상을 방지하기 위해 계산된 높이에 5px의 여유를 둡니다.
+      const targetHeight = element.scrollHeight + 5;
+      element.style.setProperty('height', targetHeight + 'px', 'important');
+      
       window.scrollTo(0, scrollY); // 스크롤 위치 복구
-      console.log(`[EditorWritePane] 텍스트 영역 높이 자동 조절 완료: ${element.scrollHeight}px`);
+      console.log(`[EditorWritePane] 텍스트 영역 높이 강제 확장 완료: ${targetHeight}px`);
     }
   }, []);
 
@@ -81,9 +87,11 @@ const EditorWritePane = ({
             style={{ 
               overflowY: 'hidden', 
               minHeight: '150px', 
+              maxHeight: 'none', // 핵심: 기존 CSS의 최대 높이 제한을 무력화
               resize: 'none',
               width: '100%',
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
+              flex: 'none' // 핵심: 부모 컨테이너의 flex에 의해 짓눌리는 현상 방지
             }} 
             placeholder="개요에 들어갈 상세 내용을 마크다운으로 작성하세요..."
             value={overviewText}
@@ -116,9 +124,11 @@ const EditorWritePane = ({
         style={{ 
           overflowY: 'hidden', 
           minHeight: '300px', 
+          maxHeight: 'none', // 핵심: 기존 CSS의 최대 높이 제한을 무력화
           resize: 'none',
           width: '100%',
-          boxSizing: 'border-box'
+          boxSizing: 'border-box',
+          flex: 'none' // 핵심: 부모 컨테이너의 flex에 의해 짓눌리는 현상 방지
         }}
         placeholder="마크다운으로 내용을 자유롭게 작성하세요..."
         value={rawText}
