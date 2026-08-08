@@ -1,8 +1,8 @@
 // 절대 경로: src/domains/macro/tools/table/TableEditor.jsx
-// 기능 요약: useTableGrid 훅과 하위 UI(Toolbar, Grid)를 통합하고 마크다운 변환을 수행하며, 부모(MacroToolbar)의 모달 껍데기 내부에 렌더링되는 본문 컴포넌트 v4.0.0
+// 기능 요약: useTableGrid 훅과 하위 UI(Toolbar, Grid)를 통합하고 마크다운 변환을 수행하며, 부모(MacroToolbar)의 모달 껍데기 내부에 렌더링되는 본문 컴포넌트 v4.0.1
 
 import React, { useEffect } from 'react';
-import { useTableGrid } from './useTableGrid';
+import { useTableGrid } from '../../../../hooks/table/useTableGrid';
 import TableToolbar from './TableToolbar';
 import TableGrid from './TableGrid';
 import { generateMarkdownFromGrid } from '../../../../utils/markdownTableParser'; 
