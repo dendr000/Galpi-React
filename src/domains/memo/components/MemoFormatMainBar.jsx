@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   BoldIcon, ItalicIcon, StrikethroughIcon, FootnoteIcon, LinkIcon,
   TableIcon, TodoIcon, FoldIcon, SearchIcon, TemplateIcon, TemplateSaveIcon,
-  FontResetIcon // ★ 신규 아이콘 임포트
+  FontResetIcon
 } from './MemoIcons';
 
 const MemoFormatMainBar = ({
@@ -16,7 +16,6 @@ const MemoFormatMainBar = ({
   const selectRef = useRef(null);
   const [recentFonts, setRecentFonts] = useState([]);
 
-  // 컴포넌트 로드 시 로컬 스토리지에서 최근 사용 폰트 5개 장전
   useEffect(() => {
     setRecentFonts(JSON.parse(localStorage.getItem('galpi-recent-fonts') || '[]'));
   }, []);
@@ -26,39 +25,37 @@ const MemoFormatMainBar = ({
 
   const checkHTML = `<div style="display:flex; align-items:center; gap:8px; margin:4px 0;" contenteditable="false"><button type="button" onclick="this.parentElement.remove()" style="background:transparent; color:#e53e3e; border:none; cursor:pointer; font-size:14px; padding:0; outline:none; display:flex; align-items:center; justify-content:center;" title="삭제">${svgClose}</button><input type="checkbox" style="cursor:pointer; width:16px; height:16px;"><span contenteditable="true" style="outline:none; flex:1; font-size:13px; min-width:50px;">할 일 입력...</span></div>`;
   const tableHTML = `<table style="width:max-content; min-width:100%; border-collapse:collapse; text-align:center; font-size:13px; background:var(--surface-color); word-break:break-all; margin: 15px 0;"><tbody><tr><th style="border:1px solid var(--border-color); padding:10px; background:var(--table-bg-alt); color:var(--primary-color); min-width:60px; resize:horizontal; overflow:hidden;">제목1</th><th style="border:1px solid var(--border-color); padding:10px; background:var(--table-bg-alt); color:var(--primary-color); min-width:60px; resize:horizontal; overflow:hidden;">제목2</th></tr><tr><td style="border:1px solid var(--border-color); padding:10px; min-width:60px; resize:horizontal; overflow:hidden;">내용1</td><td style="border:1px solid var(--border-color); padding:10px; min-width:60px; resize:horizontal; overflow:hidden;">내용2</td></tr></tbody></table><div><br></div>`;
-  const foldHTML = `<div style="position:relative; margin:15px 0; padding-top:15px;" contenteditable="false"><button type="button" onclick="this.parentElement.remove()" style="position:absolute; top:0; right:0; background:#e53e3e; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:11px; font-weight:bold; z-index:10; display:flex; align-items:center; gap:4px;">${svgClose} 박스 삭제</button><details open style="border: 1px solid var(--border-color); border-radius: 8px; background: var(--table-bg-alt); overflow: hidden; font-size:13px;"><summary onclick="if(event.target.closest('.fold-title')) event.preventDefault();" style="padding: 10px 15px; font-weight: 900; cursor: default; color: var(--primary-color); outline: none; list-style:none; display:flex; align-items:center; gap:8px;"><span contenteditable="false" style="display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none; padding:2px;" onclick="const d = this.closest('details'); d.open = !d.open;">${svgPlay}</span><span class="fold-title" contenteditable="true" data-placeholder="접기 박스 제목 (Tab을 눌러 내용으로)" style="outline:none; flex:1; min-width:50px; cursor:text;"></span></summary><div class="fold-content" contenteditable="true" data-placeholder="숨길 내용을 입력하세요..." style="padding: 15px; border-top: 1px dashed var(--border-color); line-height: 1.6; background: var(--surface-color); outline:none; min-height:50px;"></div></details></div><div><br></div>`;
+  
+  // ★ 픽스: svgPlay의 중복 클릭 스크립트 제거 (pointer-events:none 추가) 및 삭제 버튼 확보용 여백(padding-top: 28px) 확장
+  const foldHTML = `<div style="position:relative; margin:15px 0; padding-top:28px;" contenteditable="false"><button type="button" onclick="this.parentElement.remove()" style="position:absolute; top:0; right:0; background:#e53e3e; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:11px; font-weight:bold; z-index:10; display:flex; align-items:center; gap:4px;">${svgClose} 박스 삭제</button><details open style="border: 1px solid var(--border-color); border-radius: 8px; background: var(--table-bg-alt); overflow: hidden; font-size:13px;"><summary onmousedown="if(event.target.closest('.fold-title')) return; event.preventDefault(); const d = this.closest('details'); d.open = !d.open;" onclick="if(!event.target.closest('.fold-title')) event.preventDefault();" style="padding: 10px 15px; font-weight: 900; cursor: pointer; color: var(--primary-color); outline: none; list-style:none; display:flex; align-items:center; gap:8px;"><span contenteditable="false" style="display:flex; align-items:center; justify-content:center; user-select:none; padding:2px; pointer-events:none;">${svgPlay}</span><span class="fold-title" contenteditable="true" data-placeholder="접기 박스 제목 (Tab을 눌러 내용으로)" style="outline:none; flex:1; min-width:50px; cursor:text;"></span></summary><div class="fold-content" contenteditable="true" data-placeholder="숨길 내용을 입력하세요..." style="padding: 15px; border-top: 1px dashed var(--border-color); line-height: 1.6; background: var(--surface-color); outline:none; min-height:50px;"></div></details></div><div><br></div>`;
 
   const iconBtnStyle = { padding: '4px 6px', background: 'var(--bg-color)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px' };
 
-  // ★ 폰트 변경 이벤트 및 최근 사용 폰트 메모리 업데이트
   const handleFontChange = (e) => {
     const val = e.target.value;
     applyFont(val);
     
     if (val !== 'default') {
       let recents = [...recentFonts];
-      recents = recents.filter(f => f !== val); // 중복 제거
-      recents.unshift(val); // 맨 앞에 추가
-      if (recents.length > 5) recents.pop(); // 5개 초과 시 마지막 컷
+      recents = recents.filter(f => f !== val);
+      recents.unshift(val);
+      if (recents.length > 5) recents.pop();
       
       localStorage.setItem('galpi-recent-fonts', JSON.stringify(recents));
       setRecentFonts(recents);
     }
   };
 
-  // ★ 빨간색 리셋 버튼 이벤트 (에디터 폰트 초기화 + 셀렉트 폼 시각적 초기화)
   const handleFontReset = () => {
     applyFont('default');
     if (selectRef.current) selectRef.current.value = 'default';
   };
 
-  // 렌더링용 최근 폰트 배열 필터링
   const recentFontObjs = recentFonts.map(rf => fontList?.find(f => f.fontFamily === rf)).filter(Boolean);
 
   return (
     <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
       
-      {/* 폰트 선택 드롭다운 (Optgroup으로 구역 분할) */}
       <select 
         ref={selectRef}
         onChange={handleFontChange}
@@ -68,21 +65,17 @@ const MemoFormatMainBar = ({
       >
         <option value="default">기본 폰트</option>
         
-        {/* 이모지를 제거하고 텍스트 표기([최근])로 치환합니다 */}
         {recentFontObjs.map(f => (
           <option key={`recent_${f.filename}`} value={f.fontFamily}>[최근] {f.displayName}</option>
         ))}
 
-        {/* 시각적 분리를 위해 클릭 안 되는 점선만 하나 추가합니다 */}
         {recentFontObjs.length > 0 && <option disabled>──────────</option>}
 
-        {/* 전체 폰트 (가나다 정렬) */}
         {fontList && fontList.length > 0 && fontList.map(f => (
           <option key={`all_${f.filename}`} value={f.fontFamily}>{f.displayName}</option>
         ))}
       </select>
 
-      {/* ★ 기본 폰트 복구 빨간색 버튼 */}
       <button 
         className="wiki-btn" 
         onClick={handleFontReset} 
