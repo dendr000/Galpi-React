@@ -1,3 +1,7 @@
+// 파일 위치: src/domains/memo/hooks/useMemoMenu.js
+// 기능 요약: 메모 리스트 컨텍스트 메뉴 상태 관리 및 개별 메모 영구 삭제(보안 모달 검증)를 수행하는 엔진
+// 버전: v1.1.0
+
 import { useState, useRef, useEffect } from 'react';
 import api from '../../../api/axiosCore';
 
@@ -59,7 +63,9 @@ export const useMemoMenu = ({ memoData, setMemoData, activeMemoId, setActiveMemo
 
   const deleteMemo = async () => {
     const deleteKeyword = import.meta.env.VITE_DELETE_KEYWORD || 'delete';
-    const pass = window.prompt(`이 메모를 영구 삭제하시겠습니까?\n삭제를 원하시면 입력창에 '${deleteKeyword}'를 정확히 입력해주세요.`);
+    
+    // ★ 브라우저 기본 prompt 팝업을 버리고, 비동기 커스텀 보안 삭제 모달 엔진 호출
+    const pass = await window.openSafeDeleteModal(`이 메모를 영구 삭제하시겠습니까?`);
     
     if (pass !== deleteKeyword) {
       if (pass !== null) alert("입력값이 일치하지 않아 삭제가 취소되었습니다.");

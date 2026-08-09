@@ -1,3 +1,7 @@
+// 파일 위치: src/domains/memo/hooks/useMemoFolder.js
+// 기능 요약: 메모장 폴더 관리 시스템. 커스텀 보안 모달을 호출하여 폴더 삭제 및 데이터 이관 로직을 처리합니다.
+// 버전: v1.1.0
+
 import api from '../../../api/axiosCore';
 
 export const useMemoFolder = ({ memoData, setMemoData, memoFolders, setMemoFolders, currentFolder, setCurrentFolder }) => {
@@ -67,7 +71,8 @@ export const useMemoFolder = ({ memoData, setMemoData, memoFolders, setMemoFolde
     }
     
     const deleteKeyword = import.meta.env.VITE_DELETE_KEYWORD || 'delete';
-    const pass = window.prompt(`'${path}' 폴더와 그 하위 폴더를 삭제하시겠습니까?\n(내부에 있던 메모는 모두 '기타' 폴더로 자동 이동됩니다)\n\n삭제를 원하시면 입력창에 '${deleteKeyword}'를 정확히 입력해주세요.`);
+    // ★ 브라우저 기본 prompt 팝업을 버리고, 비동기 커스텀 보안 삭제 모달 엔진 호출
+    const pass = await window.openSafeDeleteModal(`'${path}' 폴더와 그 하위 폴더를 삭제하시겠습니까?\n(내부에 있던 메모는 모두 '기타' 폴더로 자동 이동됩니다)`);
 
     if (pass === deleteKeyword) {
       const newFolders = memoFolders.filter(f => f !== path && !f.startsWith(`${path}/`));

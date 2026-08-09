@@ -10,6 +10,7 @@ import useSettingStore from './store/useSettingStore';
 import Gnb from './components/layout/Gnb';
 import BossBlindLayer from './components/common/BossBlindLayer';
 import SettingModal from './components/common/SettingModal';
+import SafeDeleteModal from './components/common/SafeDeleteModal'; // 커스텀 보안 삭제 모달 임포트
 import FabMenu from './components/layout/FabMenu';
 import GlobalContextMenu from './components/layout/GlobalContextMenu';
 import Footer from './components/layout/footer/Footer';
@@ -65,12 +66,13 @@ function App() {
       }}
     >
       <SettingModal isOpen={isSettingOpen} onClose={() => setIsSettingOpen(false)} />
+      <SafeDeleteModal /> {/* 전역 안전 삭제 모달 렌더링 인젝션 */}
       <BossBlindLayer />
       <GlobalContextMenu /> 
       
       {!isBulkMode && <FabMenu />}
       {!isBulkMode && !isEditorMode && <Gnb setIsSettingOpen={setIsSettingOpen} />}     
-      {!isBulkMode && <Footer />} 
+      {!isBulkMode && <Footer />}
       
       <Routes>
         <Route path="/" element={<Home />} />
