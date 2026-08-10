@@ -1,17 +1,17 @@
-// 파일 위치: src/domains/memo/page/PageMemoMain.jsx
-// 기능 요약: 완전히 격리된 2개의 독립 탭 상태 배열(mainTabs, splitTabs)을 사용하여, 탭 닫기 간섭 현상을 원천 차단한 스플릿 레이아웃
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import styles from './PageMemo.module.css';
+
+// 쪼개진 UI 컴포넌트 임포트
+import PageMemoHeader from './components/PageMemoHeader';
 import PageMemoSidebar from './components/PageMemoSidebar';
 import PageMemoTabList from './components/PageMemoTabList';
+import PageMemoBbsList from './components/PageMemoBbsList';
 import PageMemoEditorPane from './PageMemoEditorPane';
+
 import { usePageMemoData } from './hooks/usePageMemoData';
-import { HomeIcon, SearchIcon, XIcon, FolderIcon, ClockIcon, LockIcon, FilePlusIcon } from '../shared/components/MemoIcons';
+import { XIcon } from '../shared/components/MemoIcons';
 
 const PageMemoMain = () => {
-  const navigate = useNavigate();
-
   const {
     memos, setMemos, folders, currentFolder, setCurrentFolder,
     filteredMemos, paginatedMemos,
@@ -56,33 +56,14 @@ const PageMemoMain = () => {
         .galpi-tree-folder .folder-actions button:hover { background: var(--border-color) !important; border-radius: 4px; }
       `}</style>
 
-      <header className={styles.memoTopBar}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <button className="wiki-btn" onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <HomeIcon /> 홈으로
-          </button>
-          <h1 style={{ fontSize: '18px', margin: 0, color: 'var(--text-primary)', fontWeight: 900 }}>메모장</h1>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      {/* 분리된 상단 글로벌 헤더 부착 */}
+      <PageMemoHeader 
+        searchQuery={searchQuery} 
+        setSearchQuery={setSearchQuery} 
+        handleOpenTab={handleOpenTab} 
+      />
 
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <span style={{ position: 'absolute', left: '12px', color: 'var(--text-secondary)', display: 'flex' }}><SearchIcon /></span>
-            <input
-              type="text"
-              placeholder="메모 제목 검색..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              style={{ padding: '6px 12px 6px 32px', borderRadius: '20px', border: '1px solid var(--border-color)', fontSize: '13px', outline: 'none', width: '240px', background: 'var(--bg-color)', color: 'var(--text-primary)' }}
-            />
-          </div>
-
-          {/* 새 메모 작성 시 무조건 Main(상단) 패널 탭에 열리게 함 */}
-          <button className="wiki-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--primary-color)', color: 'white' }} onClick={() => handleOpenTab(null, 'main')}>
-            <FilePlusIcon /> 새 메모 작성
-          </button>
-        </div>
-      </header>
-
+      {/* 태그 필터링 배너 */}
       {selectedTag && (
         <div style={{ padding: '10px 20px', background: 'var(--table-bg-alt)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px', zIndex: 10 }}>
           <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-color)' }}>#{selectedTag} 태그 필터링 결과</span>
@@ -93,6 +74,7 @@ const PageMemoMain = () => {
       )}
 
       <div className={styles.memoWorkspaceContainer}>
+        {/* 분리된 좌측 탐색기 트리 부착 */}
         <PageMemoSidebar 
           styles={styles} isTreeOpen={isTreeOpen} setIsTreeOpen={setIsTreeOpen}
           folders={folders} currentFolder={currentFolder} setCurrentFolder={setCurrentFolder}
@@ -102,7 +84,6 @@ const PageMemoMain = () => {
         <div className={styles.memoViewport} style={{ paddingLeft: isTreeOpen ? '300px' : '30px', display: 'flex', flexDirection: 'column' }}>
           
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
-            {/* ★ 상단(Main) 패널에는 mainTabs를 주입 */}
             <PageMemoTabList 
               openedTabs={mainTabs} activeTabId={activeTabId} setActiveTabId={setActiveTabId} 
               handleCloseTab={handleCloseTab} isSplitMode={isSplitMode} toggleSplitMode={toggleSplitMode} paneType="main"
@@ -115,72 +96,19 @@ const PageMemoMain = () => {
                 memos={memos} setMemos={setMemos} paneType="main" 
               />
             ) : (
-              <div style={{ padding: '30px', maxWidth: '1200px', margin: '0 auto', width: '100%', overflowY: 'auto' }} className="galpi-sidebar-scroll">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                  <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 'bold' }}>총 {filteredMemos.length}건</span>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <select className={styles.bbsSelect} value={sortType} onChange={e => setSortType(e.target.value)}>
-                      <option value="name">가나다순</option>
-                      <option value="date">최신 등록순</option>
-                    </select>
-                    <select className={styles.bbsSelect} value={itemsPerPage} onChange={e => setItemsPerPage(Number(e.target.value))}>
-                      <option value={20}>20개씩 보기</option>
-                      <option value={50}>50개씩 보기</option>
-                      <option value={100}>100개씩 보기</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className={styles.bbsWrap}>
-                  <div className={styles.bbsHeader}>
-                    <div className={styles.bbsColTitle}>제목</div>
-                    <div className={styles.bbsColFolder}>폴더</div>
-                    <div className={styles.bbsColDate}>작성일</div>
-                  </div>
-
-                  {filteredMemos.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '50px', color: 'var(--text-secondary)' }}>조회된 메모가 없습니다.</div>
-                  ) : (
-                    paginatedMemos.map(m => (
-                      <div key={m.id} className={styles.bbsRow} onClick={() => handleOpenTab(m, 'main')}>
-                        <div className={styles.bbsColTitle}>
-                          {m.isLocked && <span style={{ color: 'var(--text-secondary)', display: 'inline-flex', marginRight: '6px', verticalAlign: 'middle' }}><LockIcon size={12}/></span>}
-                          <span className={styles.bbsItemTitle}>{m.title || '제목 없음'}</span>
-                          {m.tags && (
-                            <span className={styles.bbsInlineTags}>
-                              {m.tags.split(',').slice(0, 2).map((t, i) => (
-                                <span key={i} className={styles.bbsTagPill}>#{t.trim()}</span>
-                              ))}
-                            </span>
-                          )}
-                        </div>
-                        <div className={styles.bbsColFolder}>{m.folder}</div>
-                        <div className={styles.bbsColDate}>{new Date(m.updatedAt).toLocaleDateString('ko-KR')}</div>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                {totalPages > 1 && (
-                  <div className={styles.paginationWrap}>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                      <button 
-                        key={page} 
-                        className={`${styles.pageBtn} ${currentPage === page ? styles.activePage : ''}`}
-                        onClick={() => setCurrentPage(page)}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              /* 분리된 중앙 게시판 리스트 부착 */
+              <PageMemoBbsList 
+                filteredMemos={filteredMemos} paginatedMemos={paginatedMemos}
+                sortType={sortType} setSortType={setSortType}
+                itemsPerPage={itemsPerPage} setItemsPerPage={setItemsPerPage}
+                currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages}
+                handleOpenTab={handleOpenTab} setSelectedTag={setSelectedTag}
+              />
             )}
           </div>
 
           {isSplitMode && (
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, borderTop: '4px solid var(--primary-color)' }}>
-              {/* ★ 하단(Split) 패널에는 splitTabs를 주입 */}
               <PageMemoTabList 
                 openedTabs={splitTabs} activeTabId={splitTabId} setActiveTabId={setSplitTabId} 
                 handleCloseTab={handleCloseTab} isSplitMode={isSplitMode} toggleSplitMode={toggleSplitMode} paneType="split"
