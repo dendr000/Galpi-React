@@ -11,7 +11,7 @@ import ClipboardModal from '../../domains/fab_tools/ClipboardModal';
 import DictModal from '../../domains/fab_tools/DictModal';
 import SearchModal from '../../domains/fab_tools/SearchModal';
 import RecentModal from '../../domains/fab_tools/RecentModal';
-import MemoModal from '../../domains/memo/MemoModal';
+import MemoModal from '../../domains/memo/fab/FabMemoModal';
 
 // 상용구 모듈 신규 인젝션
 import BoilerplateModal from '../../domains/fab_tools/BoilerplateModal';
