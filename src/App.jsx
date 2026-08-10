@@ -21,7 +21,6 @@ import BulkStudioPage from './pages/BulkStudio/BulkStudioPage';
 import EditorPage from './pages/Editor/EditorPage'; 
 import WorkDetailPage from './pages/WorkDetail/WorkDetailPage'; 
 
-// ★ 이름 불일치 픽스: PageMemoMain으로 정확하게 임포트
 import PageMemoMain from './domains/memo/page/PageMemoMain';
 import NovelViewerPage from './pages/NovelViewer/NovelViewerPage';
 import NotFoundPage from './pages/NotFound/NotFoundPage';
@@ -34,6 +33,7 @@ function App() {
   const location = useLocation();
   const isBulkMode = location.pathname.startsWith('/bulk');
   const isEditorMode = location.pathname.startsWith('/edit');
+  const isMemoMode = location.pathname.startsWith('/memo');
 
   useEffect(() => {
     console.log("[App] 오버스크롤 스와이프 네비게이션 방지 CSS 전역 주입 가동");
@@ -58,7 +58,7 @@ function App() {
         '--markdown-font-size': `${fontSize}px`, 
         '--markdown-font-family': fontFamily === 'serif' ? "'Noto Serif KR', serif" : (fontFamily === 'monospace' ? "monospace" : "inherit"),
         // ★ 에디터 모드(isEditorMode) 감지 시 1200px 제약을 해제하고 브라우저 100% 점유
-        maxWidth: (isBulkMode || isEditorMode) ? '100%' : (layoutWidth === 'full' ? '100%' : '1200px'),
+        maxWidth: (isBulkMode || isEditorMode || isMemoMode) ? '100%' : (layoutWidth === 'full' ? '100%' : '1200px'),
         margin: '0 auto',
         minHeight: '100vh',
         paddingBottom: isBulkMode ? '0' : '48px',
@@ -72,7 +72,7 @@ function App() {
       <GlobalContextMenu /> 
       
       {!isBulkMode && <FabMenu />}
-      {!isBulkMode && !isEditorMode && <Gnb setIsSettingOpen={setIsSettingOpen} />}     
+      {!isBulkMode && !isEditorMode && !isMemoMode && <Gnb setIsSettingOpen={setIsSettingOpen} />}     
       {!isBulkMode && <Footer />}
       
       <Routes>
@@ -81,12 +81,8 @@ function App() {
         <Route path="/edit" element={<EditorPage />} />
         <Route path="/bulk" element={<BulkStudioPage />} />
         <Route path="/work/:workId" element={<WorkDetailPage />} />
-        
         <Route path="/viewer/:pageId" element={<NovelViewerPage />} />
-        
-        {/* ★ 변경된 이름으로 렌더링 */}
         <Route path="/memo" element={<PageMemoMain />} />
-        
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>

@@ -1,6 +1,7 @@
 // 파일 위치: src/domains/memo/page/components/PageMemoEditorHeader.jsx
 // 기능 요약: 페이지 에디터 모달의 상단 상태 제어(제목, 테마, 폴더, 저장, 닫기)를 담당하는 헤더 컴포넌트
 import React from 'react';
+import { SaveIcon, CheckCircleIcon, TrashIcon, XIcon } from '../../shared/components/MemoIcons';
 
 const THEME_COLORS = [
   'var(--surface-color)', '#ffeaa7', '#a29bfe', '#81ecec', '#fab1a0', '#ff7675', '#74b9ff'
@@ -60,29 +61,29 @@ const PageMemoEditorHeader = ({
 
           <button 
             className="wiki-btn" 
-            style={{ background: isSaving ? '#10b981' : 'var(--primary-color)', color: 'white', fontWeight: 'bold', padding: '8px 16px', transition: '0.2s', width: isSaving ? '90px' : 'auto', border: 'none', borderRadius: '4px', cursor: 'pointer' }} 
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: isSaving ? '#10b981' : 'var(--primary-color)', color: 'white', fontWeight: 'bold', padding: '8px 16px', transition: '0.2s', width: isSaving ? '95px' : 'auto', border: 'none', borderRadius: '4px', cursor: 'pointer' }} 
             onClick={handleSaveMemo}
           >
-            {isSaving ? "✅ 저장됨" : "💾 저장"}
+            {isSaving ? <><CheckCircleIcon /> 저장됨</> : <><SaveIcon /> 저장</>}
           </button>
 
           {(activeMemoId && !String(activeMemoId).startsWith('local_')) && (
             <button 
               className="wiki-btn" 
-              style={{ background: 'transparent', color: '#e53e3e', border: '1px dashed rgba(229,62,62,0.5)', padding: '8px 12px', borderRadius: '4px', cursor: 'pointer' }} 
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', color: '#e53e3e', border: '1px dashed rgba(229,62,62,0.5)', padding: '8px 12px', borderRadius: '4px', cursor: 'pointer' }} 
               onClick={handleDeleteMemo} 
               title="영구 삭제"
             >
-              🗑️
+              <TrashIcon />
             </button>
           )}
 
           <button 
             className="wiki-btn" 
-            style={{ background: 'transparent', color: 'var(--text-secondary)', border: 'none', cursor: 'pointer', fontWeight: 'bold' }} 
+            style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'transparent', color: 'var(--text-secondary)', border: 'none', cursor: 'pointer', fontWeight: 'bold' }} 
             onClick={() => setIsEditorOpen(false)}
           >
-            ✖ 닫기
+            <XIcon /> 닫기
           </button>
         </div>
       </div>

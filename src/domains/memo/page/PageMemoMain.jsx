@@ -6,10 +6,10 @@ import styles from './PageMemo.module.css';
 import PageMemoSidebar from './components/PageMemoSidebar';
 import PageMemoEditorModal from './PageMemoEditorModal';
 import { usePageMemoData } from './hooks/usePageMemoData';
+import { HomeIcon, SearchIcon, XIcon, FolderIcon, ClockIcon, LockIcon, FilePlusIcon } from '../shared/components/MemoIcons';
 
 const PageMemoMain = () => {
   const navigate = useNavigate();
-  console.log("[PageMemoMain] 메모 워크스페이스 컨트롤러 렌더링 개시 (캔버스 제거판)");
 
   const {
     memos, setMemos, folders, currentFolder, setCurrentFolder,
@@ -48,27 +48,36 @@ const PageMemoMain = () => {
 
       <header className={styles.memoTopBar}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <button className="wiki-btn" onClick={() => navigate('/')}>🏠 홈으로</button>
-          <h1 style={{ fontSize: '18px', margin: 0, color: 'var(--text-primary)', fontWeight: 900 }}>메모 워크스페이스</h1>
+          <button className="wiki-btn" onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <HomeIcon /> 홈으로
+          </button>
+          <h1 style={{ fontSize: '18px', margin: 0, color: 'var(--text-primary)', fontWeight: 900 }}>메모장</h1>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           
-          <input
-            type="text"
-            placeholder="🔍 메모 제목 또는 내용 검색"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            style={{ padding: '6px 12px', borderRadius: '20px', border: '1px solid var(--border-color)', fontSize: '13px', outline: 'none', width: '220px', background: 'var(--bg-color)', color: 'var(--text-primary)' }}
-          />
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <span style={{ position: 'absolute', left: '12px', color: 'var(--text-secondary)', display: 'flex' }}><SearchIcon /></span>
+            <input
+              type="text"
+              placeholder="메모 제목 또는 내용 검색..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{ padding: '6px 12px 6px 32px', borderRadius: '20px', border: '1px solid var(--border-color)', fontSize: '13px', outline: 'none', width: '240px', background: 'var(--bg-color)', color: 'var(--text-primary)' }}
+            />
+          </div>
 
-          <button className="wiki-btn" style={{ background: 'var(--primary-color)', color: 'white' }} onClick={() => handleOpenEditor(null)}>+ 새 메모 작성</button>
+          <button className="wiki-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--primary-color)', color: 'white' }} onClick={() => handleOpenEditor(null)}>
+            <FilePlusIcon /> 새 메모 작성
+          </button>
         </div>
       </header>
 
       {selectedTag && (
         <div style={{ padding: '10px 20px', background: 'var(--table-bg-alt)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px', zIndex: 10 }}>
           <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-color)' }}>#{selectedTag} 태그 교차 필터링 결과</span>
-          <button className="wiki-btn" style={{ padding: '2px 8px', fontSize: '11px', background: 'var(--surface-color)' }} onClick={() => setSelectedTag(null)}>✖ 필터 해제</button>
+          <button className="wiki-btn" style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', fontSize: '11px', background: 'var(--surface-color)' }} onClick={() => setSelectedTag(null)}>
+            <XIcon /> 필터 해제
+          </button>
         </div>
       )}
 
@@ -87,7 +96,10 @@ const PageMemoMain = () => {
                 {filteredMemos.map(m => (
                   <div key={m.id} className={styles.memoCard} onClick={() => handleOpenEditor(m)} style={{ borderTop: `4px solid ${m.themeColor || 'var(--primary-color)'}`, opacity: m.isTrash ? 0.6 : 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <h3 className={styles.memoCardTitle}>{m.title || '제목 없음'} {m.isLocked ? '🔒' : ''}</h3>
+                      <h3 className={styles.memoCardTitle} style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: '0 0 10px 0' }}>
+                        {m.title || '제목 없음'}
+                        {m.isLocked && <span style={{ color: 'var(--text-secondary)', display: 'flex' }}><LockIcon /></span>}
+                      </h3>
                     </div>
                     <div className={styles.memoCardPreview}>{m.content ? m.content.replace(/<[^>]*>?/gm, '').trim() : "내용 없음"}</div>
                     
@@ -106,8 +118,8 @@ const PageMemoMain = () => {
                     )}
 
                     <div style={{ marginTop: 'auto', paddingTop: '10px', borderTop: '1px solid var(--border-color)', fontSize: '11px', color: 'var(--text-secondary)', display: 'flex', justifyContent: 'space-between' }}>
-                      <span>📂 {m.folder}</span>
-                      <span>⏱️ {new Date(m.updatedAt).toLocaleDateString('ko-KR')}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FolderIcon /> {m.folder}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><ClockIcon /> {new Date(m.updatedAt).toLocaleDateString('ko-KR')}</span>
                     </div>
                   </div>
                 ))}

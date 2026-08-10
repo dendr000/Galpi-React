@@ -1,6 +1,7 @@
 // 파일 위치: src/domains/memo/page/components/PageMemoMentionDropdown.jsx
 // 기능 요약: 에디터에서 @ 입력 시 렌더링되는 검색 자동완성 드롭다운 UI
 import React from 'react';
+import { BookIcon, UserIcon } from '../../shared/components/MemoIcons';
 
 const PageMemoMentionDropdown = ({
   mentionState,
@@ -34,12 +35,12 @@ const PageMemoMentionDropdown = ({
           key={`${item.type}-${item.id}`}
           style={{ padding: '10px 12px', cursor: 'pointer', borderBottom: '1px solid var(--border-color)', fontSize: '13px', display: 'flex', alignItems: 'center' }}
           onMouseDown={(e) => { 
-            e.preventDefault(); // 에디터 커서 포커스 상실 방지
+            e.preventDefault();
             handleMentionSelect(item); 
           }} 
         >
-          <span style={{ fontSize: '11px', color: 'var(--text-secondary)', marginRight: '8px', minWidth: '40px' }}>
-            {item.type === 'work' ? '📘 작품' : '👤 인물'}
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--text-secondary)', marginRight: '8px', minWidth: '50px' }}>
+            {item.type === 'work' ? <><BookIcon /> 작품</> : <><UserIcon /> 인물</>}
           </span>
           <span style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>{item.name}</span>
         </div>
