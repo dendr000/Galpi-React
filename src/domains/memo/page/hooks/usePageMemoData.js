@@ -1,5 +1,5 @@
 // 파일 위치: src/domains/memo/page/hooks/usePageMemoData.js
-// 기능 요약: 페이지 전역 상태 관리 (검색, 태그 필터링, 폴더 관리, 관계망 데이터 호출)
+// 기능 요약: 페이지 전역 상태 관리 (검색, 태그 필터링, 폴더 관리) - 캔버스 관계망 데이터 적출 완료
 import { useState, useEffect, useMemo } from 'react';
 import api from '../../../../api/axiosCore';
 
@@ -7,29 +7,20 @@ export const usePageMemoData = () => {
   const [memos, setMemos] = useState([]);
   const [folders, setFolders] = useState(["전체 메모", "기타"]);
   const [currentFolder, setCurrentFolder] = useState("전체 메모");
-  const [relations, setRelations] = useState([]);
   
-  // 통합 검색 및 필터링 상태
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [memosRes, relationsRes] = await Promise.all([
-          api.get('/api/memos'),
-          api.get('/api/memo-relations').catch(() => ({ data: [] }))
-        ]);
+        const memosRes = await api.get('/api/memos');
 
         if (memosRes.data) {
           setMemos(memosRes.data);
           const dbFolders = [...new Set(memosRes.data.map(m => m.folder).filter(Boolean))];
           const mergedFolders = [...new Set(["전체 메모", "기타", ...dbFolders])];
           setFolders(mergedFolders);
-        }
-
-        if (relationsRes.data) {
-          setRelations(relationsRes.data);
         }
       } catch (err) {
         console.error("[usePageMemoData] 데이터 로드 실패", err);
@@ -86,16 +77,13 @@ export const usePageMemoData = () => {
     }
   };
 
-  // 교차 필터링 파이프라인 (폴더 -> 검색어 -> 휴지통 제외 -> 해시태그)
   const filteredMemos = useMemo(() => {
     let result = [...memos];
 
-    // 1. 폴더 필터링
     if (currentFolder !== "전체 메모") {
       result = result.filter(m => m.folder === currentFolder);
     }
 
-    // 2. 통합 검색 필터링 (제목 및 본문)
     if (searchQuery.trim() !== "") {
       const q = searchQuery.toLowerCase();
       result = result.filter(m => 
@@ -104,10 +92,8 @@ export const usePageMemoData = () => {
       );
     }
 
-    // 3. 휴지통 데이터 제외 (캔버스 및 리스트에서 안 보이게)
     result = result.filter(m => !m.isTrash);
 
-    // 4. 해시태그 교차 필터링
     if (selectedTag) {
       result = result.filter(m => {
         if (!m.tags) return false;
@@ -116,7 +102,6 @@ export const usePageMemoData = () => {
       });
     }
 
-    // 기본 정렬: 최신 수정순
     result.sort((a, b) => b.updatedAt - a.updatedAt);
     
     return result;
@@ -124,7 +109,7 @@ export const usePageMemoData = () => {
 
   return {
     memos, setMemos, folders, setFolders, currentFolder, setCurrentFolder,
-    filteredMemos, relations, setRelations,
+    filteredMemos,
     searchQuery, setSearchQuery, selectedTag, setSelectedTag,
     handleAddFolder, handleEditFolder, handleDeleteFolder
   };

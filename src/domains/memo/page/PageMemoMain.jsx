@@ -1,27 +1,23 @@
 // 파일 위치: src/domains/memo/page/PageMemoMain.jsx
-// 기능 요약: 통합 검색 바 및 태그 필터 배너 UI가 탑재된 메인 워크스페이스 레이아웃 (페이지 도메인 통합)
-// 버전: v3.2.0
-
+// 기능 요약: 통합 검색 바 및 태그 필터 배너 UI가 탑재된 순수 리스트 뷰 전용 메모 워크스페이스 레이아웃
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './PageMemo.module.css';
 import PageMemoSidebar from './components/PageMemoSidebar';
 import PageMemoEditorModal from './PageMemoEditorModal';
-import PageMemoCanvasBoard from './canvas/PageMemoCanvasBoard';
 import { usePageMemoData } from './hooks/usePageMemoData';
 
 const PageMemoMain = () => {
   const navigate = useNavigate();
-  console.log("[PageMemoMain] 메모 워크스페이스 컨트롤러 렌더링 개시");
+  console.log("[PageMemoMain] 메모 워크스페이스 컨트롤러 렌더링 개시 (캔버스 제거판)");
 
   const {
     memos, setMemos, folders, currentFolder, setCurrentFolder,
-    filteredMemos, relations, setRelations, extractTags,
+    filteredMemos, extractTags,
     searchQuery, setSearchQuery, selectedTag, setSelectedTag,
     handleAddFolder, handleEditFolder, handleDeleteFolder
   } = usePageMemoData();
 
-  const [currentView, setCurrentView] = useState("list");
   const [isTreeOpen, setIsTreeOpen] = useState(true);
   
   const [activeMemoId, setActiveMemoId] = useState(null);
@@ -48,10 +44,6 @@ const PageMemoMain = () => {
         .galpi-outer-select [contenteditable="false"] *::-moz-selection { background: transparent !important; color: inherit !important; }
         #memo-edit-content p { margin: 0.3em 0 !important; }
         #memo-edit-content div { margin-top: 0; margin-bottom: 0; }
-        .react-flow__minimap { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; }
-        .react-flow__controls { box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
-        .react-flow__controls-button { background: var(--surface-color); border-bottom: 1px solid var(--border-color); color: var(--text-primary); }
-        .react-flow__controls-button:hover { background: var(--table-bg-alt); }
       `}</style>
 
       <header className={styles.memoTopBar}>
@@ -69,10 +61,6 @@ const PageMemoMain = () => {
             style={{ padding: '6px 12px', borderRadius: '20px', border: '1px solid var(--border-color)', fontSize: '13px', outline: 'none', width: '220px', background: 'var(--bg-color)', color: 'var(--text-primary)' }}
           />
 
-          <div className={styles.viewToggleWrap}>
-            <button className={`${styles.viewToggleBtn} ${currentView === 'list' ? styles.active : ''}`} onClick={() => setCurrentView('list')}>🗂️ 리스트 뷰</button>
-            <button className={`${styles.viewToggleBtn} ${currentView === 'canvas' ? styles.active : ''}`} onClick={() => setCurrentView('canvas')}>🌌 캔버스 뷰</button>
-          </div>
           <button className="wiki-btn" style={{ background: 'var(--primary-color)', color: 'white' }} onClick={() => handleOpenEditor(null)}>+ 새 메모 작성</button>
         </div>
       </header>
@@ -91,9 +79,9 @@ const PageMemoMain = () => {
           memos={memos} handleAddFolder={handleAddFolder} handleEditFolder={handleEditFolder} handleDeleteFolder={handleDeleteFolder}
         />
 
-        <div className={styles.memoViewport} style={{ paddingLeft: isTreeOpen ? '300px' : '30px' }}>
+        <div className={styles.memoViewport} style={{ paddingLeft: isTreeOpen ? '300px' : '30px', overflowY: 'auto' }}>
           
-          <div className={`${styles.memoViewPanel} ${currentView === 'list' ? styles.active : ''}`}>
+          <div style={{ padding: '30px' }}>
             {filteredMemos.length === 0 ? <div style={{ textAlign: 'center', padding: '50px', color: 'var(--text-secondary)' }}>조회된 메모가 없습니다.</div> : (
               <div className={styles.memoGrid}>
                 {filteredMemos.map(m => (
@@ -127,18 +115,6 @@ const PageMemoMain = () => {
             )}
           </div>
 
-          <div className={`${styles.memoViewPanel} ${currentView === 'canvas' ? styles.active : ''}`}>
-            {currentView === 'canvas' && (
-              <PageMemoCanvasBoard 
-                filteredMemos={filteredMemos}
-                setMemos={setMemos}
-                relations={relations}
-                setRelations={setRelations}
-                handleOpenEditor={handleOpenEditor}
-                setSelectedTag={setSelectedTag}
-              />
-            )}
-          </div>
         </div>
       </div>
 
