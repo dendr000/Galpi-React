@@ -1,5 +1,5 @@
 // 파일 위치: src/domains/memo/page/components/PageMemoEditorHeader.jsx
-// 기능 요약: 페이지 에디터 모달의 상단 상태 제어(제목, 테마, 폴더, 저장, 닫기)를 담당하는 헤더 컴포넌트
+// 기능 요약: 페이지 에디터 상단의 상태 제어 및 탭 닫기(Tab Close)를 관장하는 헤더 컴포넌트
 import React from 'react';
 import { SaveIcon, CheckCircleIcon, TrashIcon, XIcon } from '../../shared/components/MemoIcons';
 
@@ -19,7 +19,7 @@ const PageMemoEditorHeader = ({
   handleSaveMemo,
   activeMemoId,
   handleDeleteMemo,
-  setIsEditorOpen,
+  handleCloseTab,
   handleTitleKeyDown
 }) => {
   return (
@@ -78,12 +78,13 @@ const PageMemoEditorHeader = ({
             </button>
           )}
 
+          {/* ★ 모달 닫기가 아닌 탭 닫기 로직으로 교체 */}
           <button 
             className="wiki-btn" 
             style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'transparent', color: 'var(--text-secondary)', border: 'none', cursor: 'pointer', fontWeight: 'bold' }} 
-            onClick={() => setIsEditorOpen(false)}
+            onClick={handleCloseTab}
           >
-            <XIcon /> 닫기
+            <XIcon /> 탭 닫기
           </button>
         </div>
       </div>

@@ -1,7 +1,8 @@
 // 파일 위치: src/domains/memo/page/components/PageMemoSidebar.jsx
-// 기능 요약: 워크스페이스 좌측에 밀착하여 폴더 제어 및 메모 목록 요약을 렌더링하는 슬라이드형 UI 사이드바
 import React from 'react';
 import { FolderIcon, FolderPlusIcon, EditIcon, TrashIcon } from '../../shared/components/MemoIcons';
+import PageMemoTreeRenderer from './PageMemoTreeRenderer';
+import { usePageMemoTree } from '../hooks/usePageMemoTree';
 
 const PageMemoSidebar = ({
   styles,
@@ -15,6 +16,8 @@ const PageMemoSidebar = ({
   handleEditFolder,
   handleDeleteFolder
 }) => {
+  const treeHooks = usePageMemoTree({ folders, memos });
+
   return (
     <div className={`${styles.memoLeftTree} ${!isTreeOpen ? styles.closed : ''}`}>
       <div className={styles.treeContent}>
@@ -23,22 +26,24 @@ const PageMemoSidebar = ({
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><FolderIcon /> 메모 폴더</span>
             <div style={{ display: 'flex', gap: '4px' }}>
-              <button className="wiki-btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', fontSize: '11px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} onClick={handleAddFolder} title="추가"><FolderPlusIcon /></button>
-              <button className="wiki-btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', fontSize: '11px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} onClick={handleEditFolder} title="수정"><EditIcon /></button>
-              <button className="wiki-btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', fontSize: '11px', background: 'var(--surface-color)', border: '1px solid #e53e3e', color: '#e53e3e' }} onClick={handleDeleteFolder} title="삭제"><TrashIcon /></button>
+              <button className="wiki-btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', fontSize: '11px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} onClick={() => handleAddFolder('')} title="최상위 폴더 추가"><FolderPlusIcon /></button>
+              <button className="wiki-btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', fontSize: '11px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} onClick={() => handleEditFolder(currentFolder)} title="현재 폴더 수정"><EditIcon /></button>
+              <button className="wiki-btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', fontSize: '11px', background: 'var(--surface-color)', border: '1px solid #e53e3e', color: '#e53e3e' }} onClick={() => handleDeleteFolder(currentFolder)} title="삭제"><TrashIcon /></button>
             </div>
           </div>
         </div>
 
         <div style={{ overflowY: 'auto', flex: 1 }}>
-          {folders.map(f => (
-            <div key={f} className={`${styles.folderItem} ${currentFolder === f ? styles.active : ''}`} onClick={() => setCurrentFolder(f)}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><FolderIcon /> {f}</span>
-              <span style={{ fontSize: '11px', opacity: 0.6 }}>
-                {f === '전체 메모' ? memos.length : memos.filter(m => m.folder === f).length}
-              </span>
-            </div>
-          ))}
+          <PageMemoTreeRenderer
+            node={treeHooks.treeData}
+            treeHooks={treeHooks}
+            currentFolder={currentFolder}
+            setCurrentFolder={setCurrentFolder}
+            handleAddFolder={handleAddFolder}
+            handleEditFolder={handleEditFolder}
+            handleDeleteFolder={handleDeleteFolder}
+            memos={memos}
+          />
         </div>
 
       </div>

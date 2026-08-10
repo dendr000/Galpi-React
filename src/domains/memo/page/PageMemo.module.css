@@ -28,3 +28,135 @@
 .canvasNode { position: absolute; width: 250px; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: default; user-select: none; }
 .canvasNode.dragging { opacity: 0.8; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 1000 !important; }
 .canvasNodeHeader { font-weight: 900; font-size: 14px; margin-bottom: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; cursor: move; }
+
+/* ==========================================
+   진짜 게시판 (BBS) 뷰 스타일
+========================================== */
+.bbsSelect {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: bold;
+  outline: none;
+  cursor: pointer;
+}
+
+.bbsWrap {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+.bbsHeader {
+  display: grid;
+  grid-template-columns: 5fr 1.5fr 1fr; /* 제목을 넓게, 폴더/날짜는 좁게 */
+  padding: 12px 20px;
+  background: var(--table-bg-alt);
+  border-bottom: 2px solid var(--border-color);
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--text-secondary);
+}
+
+.bbsRow {
+  display: grid;
+  grid-template-columns: 5fr 1.5fr 1fr;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.bbsRow:hover {
+  background: rgba(59, 91, 219, 0.04);
+}
+
+.bbsRow:last-child {
+  border-bottom: none;
+}
+
+.bbsColTitle {
+  font-size: 14px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  padding-right: 15px;
+}
+
+.bbsItemTitle {
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 8px;
+}
+
+.bbsInlineTags {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.bbsTagPill {
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.bbsColFolder {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--primary-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bbsColDate {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+/* 페이징 UI */
+.paginationWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+}
+
+.pageBtn {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.pageBtn:hover {
+  background: var(--table-bg-alt);
+}
+
+.pageBtn.activePage {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}

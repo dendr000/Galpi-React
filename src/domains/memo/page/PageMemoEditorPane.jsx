@@ -1,22 +1,17 @@
-// 파일 위치: src/domains/memo/page/PageMemoEditorModal.jsx
-// 기능 요약: 뷰어 화면 전체를 덮거나 중앙에 띄워지는 페이지 도메인용 독립 에디터 모달 컨테이너 (shared 컴포넌트 결합)
-// 버전: v2.1.0
-
+// 파일 위치: src/domains/memo/page/PageMemoEditorPane.jsx
+// 기능 요약: 탭 시스템 내부에 렌더링되며, 헤더의 탭 닫기 호출 시 자신의 패널 타입(paneType)을 정확히 전달하는 에디터 본체
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// ★ 공통 UI 모듈 재활용 (shared)
 import MemoFormatMainBar from '../shared/components/MemoFormatMainBar';
 import MemoTagBar from '../shared/components/MemoTagBar';
 
-// 페이지 도메인 전용 하위 UI 및 훅
 import PageMemoEditorHeader from './components/PageMemoEditorHeader';
 import PageMemoFormatBar from './components/PageMemoFormatBar';
 import PageMemoMentionDropdown from './components/PageMemoMentionDropdown';
 import { usePageMemoEditor } from './hooks/usePageMemoEditor';
 
-const PageMemoEditorModal = (props) => {
-  console.log("[PageMemoEditorModal] 리치 텍스트 에디터 UI 렌더링 개시");
+const PageMemoEditorPane = (props) => {
   const navigate = useNavigate();
 
   const editorHooks = usePageMemoEditor({ ...props, navigate });
@@ -32,7 +27,7 @@ const PageMemoEditorModal = (props) => {
   } = editorHooks;
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg-color)', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg-color)', position: 'relative', overflow: 'hidden', height: '100%' }}>
       
       <PageMemoEditorHeader 
         titleRef={titleRef}
@@ -47,7 +42,7 @@ const PageMemoEditorModal = (props) => {
         handleSaveMemo={handleSaveMemo}
         activeMemoId={props.activeMemoId}
         handleDeleteMemo={handleDeleteMemo}
-        setIsEditorOpen={props.setIsEditorOpen}
+        handleCloseTab={(e) => props.handleCloseTab(e, props.activeMemoId, props.paneType)} // ★ 패널 타입 동반 전달
       />
 
       <PageMemoFormatBar 
@@ -92,11 +87,9 @@ const PageMemoEditorModal = (props) => {
         />
       </div>
 
-      {/* shared 모듈에 있는 공통 태그 바 렌더링 */}
       <MemoTagBar memoTags={editorHooks.memoTags} setMemoTags={editorHooks.setMemoTags} />
-
     </div>
   );
 };
 
-export default PageMemoEditorModal;
+export default PageMemoEditorPane;

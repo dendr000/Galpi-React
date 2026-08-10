@@ -1,38 +1,29 @@
 // 파일 위치: src/domains/memo/page/hooks/usePageMemoEditor.js
-// 기능 요약: 메모 페이지 에디터의 하위 훅들을 통합 조립하고 공통 물리 엔진(shared)을 래핑하는 중앙 관제탑 (Barrel Hook)
-// 버전: v2.0.1 (공통 모듈 재활용 및 최적화)
-
+// 기능 요약: 메모 페이지 에디터의 하위 훅들을 통합 조립하고 공통 물리 엔진(shared)을 래핑하는 중앙 관제탑 (다중 탭 스위칭 최적화)
 import { useState, useEffect, useRef } from 'react';
 import api from '../../../../api/axiosCore';
 
-// ★ 팹(FAB) 개편 시 뽑아두었던 shared 공통 물리 엔진 훅들을 그대로 재활용합니다.
 import { useMemoSave } from '../../shared/hooks/useMemoSave';
 import { useMemoFormat } from '../../shared/hooks/useMemoFormat';
 import { useMemoTableCtrl } from '../../shared/hooks/useMemoTableCtrl';
 import { useMemoEvents } from '../../shared/hooks/useMemoEvents';
 
-export const usePageMemoEditor = ({ memos, setMemos, activeMemoId, editData, setEditData, setIsEditorOpen, currentFolder, navigate }) => {
-  console.log("[usePageMemoEditor] 에디터 메인 훅(Hub) 마운트 및 하위 모듈 조립 개시");
-
-  // 공유 DOM 레퍼런스
+export const usePageMemoEditor = ({ memos, setMemos, activeMemoId, editData, setEditData, currentFolder, navigate }) => {
   const editorRef = useRef(null);
   const titleRef = useRef(null);
   const activeCellRef = useRef(null);
   const mentionRangeRef = useRef(null);
 
-  // 공유 기본 상태
   const [charCount, setCharCount] = useState({ selected: 0, total: 0 });
   const [selectedColor, setSelectedColor] = useState('var(--surface-color)');
   const [memoTags, setMemoTags] = useState("");
   const [mentionCandidates, setMentionCandidates] = useState([]);
   const [mentionState, setMentionState] = useState({ isOpen: false, query: "", x: 0, y: 0 });
 
-  // 글자 수 업데이트 공통 함수
   const updateCharCount = () => {
     if (!editorRef.current) return;
     const text = editorRef.current.innerText || "";
     const total = text.replace(/\s/g, '').length;
-    
     const selection = window.getSelection();
     let selected = 0;
     if (selection.rangeCount > 0 && !selection.isCollapsed && editorRef.current.contains(selection.anchorNode)) {
@@ -41,23 +32,8 @@ export const usePageMemoEditor = ({ memos, setMemos, activeMemoId, editData, set
     setCharCount({ selected, total });
   };
 
-  // 초기 데이터 바인딩 및 멘션 후보 수집
+  // 1. 단 1회 실행: 멘션 후보군 수집 (DB 통신 최적화)
   useEffect(() => {
-    if (titleRef.current) titleRef.current.value = editData.title || '';
-    const targetMemo = memos.find(m => String(m.id) === String(activeMemoId));
-    
-    if (targetMemo?.themeColor) setSelectedColor(targetMemo.themeColor);
-    if (targetMemo?.tags) setMemoTags(targetMemo.tags);
-
-    if (editorRef.current) {
-      let content = targetMemo?.content || "";
-      if (!content.includes('<div') && !content.includes('<br') && !content.includes('<p>') && content.includes('\n')) {
-        content = content.replace(/\n/g, '<br>');
-      }
-      editorRef.current.innerHTML = content;
-      updateCharCount();
-    }
-
     const fetchMentions = async () => {
       try {
         const [worksRes, charsRes] = await Promise.all([
@@ -70,32 +46,49 @@ export const usePageMemoEditor = ({ memos, setMemos, activeMemoId, editData, set
       } catch (e) { console.error("멘션 후보 로드 실패", e); }
     };
     fetchMentions();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 모듈 1. 데이터 저장 및 삭제 훅 (shared 모듈 사용)
+  // 2. 탭 스위칭 엔진: 탭(activeMemoId)이 바뀔 때마다 에디터 내용물을 0.1초 만에 갈아끼웁니다.
+  useEffect(() => {
+    if (!activeMemoId) return;
+
+    if (titleRef.current) titleRef.current.value = editData.title || '';
+    const targetMemo = memos.find(m => String(m.id) === String(activeMemoId));
+    
+    if (targetMemo?.themeColor) setSelectedColor(targetMemo.themeColor);
+    else setSelectedColor('var(--surface-color)');
+
+    if (targetMemo?.tags) setMemoTags(targetMemo.tags);
+    else setMemoTags("");
+
+    if (editorRef.current) {
+      let content = targetMemo?.content || "";
+      if (!content.includes('<div') && !content.includes('<br') && !content.includes('<p>') && content.includes('\n')) {
+        content = content.replace(/\n/g, '<br>');
+      }
+      editorRef.current.innerHTML = content;
+      updateCharCount();
+    }
+  }, [activeMemoId, memos]); // ★ 탭 전환 핵심 의존성 추가
+
   const { isSaving, handleSaveMemo, handleDeleteMemo } = useMemoSave({
     memos, setMemos, activeMemoId, editData, setEditData,
-    titleRef, editorRef, selectedColor, memoTags, setIsEditorOpen
+    titleRef, editorRef, selectedColor, memoTags, setIsEditorOpen: () => {}
   });
 
-  // 모듈 2. 포맷 지정 및 찾기/바꾸기 훅 (shared 모듈 사용)
   const formatHooks = useMemoFormat({ editorRef, updateCharCount });
 
-  // 모듈 3. 표 제어 훅 (shared 모듈 사용)
   const tableCtrlHooks = useMemoTableCtrl({
     editorRef, activeCellRef, updateCharCount,
     setFindReplaceVisible: formatHooks.setFindReplaceVisible
   });
 
-  // 모듈 4. DOM 이벤트 및 멘션 훅 (shared 모듈 사용)
   const eventHooks = useMemoEvents({
     editorRef, mentionRangeRef, mentionState, setMentionState,
     saveMemo: handleSaveMemo, updateCharCount, checkTableFocus: tableCtrlHooks.checkTableFocus,
     navigate
   });
 
-  // 멘션 삽입 처리는 컴포넌트 특화 로직이므로 여기에 유지
   const handleMentionSelect = (item) => {
     if (!mentionRangeRef.current) return;
     const selection = window.getSelection();
