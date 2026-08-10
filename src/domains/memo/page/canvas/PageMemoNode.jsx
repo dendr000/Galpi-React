@@ -1,11 +1,11 @@
-// 파일 위치: src/pages/MemoWorkspace/canvas/MemoNode.jsx
+// 파일 위치: src/domains/memo/page/canvas/PageMemoNode.jsx
 // 기능 요약: 캔버스 뷰에서 개별 메모를 렌더링하는 커스텀 노드. 잠금, 휴지통 이관 기능 및 중앙 연결 핸들 포함.
 // 버전: v1.0.0
 
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
 
-const MemoNode = ({ data, selected }) => {
+const PageMemoNode = ({ data, selected }) => {
   const { memo, onEdit, onToggleLock, onMoveToTrash } = data;
   const isLocked = memo.isLocked;
 
@@ -27,13 +27,11 @@ const MemoNode = ({ data, selected }) => {
       }}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* 직관적인 연결을 위한 4방향 가시적 핸들 배치 */}
       <Handle type="target" position={Position.Top} style={{ width: '12px', height: '12px', background: 'var(--primary-color)', border: '2px solid var(--surface-color)', zIndex: 10 }} />
       <Handle type="source" position={Position.Bottom} style={{ width: '12px', height: '12px', background: 'var(--primary-color)', border: '2px solid var(--surface-color)', zIndex: 10 }} />
       <Handle type="source" position={Position.Left} id="left-src" style={{ width: '12px', height: '12px', background: 'var(--primary-color)', border: '2px solid var(--surface-color)', zIndex: 10 }} />
       <Handle type="target" position={Position.Right} id="right-tgt" style={{ width: '12px', height: '12px', background: 'var(--primary-color)', border: '2px solid var(--surface-color)', zIndex: 10 }} />
 
-      {/* 노드 헤더 (이 부분을 잡아야만 드래그 가능하도록 custom-drag-handle 클래스 부여) */}
       <div 
         className={isLocked ? "" : "custom-drag-handle"} 
         style={{ 
@@ -55,13 +53,11 @@ const MemoNode = ({ data, selected }) => {
         </button>
       </div>
 
-      {/* 노드 본문 미리보기 */}
       <div style={{ padding: '15px', fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
         <div style={{ marginBottom: '10px', height: '40px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', wordBreak: 'break-all' }}>
           {memo.content ? memo.content.replace(/<[^>]*>?/gm, '').trim() : "내용 없음"}
         </div>
         
-        {/* 태그 표시 영역 */}
         {memo.tags && (
           <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '12px' }}>
             {memo.tags.split(',').map((tag, idx) => (
@@ -79,7 +75,6 @@ const MemoNode = ({ data, selected }) => {
           </div>
         )}
 
-        {/* 액션 버튼 그룹 */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <button 
             className="wiki-btn" 
@@ -103,4 +98,4 @@ const MemoNode = ({ data, selected }) => {
   );
 };
 
-export default MemoNode;
+export default PageMemoNode;

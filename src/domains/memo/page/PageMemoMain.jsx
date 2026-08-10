@@ -1,25 +1,25 @@
-// 파일 위치: src/pages/MemoWorkspace/MemoWorkspacePage.jsx
-// 기능 요약: 통합 검색 바 및 태그 필터 배너 UI가 탑재된 메인 워크스페이스 레이아웃
-// 버전: v3.1.0
+// 파일 위치: src/domains/memo/page/PageMemoMain.jsx
+// 기능 요약: 통합 검색 바 및 태그 필터 배너 UI가 탑재된 메인 워크스페이스 레이아웃 (페이지 도메인 통합)
+// 버전: v3.2.0
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from './MemoWorkspace.module.css';
-import MemoLeftTree from './MemoLeftTree';
-import WorkspaceEditorModal from './WorkspaceEditorModal';
-import MemoCanvasBoard from './canvas/MemoCanvasBoard';
-import { useMemoWorkspaceData } from './useMemoWorkspaceData';
+import styles from './PageMemo.module.css';
+import PageMemoSidebar from './components/PageMemoSidebar';
+import PageMemoEditorModal from './PageMemoEditorModal';
+import PageMemoCanvasBoard from './canvas/PageMemoCanvasBoard';
+import { usePageMemoData } from './hooks/usePageMemoData';
 
-const MemoWorkspacePage = () => {
+const PageMemoMain = () => {
   const navigate = useNavigate();
-  console.log("[MemoWorkspacePage] 메모 워크스페이스 컨트롤러 렌더링 개시");
+  console.log("[PageMemoMain] 메모 워크스페이스 컨트롤러 렌더링 개시");
 
   const {
     memos, setMemos, folders, currentFolder, setCurrentFolder,
     filteredMemos, relations, setRelations, extractTags,
     searchQuery, setSearchQuery, selectedTag, setSelectedTag,
     handleAddFolder, handleEditFolder, handleDeleteFolder
-  } = useMemoWorkspaceData();
+  } = usePageMemoData();
 
   const [currentView, setCurrentView] = useState("list");
   const [isTreeOpen, setIsTreeOpen] = useState(true);
@@ -61,7 +61,6 @@ const MemoWorkspacePage = () => {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           
-          {/* 통합 검색 바 컴포넌트 */}
           <input
             type="text"
             placeholder="🔍 메모 제목 또는 내용 검색"
@@ -78,7 +77,6 @@ const MemoWorkspacePage = () => {
         </div>
       </header>
 
-      {/* 태그 필터링 배너 (선택 시 활성화) */}
       {selectedTag && (
         <div style={{ padding: '10px 20px', background: 'var(--table-bg-alt)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px', zIndex: 10 }}>
           <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-color)' }}>#{selectedTag} 태그 교차 필터링 결과</span>
@@ -87,7 +85,7 @@ const MemoWorkspacePage = () => {
       )}
 
       <div className={styles.memoWorkspaceContainer}>
-        <MemoLeftTree 
+        <PageMemoSidebar 
           styles={styles} isTreeOpen={isTreeOpen} setIsTreeOpen={setIsTreeOpen}
           folders={folders} currentFolder={currentFolder} setCurrentFolder={setCurrentFolder}
           memos={memos} handleAddFolder={handleAddFolder} handleEditFolder={handleEditFolder} handleDeleteFolder={handleDeleteFolder}
@@ -131,7 +129,7 @@ const MemoWorkspacePage = () => {
 
           <div className={`${styles.memoViewPanel} ${currentView === 'canvas' ? styles.active : ''}`}>
             {currentView === 'canvas' && (
-              <MemoCanvasBoard 
+              <PageMemoCanvasBoard 
                 filteredMemos={filteredMemos}
                 setMemos={setMemos}
                 relations={relations}
@@ -145,7 +143,7 @@ const MemoWorkspacePage = () => {
       </div>
 
       {isEditorOpen && (
-        <WorkspaceEditorModal 
+        <PageMemoEditorModal 
           activeMemoId={activeMemoId} editData={editData} setEditData={setEditData}
           folders={folders} currentFolder={currentFolder} setIsEditorOpen={setIsEditorOpen}
           memos={memos} setMemos={setMemos} extractTags={extractTags}
@@ -155,4 +153,4 @@ const MemoWorkspacePage = () => {
   );
 };
 
-export default MemoWorkspacePage;
+export default PageMemoMain;

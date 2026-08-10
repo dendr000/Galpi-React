@@ -21,7 +21,8 @@ import BulkStudioPage from './pages/BulkStudio/BulkStudioPage';
 import EditorPage from './pages/Editor/EditorPage'; 
 import WorkDetailPage from './pages/WorkDetail/WorkDetailPage'; 
 
-import MemoWorkspacePage from './pages/MemoWorkspace/MemoWorkspacePage';
+// ★ 이름 불일치 픽스: PageMemoMain으로 정확하게 임포트
+import PageMemoMain from './domains/memo/page/PageMemoMain';
 import NovelViewerPage from './pages/NovelViewer/NovelViewerPage';
 import NotFoundPage from './pages/NotFound/NotFoundPage';
 
@@ -82,7 +83,9 @@ function App() {
         <Route path="/work/:workId" element={<WorkDetailPage />} />
         
         <Route path="/viewer/:pageId" element={<NovelViewerPage />} />
-        <Route path="/memo" element={<MemoWorkspacePage />} />
+        
+        {/* ★ 변경된 이름으로 렌더링 */}
+        <Route path="/memo" element={<PageMemoMain />} />
         
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

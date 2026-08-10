@@ -1,4 +1,4 @@
-// 파일 위치: src/pages/MemoWorkspace/canvas/MemoCanvasBoard.jsx
+// 파일 위치: src/domains/memo/page/canvas/PageMemoCanvasBoard.jsx
 // 기능 요약: 화살표(Edge) 선택 시 렌더링되는 속성 편집 패널 및 태그 필터링 훅 연동
 // 버전: v2.1.0
 
@@ -8,20 +8,20 @@ import {
   applyNodeChanges, applyEdgeChanges, addEdge
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import api from '../../../api/axiosCore';
+import api from '../../../../api/axiosCore';
 
-import MemoNode from './MemoNode';
-import MemoEdge from './MemoEdge';
+import PageMemoNode from './PageMemoNode';
+import PageMemoEdge from './PageMemoEdge';
 
-const nodeTypes = { memoNode: MemoNode };
-const edgeTypes = { relation: MemoEdge };
+const nodeTypes = { memoNode: PageMemoNode };
+const edgeTypes = { relation: PageMemoEdge };
 
-const MemoCanvasBoard = ({ 
+const PageMemoCanvasBoard = ({ 
   filteredMemos, setMemos, 
   relations, setRelations, 
   handleOpenEditor, setSelectedTag 
 }) => {
-  console.log("[MemoCanvasBoard] React Flow 캔버스 엔진 마운트 및 화살표 편집기 활성화");
+  console.log("[PageMemoCanvasBoard] React Flow 캔버스 엔진 마운트 및 화살표 편집기 활성화");
 
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
@@ -205,4 +205,4 @@ const MemoCanvasBoard = ({
   );
 };
 
-export default MemoCanvasBoard;
+export default PageMemoCanvasBoard;
