@@ -2,11 +2,14 @@ import { useState, useEffect, useMemo } from 'react';
 
 export const usePageFilter = ({ memos, currentFolder }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchScope, setSearchScope] = useState("all"); // 'all' | 'title' | 'content'
   const [selectedTag, setSelectedTag] = useState(null);
 
   const [sortType, setSortType] = useState('name'); 
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [checkedMemoIds, setCheckedMemoIds] = useState([]);
 
   const filteredMemos = useMemo(() => {
     let result = [...memos];
@@ -15,9 +18,17 @@ export const usePageFilter = ({ memos, currentFolder }) => {
       result = result.filter(m => m.folder === currentFolder || m.folder?.startsWith(`${currentFolder}/`));
     }
     
+    // ★ 검색 스코프 필터링 고도화
     if (searchQuery.trim() !== "") {
       const q = searchQuery.toLowerCase();
-      result = result.filter(m => (m.title && m.title.toLowerCase().includes(q)) || (m.content && m.content.toLowerCase().includes(q)));
+      result = result.filter(m => {
+        const matchTitle = m.title && m.title.toLowerCase().includes(q);
+        const matchContent = m.content && m.content.toLowerCase().includes(q);
+
+        if (searchScope === "title") return matchTitle;
+        if (searchScope === "content") return matchContent;
+        return matchTitle || matchContent; // 기본값: 전체 검색
+      });
     }
     
     result = result.filter(m => !m.isTrash);
@@ -31,12 +42,15 @@ export const usePageFilter = ({ memos, currentFolder }) => {
     }
     
     result.sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+
       if (sortType === 'name') return (a.title || "").localeCompare(b.title || "", 'ko-KR');
       return b.updatedAt - a.updatedAt;
     });
     
     return result;
-  }, [memos, currentFolder, searchQuery, selectedTag, sortType]);
+  }, [memos, currentFolder, searchQuery, searchScope, selectedTag, sortType]);
 
   const paginatedMemos = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -47,12 +61,14 @@ export const usePageFilter = ({ memos, currentFolder }) => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [currentFolder, searchQuery, selectedTag, sortType, itemsPerPage]);
+    setCheckedMemoIds([]); 
+  }, [currentFolder, searchQuery, searchScope, selectedTag, sortType, itemsPerPage]);
 
   return {
-    searchQuery, setSearchQuery, selectedTag, setSelectedTag,
+    searchQuery, setSearchQuery, searchScope, setSearchScope, selectedTag, setSelectedTag,
     sortType, setSortType, itemsPerPage, setItemsPerPage,
     currentPage, setCurrentPage, totalPages,
-    filteredMemos, paginatedMemos
+    filteredMemos, paginatedMemos,
+    checkedMemoIds, setCheckedMemoIds
   };
 };

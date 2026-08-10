@@ -1,3 +1,6 @@
+// 파일 위치: src/domains/memo/page/hooks/core/usePageFolder.js
+// (개별 메모 삭제, 상단 고정(Pin) 토글, 그리고 다중 선택 시 발동하는 일괄 이동/삭제 API 통신 로직을 신설했습니다.)
+
 import api from '../../../../../api/axiosCore';
 
 export const usePageFolder = ({ memos, setMemos, folders, setFolders, currentFolder, setCurrentFolder }) => {
@@ -77,5 +80,74 @@ export const usePageFolder = ({ memos, setMemos, folders, setFolders, currentFol
     }
   };
 
-  return { handleAddFolder, handleEditFolder, handleDeleteFolder };
+  // ★ 상단 고정(Pin) 토글 로직
+  const handleTogglePin = async (e, memo) => {
+    e.stopPropagation();
+    const newPinnedStatus = !memo.isPinned;
+    const updatedMemo = { ...memo, isPinned: newPinnedStatus, updatedAt: Date.now() };
+
+    setMemos(prev => prev.map(m => String(m.id) === String(memo.id) ? updatedMemo : m));
+
+    try {
+      const isEdit = !String(memo.id).startsWith("local_") && String(memo.id).length < 13;
+      if (isEdit) await api.put(`/api/memos/${memo.id}`, updatedMemo);
+    } catch (err) {
+      console.error("[usePageFolder] 상단 고정 상태 동기화 실패", err);
+    }
+  };
+
+  // ★ 퀵 액션: 단일 메모 즉시 삭제
+  const handleDeleteMemo = async (e, memoId) => {
+    e.stopPropagation();
+    if (window.confirm("정말 이 메모를 영구 삭제하시겠습니까?")) {
+      setMemos(prev => prev.filter(m => String(m.id) !== String(memoId)));
+      try {
+        const isEdit = !String(memoId).startsWith("local_") && String(memoId).length < 13;
+        if (isEdit) await api.delete(`/api/memos/${memoId}`);
+      } catch (err) {
+        console.error("[usePageFolder] 메모 삭제 통신 오류", err);
+      }
+    }
+  };
+
+  // ★ 다중 선택: 일괄 폴더 이동
+  const handleBatchMove = async (memoIds, targetFolder) => {
+    const updatedMemos = memos.map(m => 
+      memoIds.includes(m.id) ? { ...m, folder: targetFolder, updatedAt: Date.now() } : m
+    );
+    setMemos(updatedMemos);
+
+    try {
+      const promises = memoIds.map(id => {
+        const isEdit = !String(id).startsWith("local_") && String(id).length < 13;
+        const targetMemo = updatedMemos.find(m => m.id === id);
+        return isEdit ? api.put(`/api/memos/${id}`, targetMemo) : Promise.resolve();
+      });
+      await Promise.all(promises);
+    } catch (err) {
+      console.error("[usePageFolder] 일괄 이동 통신 오류", err);
+    }
+  };
+
+  // ★ 다중 선택: 일괄 삭제
+  const handleBatchDelete = async (memoIds) => {
+    if (window.confirm(`선택한 ${memoIds.length}개의 메모를 영구 삭제하시겠습니까?`)) {
+      setMemos(prev => prev.filter(m => !memoIds.includes(m.id)));
+
+      try {
+        const promises = memoIds.map(id => {
+          const isEdit = !String(id).startsWith("local_") && String(id).length < 13;
+          return isEdit ? api.delete(`/api/memos/${id}`) : Promise.resolve();
+        });
+        await Promise.all(promises);
+      } catch (err) {
+        console.error("[usePageFolder] 일괄 삭제 통신 오류", err);
+      }
+    }
+  };
+
+  return { 
+    handleAddFolder, handleEditFolder, handleDeleteFolder,
+    handleTogglePin, handleDeleteMemo, handleBatchMove, handleBatchDelete
+  };
 };

@@ -10,19 +10,18 @@ const PageMemoFormatBar = (props) => {
     <div 
       id="page-memo-format-bar" 
       onMouseDown={(e) => {
-        // INPUT과 SELECT는 툴바 내부 포커스 차단 예외 처리
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
         e.preventDefault();
       }}
-      style={{ display: 'flex', flexDirection: 'column', width: '100%', background: 'var(--table-bg-alt)', borderBottom: '1px solid var(--border-color)', userSelect: 'none', padding: '6px 10px', boxSizing: 'border-box' }}
+      style={{ 
+        position: 'sticky', // ★ 스크롤 시 화면 상단에 찰싹 달라붙는 마법의 속성
+        top: 0, 
+        zIndex: 10,
+        display: 'flex', flexDirection: 'column', width: '100%', background: 'var(--table-bg-alt)', borderBottom: '1px solid var(--border-color)', userSelect: 'none', padding: '6px 10px', boxSizing: 'border-box' 
+      }}
     >
-      {/* 1. 기본 서식 및 템플릿 제어 메인 툴바 (shared 재활용) */}
       <MemoFormatMainBar {...props} />
-
-      {/* 2. 표 제어 패널 (shared 재활용) */}
       {props.tableCtrlVisible && <MemoTableControlBar {...props} />}
-
-      {/* 3. 찾아 바꾸기 패널 (shared 재활용) */}
       {props.findReplaceVisible && <MemoFindReplaceBar {...props} />}
     </div>
   );

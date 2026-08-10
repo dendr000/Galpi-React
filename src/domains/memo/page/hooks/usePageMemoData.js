@@ -1,3 +1,6 @@
+// 파일 위치: src/domains/memo/page/hooks/usePageMemoData.js
+// (위의 변경된 두 훅에서 쏟아지는 기능들을 메인 UI로 중계합니다.)
+
 import { useState, useEffect } from 'react';
 import api from '../../../../api/axiosCore';
 import { usePageFolder } from './core/usePageFolder';
@@ -9,7 +12,6 @@ export const usePageMemoData = () => {
   const [folders, setFolders] = useState(["전체 메모", "기타"]);
   const [currentFolder, setCurrentFolder] = useState("전체 메모");
 
-  // 초기 데이터 스캔 및 폴더 트리 병합
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -27,7 +29,6 @@ export const usePageMemoData = () => {
     fetchData();
   }, []);
 
-  // 분할된 비즈니스 로직 훅 조립
   const folderHooks = usePageFolder({ memos, setMemos, folders, setFolders, currentFolder, setCurrentFolder });
   const filterHooks = usePageFilter({ memos, currentFolder });
   const tabHooks = usePageTab({ memos, setMemos, currentFolder });

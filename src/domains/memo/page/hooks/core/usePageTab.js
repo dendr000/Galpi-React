@@ -7,6 +7,9 @@ export const usePageTab = ({ memos, setMemos, currentFolder }) => {
   const [isSplitMode, setIsSplitMode] = useState(false);
   const [splitTabs, setSplitTabs] = useState([]);
   const [splitTabId, setSplitTabId] = useState(null);
+  
+  // ★ 신규: 스플릿 뷰 방향 제어 상태 ('vertical' | 'horizontal')
+  const [splitDirection, setSplitDirection] = useState('vertical');
 
   const handleOpenTab = (memo, paneType = 'main') => {
     const newId = memo ? memo.id : `local_${Date.now()}`;
@@ -71,8 +74,14 @@ export const usePageTab = ({ memos, setMemos, currentFolder }) => {
     }
   };
 
+  // ★ 신규: 방향 토글 함수
+  const toggleSplitDirection = () => {
+    setSplitDirection(prev => prev === 'vertical' ? 'horizontal' : 'vertical');
+  };
+
   return {
     mainTabs, splitTabs, activeTabId, setActiveTabId, splitTabId, setSplitTabId,
-    isSplitMode, toggleSplitMode, handleOpenTab, handleCloseTab
+    isSplitMode, toggleSplitMode, handleOpenTab, handleCloseTab,
+    splitDirection, toggleSplitDirection
   };
 };

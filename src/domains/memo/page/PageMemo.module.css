@@ -1,3 +1,5 @@
+/* src/domains/memo/page/PageMemo.module.css */
+
 .memoTopBar { height: 60px; background: var(--surface-color); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-sizing: border-box; z-index: 1000; position: relative; }
 .viewToggleWrap { display: flex; background: var(--table-bg-alt); border-radius: 8px; padding: 4px; border: 1px solid var(--border-color); }
 .viewToggleBtn { background: transparent; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; color: var(--text-secondary); cursor: pointer; transition: 0.2s; }
@@ -44,6 +46,23 @@
   cursor: pointer;
 }
 
+.batchToolbar {
+  background: rgba(59, 91, 219, 0.05);
+  border: 1px solid var(--primary-color);
+  border-radius: 8px;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .bbsWrap {
   background: var(--surface-color);
   border: 1px solid var(--border-color);
@@ -54,7 +73,7 @@
 
 .bbsHeader {
   display: grid;
-  grid-template-columns: 5fr 1.5fr 1fr; /* 제목을 넓게, 폴더/날짜는 좁게 */
+  grid-template-columns: 40px 5fr 1.5fr 1fr; /* 체크박스 공간 추가 */
   padding: 12px 20px;
   background: var(--table-bg-alt);
   border-bottom: 2px solid var(--border-color);
@@ -65,12 +84,13 @@
 
 .bbsRow {
   display: grid;
-  grid-template-columns: 5fr 1.5fr 1fr;
+  grid-template-columns: 40px 5fr 1.5fr 1fr;
   padding: 12px 20px;
   border-bottom: 1px solid var(--border-color);
   align-items: center;
   cursor: pointer;
   transition: background 0.1s;
+  position: relative; /* 호버 액션을 위한 기준점 */
 }
 
 .bbsRow:hover {
@@ -88,6 +108,13 @@
   align-items: center;
   overflow: hidden;
   padding-right: 15px;
+}
+
+.bbsPinBadge {
+  color: var(--primary-color);
+  display: inline-flex;
+  align-items: center;
+  margin-right: 6px;
 }
 
 .bbsItemTitle {
@@ -112,6 +139,11 @@
   padding: 1px 6px;
   border-radius: 4px;
   white-space: nowrap;
+  transition: 0.2s;
+}
+.bbsTagPill:hover {
+  background: var(--primary-color);
+  color: white;
 }
 
 .bbsColFolder {
@@ -127,6 +159,50 @@
   font-size: 12px;
   color: var(--text-secondary);
   text-align: right;
+}
+
+/* 호버 시 튀어나오는 퀵 액션 버튼 그룹 */
+.bbsRowActions {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  background: inherit;
+  padding-left: 15px;
+  box-shadow: -15px 0 10px -5px inherit; /* 우측 날짜를 가리는 부드러운 그라데이션 트릭 */
+}
+
+.bbsRow:hover .bbsRowActions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bbsActionBtn {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.bbsActionBtn:hover {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.bbsActionBtn.delete:hover {
+  color: #e53e3e;
+  border-color: #e53e3e;
 }
 
 /* 페이징 UI */

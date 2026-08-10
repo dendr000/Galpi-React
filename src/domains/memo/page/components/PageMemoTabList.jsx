@@ -1,9 +1,10 @@
-// 파일 위치: src/domains/memo/page/components/PageMemoTabList.jsx
-// 기능 요약: 자신이 속한 패널(Main/Split)의 탭 배열만 독립적으로 렌더링하고 관리하는 네비게이터 바
 import React from 'react';
-import { XIcon, FileTextIcon, FolderIcon, SplitVerticalIcon } from '../../shared/components/MemoIcons';
+import { XIcon, FileTextIcon, FolderIcon, SplitVerticalIcon, SplitHorizontalIcon } from '../../shared/components/MemoIcons';
 
-const PageMemoTabList = ({ openedTabs, activeTabId, setActiveTabId, handleCloseTab, isSplitMode, toggleSplitMode, paneType }) => {
+const PageMemoTabList = ({ 
+  openedTabs, activeTabId, setActiveTabId, handleCloseTab, 
+  isSplitMode, toggleSplitMode, splitDirection, toggleSplitDirection, paneType 
+}) => {
   if (openedTabs.length === 0 && paneType === 'split') return null;
 
   return (
@@ -43,7 +44,7 @@ const PageMemoTabList = ({ openedTabs, activeTabId, setActiveTabId, handleCloseT
             <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>{tab.title || '새로운 메모'}</span>
             
             <button 
-              onClick={(e) => handleCloseTab(e, tab.id, paneType)} // ★ 자신이 속한 패널 정보(paneType)를 함께 전달
+              onClick={(e) => handleCloseTab(e, tab.id, paneType)} 
               style={{ background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer', display: 'flex', padding: '4px', borderRadius: '4px', opacity: 0.6, transition: '0.2s' }}
               onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(229,62,62,0.1)'; e.currentTarget.style.color = '#e53e3e'; e.currentTarget.style.opacity = '1'; }}
               onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'inherit'; e.currentTarget.style.opacity = '0.6'; }}
@@ -56,7 +57,20 @@ const PageMemoTabList = ({ openedTabs, activeTabId, setActiveTabId, handleCloseT
       </div>
 
       {paneType === 'main' && (
-        <div style={{ display: 'flex', alignItems: 'center', padding: '0 10px', borderLeft: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', padding: '0 10px', borderLeft: '1px solid var(--border-color)', gap: '4px' }}>
+          {/* ★ 좌우 분할 방향 스위처 */}
+          {isSplitMode && (
+            <button
+              onClick={toggleSplitDirection}
+              style={{
+                background: 'transparent', color: 'var(--text-secondary)', border: 'none', padding: '6px 10px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold', fontSize: '11px', transition: '0.2s'
+              }}
+              title={splitDirection === 'vertical' ? "좌우 분할로 변경" : "상하 분할로 변경"}
+            >
+              {splitDirection === 'vertical' ? <SplitHorizontalIcon /> : <SplitVerticalIcon />}
+            </button>
+          )}
+
           <button
             onClick={toggleSplitMode}
             style={{
@@ -64,7 +78,7 @@ const PageMemoTabList = ({ openedTabs, activeTabId, setActiveTabId, handleCloseT
               color: isSplitMode ? 'var(--primary-color)' : 'var(--text-secondary)',
               border: 'none', padding: '6px 10px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold', fontSize: '11px', transition: '0.2s'
             }}
-            title="상하 화면 분할"
+            title="화면 분할 켜기/끄기"
           >
             <SplitVerticalIcon /> {isSplitMode ? '분할 닫기' : '화면 분할'}
           </button>

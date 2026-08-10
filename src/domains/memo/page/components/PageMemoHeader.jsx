@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from '../PageMemo.module.css';
 import { HomeIcon, SearchIcon, FilePlusIcon } from '../../shared/components/MemoIcons';
 
-const PageMemoHeader = ({ searchQuery, setSearchQuery, handleOpenTab }) => {
+const PageMemoHeader = ({ searchQuery, setSearchQuery, searchScope, setSearchScope, handleOpenTab }) => {
   const navigate = useNavigate();
 
   return (
@@ -16,15 +16,28 @@ const PageMemoHeader = ({ searchQuery, setSearchQuery, handleOpenTab }) => {
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-          <span style={{ position: 'absolute', left: '12px', color: 'var(--text-secondary)', display: 'flex' }}><SearchIcon /></span>
-          <input
-            type="text"
-            placeholder="메모 제목 검색..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            style={{ padding: '6px 12px 6px 32px', borderRadius: '20px', border: '1px solid var(--border-color)', fontSize: '13px', outline: 'none', width: '240px', background: 'var(--bg-color)', color: 'var(--text-primary)' }}
-          />
+        {/* ★ 고급 검색 필터 탑재 */}
+        <div style={{ display: 'flex', alignItems: 'center', background: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '20px', overflow: 'hidden', paddingLeft: '8px' }}>
+          <select
+            value={searchScope}
+            onChange={e => setSearchScope(e.target.value)}
+            style={{ background: 'transparent', border: 'none', color: 'var(--primary-color)', fontSize: '12px', fontWeight: 'bold', outline: 'none', cursor: 'pointer', padding: '4px 2px 4px 4px' }}
+          >
+            <option value="all">제목+내용</option>
+            <option value="title">제목만</option>
+            <option value="content">내용만</option>
+          </select>
+          <div style={{ width: '1px', height: '14px', background: 'var(--border-color)', margin: '0 4px' }}></div>
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <span style={{ position: 'absolute', left: '8px', color: 'var(--text-secondary)', display: 'flex' }}><SearchIcon /></span>
+            <input
+              type="text"
+              placeholder="검색어 입력..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{ padding: '6px 12px 6px 28px', border: 'none', fontSize: '13px', outline: 'none', width: '180px', background: 'transparent', color: 'var(--text-primary)' }}
+            />
+          </div>
         </div>
 
         <button className="wiki-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--primary-color)', color: 'white' }} onClick={() => handleOpenTab(null, 'main')}>

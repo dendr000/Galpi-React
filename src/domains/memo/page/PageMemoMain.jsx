@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './PageMemo.module.css';
 
-// 쪼개진 UI 컴포넌트 임포트
 import PageMemoHeader from './components/PageMemoHeader';
 import PageMemoSidebar from './components/PageMemoSidebar';
 import PageMemoTabList from './components/PageMemoTabList';
@@ -15,12 +15,15 @@ const PageMemoMain = () => {
   const {
     memos, setMemos, folders, currentFolder, setCurrentFolder,
     filteredMemos, paginatedMemos,
-    searchQuery, setSearchQuery, selectedTag, setSelectedTag,
+    searchQuery, setSearchQuery, searchScope, setSearchScope, selectedTag, setSelectedTag,
     handleAddFolder, handleEditFolder, handleDeleteFolder,
     sortType, setSortType, itemsPerPage, setItemsPerPage,
     currentPage, setCurrentPage, totalPages,
     mainTabs, splitTabs, activeTabId, setActiveTabId, splitTabId, setSplitTabId, 
-    isSplitMode, toggleSplitMode, handleOpenTab, handleCloseTab
+    isSplitMode, toggleSplitMode, handleOpenTab, handleCloseTab,
+    splitDirection, toggleSplitDirection,
+    checkedMemoIds, setCheckedMemoIds, handleTogglePin, handleDeleteMemo, 
+    handleBatchMove, handleBatchDelete
   } = usePageMemoData();
 
   const [isTreeOpen, setIsTreeOpen] = useState(true);
@@ -44,7 +47,6 @@ const PageMemoMain = () => {
 
   return (
     <div style={{ overflow: 'hidden', height: '100vh', display: 'flex', flexDirection: 'column' }}>
-
       <style>{`
         .galpi-outer-select [contenteditable="false"] { opacity: 0.4; filter: grayscale(100%); transition: 0.2s; }
         .galpi-outer-select [contenteditable="false"] *::selection { background: transparent !important; color: inherit !important; }
@@ -56,14 +58,15 @@ const PageMemoMain = () => {
         .galpi-tree-folder .folder-actions button:hover { background: var(--border-color) !important; border-radius: 4px; }
       `}</style>
 
-      {/* 분리된 상단 글로벌 헤더 부착 */}
+      {/* ★ 추출한 검색 스코프 상태를 헤더에 프롭스로 주입 */}
       <PageMemoHeader 
         searchQuery={searchQuery} 
         setSearchQuery={setSearchQuery} 
+        searchScope={searchScope}
+        setSearchScope={setSearchScope}
         handleOpenTab={handleOpenTab} 
       />
 
-      {/* 태그 필터링 배너 */}
       {selectedTag && (
         <div style={{ padding: '10px 20px', background: 'var(--table-bg-alt)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px', zIndex: 10 }}>
           <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-color)' }}>#{selectedTag} 태그 필터링 결과</span>
@@ -74,19 +77,19 @@ const PageMemoMain = () => {
       )}
 
       <div className={styles.memoWorkspaceContainer}>
-        {/* 분리된 좌측 탐색기 트리 부착 */}
         <PageMemoSidebar 
           styles={styles} isTreeOpen={isTreeOpen} setIsTreeOpen={setIsTreeOpen}
           folders={folders} currentFolder={currentFolder} setCurrentFolder={setCurrentFolder}
           memos={memos} handleAddFolder={handleAddFolder} handleEditFolder={handleEditFolder} handleDeleteFolder={handleDeleteFolder}
         />
 
-        <div className={styles.memoViewport} style={{ paddingLeft: isTreeOpen ? '300px' : '30px', display: 'flex', flexDirection: 'column' }}>
+        <div className={styles.memoViewport} style={{ paddingLeft: isTreeOpen ? '300px' : '30px', display: 'flex', flexDirection: isSplitMode && splitDirection === 'horizontal' ? 'row' : 'column' }}>
           
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, minWidth: 0, overflow: 'hidden' }}>
             <PageMemoTabList 
               openedTabs={mainTabs} activeTabId={activeTabId} setActiveTabId={setActiveTabId} 
-              handleCloseTab={handleCloseTab} isSplitMode={isSplitMode} toggleSplitMode={toggleSplitMode} paneType="main"
+              handleCloseTab={handleCloseTab} isSplitMode={isSplitMode} toggleSplitMode={toggleSplitMode} 
+              splitDirection={splitDirection} toggleSplitDirection={toggleSplitDirection} paneType="main"
             />
             
             {activeTabId ? (
@@ -96,22 +99,30 @@ const PageMemoMain = () => {
                 memos={memos} setMemos={setMemos} paneType="main" 
               />
             ) : (
-              /* 분리된 중앙 게시판 리스트 부착 */
               <PageMemoBbsList 
+                folders={folders}
                 filteredMemos={filteredMemos} paginatedMemos={paginatedMemos}
                 sortType={sortType} setSortType={setSortType}
                 itemsPerPage={itemsPerPage} setItemsPerPage={setItemsPerPage}
                 currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages}
                 handleOpenTab={handleOpenTab} setSelectedTag={setSelectedTag}
+                checkedMemoIds={checkedMemoIds} setCheckedMemoIds={setCheckedMemoIds}
+                handleTogglePin={handleTogglePin} handleDeleteMemo={handleDeleteMemo}
+                handleBatchMove={handleBatchMove} handleBatchDelete={handleBatchDelete}
               />
             )}
           </div>
 
           {isSplitMode && (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, borderTop: '4px solid var(--primary-color)' }}>
+            <div style={{ 
+              flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, minWidth: 0, 
+              borderTop: splitDirection === 'vertical' ? '4px solid var(--primary-color)' : 'none',
+              borderLeft: splitDirection === 'horizontal' ? '4px solid var(--primary-color)' : 'none'
+            }}>
               <PageMemoTabList 
                 openedTabs={splitTabs} activeTabId={splitTabId} setActiveTabId={setSplitTabId} 
-                handleCloseTab={handleCloseTab} isSplitMode={isSplitMode} toggleSplitMode={toggleSplitMode} paneType="split"
+                handleCloseTab={handleCloseTab} isSplitMode={isSplitMode} toggleSplitMode={toggleSplitMode} 
+                splitDirection={splitDirection} toggleSplitDirection={toggleSplitDirection} paneType="split"
               />
               {splitTabId ? (
                 <PageMemoEditorPane 
