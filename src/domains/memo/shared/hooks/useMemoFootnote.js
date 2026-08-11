@@ -5,33 +5,55 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
   const [popover, setPopover] = useState({ isOpen: false, x: 0, y: 0, mode: 'view', content: '', targetNode: null });
   const timeoutRef = useRef(null);
 
+  // ★ CSS 정밀 교정: 글자에 착 달라붙도록 margin과 padding 최소화
   useEffect(() => {
     if (!document.getElementById('memo-footnote-styles')) {
       const style = document.createElement('style');
       style.id = 'memo-footnote-styles';
       style.innerHTML = `
-        #memo-edit-content { counter-reset: memo-footnote-counter; }
         .memo-footnote { 
-            counter-increment: memo-footnote-counter; 
             color: var(--primary-color); 
             font-weight: 900; 
             background: var(--table-bg-alt); 
             padding: 0 2px; 
-            margin: 0; 
+            margin: 0 1px; 
             border-radius: 3px; 
             cursor: pointer; 
-            font-size: 0.85em; 
+            font-size: 0.8em; 
             vertical-align: super; 
             text-decoration: none; 
             user-select: none; 
-            display: inline; /* ★ 블록 끊김 현상을 막기 위해 순수 인라인 요소로 유지 */
+            display: inline;
         }
-        .memo-footnote::before { content: "[" counter(memo-footnote-counter) "]"; }
         .memo-footnote:hover { background: rgba(59,91,219,0.2); }
       `;
       document.head.appendChild(style);
     }
   }, []);
+
+  // ★ 번호 재정렬 전담 옵저버
+  useEffect(() => {
+    if (!editorRef.current) return;
+    
+    const updateFootnoteNumbers = () => {
+      const markers = editorRef.current.querySelectorAll('.memo-footnote');
+      markers.forEach((m, idx) => {
+        const exactText = `[${idx + 1}]`;
+        if (m.textContent !== exactText) {
+           m.textContent = exactText;
+        }
+      });
+    };
+
+    const observer = new MutationObserver(() => {
+      updateFootnoteNumbers();
+    });
+    
+    observer.observe(editorRef.current, { childList: true, subtree: true, characterData: true });
+    updateFootnoteNumbers(); 
+    
+    return () => observer.disconnect();
+  }, [editorRef]);
 
   const openPopover = (node, mode = 'view') => {
     const rect = node.getBoundingClientRect();
@@ -56,10 +78,13 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
   const insertFootnote = () => {
     if (!editorRef.current) return;
     editorRef.current.focus();
-    const fnId = `fn_${Date.now()}`;
     
-    // ★ 픽스: 부작용을 일으키던 가짜 투명 발판(&#8203;)을 완전히 제거하고 순수 태그만 삽입합니다.
-    const html = `<sup class="memo-footnote" contenteditable="false" data-id="${fnId}" data-note=""></sup>`;
+    const fnId = `fn_${Date.now()}`;
+    // 삽입 시점의 총 각주 개수를 파악하여 [*] 대신 즉각 번호를 부여
+    const currentCount = editorRef.current.querySelectorAll('.memo-footnote').length + 1;
+    
+    // ★ 핵심 픽스: 각주 뒤에 보이지 않는 공백(&#8203;)을 추가하여 캐럿 함정(클릭 안 됨)과 백스페이스 통째로 날아감 방지
+    const html = `<sup class="memo-footnote" contenteditable="false" data-id="${fnId}" data-note="">[${currentCount}]</sup>&#8203;`;
     
     document.execCommand('insertHTML', false, html);
     if (updateCharCount) updateCharCount();

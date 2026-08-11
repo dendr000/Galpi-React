@@ -1,12 +1,12 @@
+// 파일 위치: src/domains/memo/shared/components/MemoFootnotePopover.jsx
 import React, { useState, useEffect, useRef } from 'react';
 
 const MemoFootnotePopover = ({ popover, closePopover, switchToEdit, updateFootnote, deleteFootnote, timeoutRef }) => {
   const popoverRef = useRef(null);
-  const textareaRef = useRef(null); // ★ 상용구 충돌을 막기 위한 비제어(useRef) 폼
+  const textareaRef = useRef(null); 
   const [adjustedX, setAdjustedX] = useState(0);
 
   useEffect(() => {
-    // 모달이 열릴 때 한 번만 기존 각주 내용을 세팅합니다.
     if (popover.isOpen && popover.mode === 'edit') {
       if (textareaRef.current) {
         textareaRef.current.value = popover.content || '';
@@ -96,7 +96,6 @@ const MemoFootnotePopover = ({ popover, closePopover, switchToEdit, updateFootno
           <button onClick={closePopover} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '14px', padding: 0 }}>✖</button>
         </div>
         
-        {/* ★ 상태(Value/onChange) 연결을 해제하고 물리 렌더링에 의존시켜 먹통 픽스 */}
         <textarea
           ref={textareaRef} 
           placeholder="각주 설명을 입력하세요..."
@@ -105,7 +104,6 @@ const MemoFootnotePopover = ({ popover, closePopover, switchToEdit, updateFootno
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
           <button className="wiki-btn" onClick={deleteFootnote} style={{ padding: '4px 8px', fontSize: '11px', background: 'transparent', color: '#e53e3e', border: '1px solid rgba(229,62,62,0.3)', borderRadius: '4px' }}>🗑️ 삭제</button>
           
-          {/* ★ 적용 시 textareaRef에 입력된 값을 다이렉트로 읽어와 저장합니다. */}
           <button className="wiki-btn" onClick={() => updateFootnote(textareaRef.current.value)} style={{ padding: '4px 12px', fontSize: '11px', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>💾 적용</button>
         </div>
       </div>
