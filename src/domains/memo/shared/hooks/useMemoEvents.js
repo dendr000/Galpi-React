@@ -52,6 +52,26 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
     }
 
     const selection = window.getSelection();
+    
+    // ★ 추가: 큰따옴표(") 자동 완성 및 드래그 텍스트 감싸기 로직
+    if (e.key === '"') {
+      if (selection.rangeCount > 0 && editorRef.current && editorRef.current.contains(selection.anchorNode)) {
+        e.preventDefault();
+        e.stopPropagation();
+        const selectedText = selection.toString();
+        
+        // execCommand를 사용해 Undo(실행 취소) 히스토리를 살림
+        document.execCommand('insertText', false, '"' + selectedText + '"');
+        
+        // 드래그한 텍스트가 없이 허공에 쳤을 경우, 커서를 따옴표 가운데로 텔레포트
+        if (selectedText.length === 0) {
+          selection.modify('move', 'backward', 'character');
+        }
+        if (updateCharCount) updateCharCount();
+        return;
+      }
+    }
+
     if (selection.rangeCount > 0) {
       const anchor = selection.anchorNode;
       const element = anchor.nodeType === 3 ? anchor.parentNode : anchor;

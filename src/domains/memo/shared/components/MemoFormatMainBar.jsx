@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   BoldIcon, ItalicIcon, StrikethroughIcon, FootnoteIcon, LinkIcon,
   TableIcon, TodoIcon, FoldIcon, SearchIcon, TemplateIcon, TemplateSaveIcon,
-  FontResetIcon
+  FontResetIcon, CrackIcon, BabyIcon
 } from './MemoIcons';
 
 const MemoFormatMainBar = ({
@@ -51,6 +51,20 @@ const MemoFormatMainBar = ({
     if (selectRef.current) selectRef.current.value = 'default';
   };
 
+  // ★ 추가: contentEditable 환경에 최적화된 텍스트 감싸기 전용 매크로 함수
+  const applyTextWrap = (prefix, suffix) => {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+    const selectedText = selection.toString();
+    document.execCommand('insertText', false, prefix + selectedText + suffix);
+    
+    if (selectedText.length === 0) {
+      for (let i = 0; i < suffix.length; i++) {
+        selection.modify('move', 'backward', 'character');
+      }
+    }
+  };
+
   const recentFontObjs = recentFonts.map(rf => fontList?.find(f => f.fontFamily === rf)).filter(Boolean);
 
   return (
@@ -93,6 +107,14 @@ const MemoFormatMainBar = ({
       </button>
       <button className="wiki-btn" onClick={() => executeCmd('strikeThrough')} style={iconBtnStyle} title="취소선">
         <StrikethroughIcon />
+      </button>
+
+      {/* Crack, Baby 텍스트 감싸기 매크로 버튼 */}
+      <button className="wiki-btn" onClick={() => applyTextWrap('*', '*')} style={iconBtnStyle} title="별표 감싸기 (*텍스트*)">
+        <CrackIcon />
+      </button>
+      <button className="wiki-btn" onClick={() => applyTextWrap('*(', ')*')} style={iconBtnStyle} title="괄호 감싸기 (*(텍스트)*)">
+        <BabyIcon />
       </button>
       
       <button className="wiki-btn" onClick={insertFootnote} style={iconBtnStyle} title="각주 삽입 (Ctrl+Q)">
