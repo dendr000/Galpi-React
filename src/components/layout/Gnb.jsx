@@ -16,7 +16,7 @@ const Gnb = ({ setIsSettingOpen }) => {
     <header style={{ height: '60px', background: 'var(--surface-color)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', position: 'sticky', top: 0, zIndex: 1000, boxShadow: 'var(--shadow-sm)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
         <h2 style={{ margin: 0, color: 'var(--primary-color)', cursor: 'pointer', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => navigate('/')}>
-          <img src="/img/svg/logo.svg" alt="로고" style={{ height: '24px' }} onError={(e) => e.target.style.display='none'} />
+          <img src="/img/svg/ci.svg" alt="Galpi CI 로고" style={{ height: '24px' }} onError={(e) => e.target.style.display='none'} />
           갈피(galpi)
         </h2>
       </div>

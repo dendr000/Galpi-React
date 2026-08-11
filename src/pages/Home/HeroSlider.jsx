@@ -53,8 +53,6 @@ const HeroSlider = ({ works }) => {
               <div className={styles['hero-overlay']}></div>
               <div className={styles['hero-content']}>
                 <h1 className={styles['hero-title']} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  {/* ★ 지시된 ci.svg 물리적 경로 삽입 */}
-                  <img src="/img/svg/ci.svg" alt="Galpi CI" style={{ width: '45px', height: '45px', filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.5))' }} />
                   {w.title}
                 </h1>
                 <div className={styles['hero-desc']} style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
