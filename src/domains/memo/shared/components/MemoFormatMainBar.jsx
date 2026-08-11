@@ -51,13 +51,14 @@ const MemoFormatMainBar = ({
     if (selectRef.current) selectRef.current.value = 'default';
   };
 
-  // ★ 추가: contentEditable 환경에 최적화된 텍스트 감싸기 전용 매크로 함수
+  // ★ 추가: contentEditable 환경에 최적화된 텍스트 감싸기 전용 매크로 함수 (Undo 스택 보호용)
   const applyTextWrap = (prefix, suffix) => {
     const selection = window.getSelection();
     if (!selection.rangeCount) return;
     const selectedText = selection.toString();
     document.execCommand('insertText', false, prefix + selectedText + suffix);
     
+    // 선택된 텍스트 없이 버튼만 눌렀을 경우, 커서를 기호 정중앙으로 자동 텔레포트
     if (selectedText.length === 0) {
       for (let i = 0; i < suffix.length; i++) {
         selection.modify('move', 'backward', 'character');
@@ -109,7 +110,7 @@ const MemoFormatMainBar = ({
         <StrikethroughIcon />
       </button>
 
-      {/* Crack, Baby 텍스트 감싸기 매크로 버튼 */}
+      {/* ★ 추가: Crack, Baby 텍스트 감싸기 매크로 버튼 */}
       <button className="wiki-btn" onClick={() => applyTextWrap('*', '*')} style={iconBtnStyle} title="별표 감싸기 (*텍스트*)">
         <CrackIcon />
       </button>
