@@ -1,3 +1,4 @@
+// 파일 위치: src/domains/fab_tools/RecentModal.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosCore';

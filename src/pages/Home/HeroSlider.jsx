@@ -1,41 +1,15 @@
 // 파일 위치: src/pages/Home/HeroSlider.jsx
-// 연결 파일: src/pages/Home/Home.module.css와 연결되어 배너 레이아웃을 형성합니다.
-// 기능 요약: 메타데이터에 커버 이미지가 존재하는 작품들을 무작위 추출하여 무한 자동 스와이프를 구현하는 물리 엔진 배너 컴포넌트
-// 버전: v1.0.0
+// 비즈니스 로직을 분리하고, SVG 아이콘과 Flex 레이아웃을 통해 디자인 정렬을 완벽하게 맞춘 순수 뷰(View) 컴포넌트로 재탄생했습니다.
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
+import { useHeroSlider } from './hooks/useHeroSlider';
+import { IconPen, IconTag } from '../../components/common/icons/DomainIcons';
 
 const HeroSlider = ({ works }) => {
   const navigate = useNavigate();
-  const [slideWorks, setSlideWorks] = useState([]);
-  const [currentIdx, setCurrentIdx] = useState(0);
-
-  useEffect(() => {
-    console.log("[HeroSlider] 배너 슬라이드 작품 필터링 연산 개시");
-    const validWorks = works.filter(w => {
-      const m = w.metaInfo?.meta || {};
-      return (m.coverExt && m.coverExt.trim() !== "") || (m.cover && m.cover.trim() !== "");
-    }).sort(() => Math.random() - 0.5);
-
-    setSlideWorks(validWorks);
-    console.log(`[HeroSlider] 배너 슬라이드 확보 수량: ${validWorks.length}개`);
-  }, [works]);
-
-  useEffect(() => {
-    if (slideWorks.length === 0) return;
-    
-    console.log("[HeroSlider] 가로 슬라이딩 무한 루프 타이머 가동 (5초 인터벌)");
-    const interval = setInterval(() => {
-      setCurrentIdx(prev => (prev + 1) % slideWorks.length);
-    }, 5000);
-
-    return () => {
-      console.log("[HeroSlider] 슬라이더 타이머 메모리 해제");
-      clearInterval(interval);
-    };
-  }, [slideWorks.length]);
+  const { slideWorks, currentIdx } = useHeroSlider(works);
 
   if (slideWorks.length === 0) return null;
 
@@ -83,9 +57,15 @@ const HeroSlider = ({ works }) => {
                   <img src="/img/svg/ci.svg" alt="Galpi CI" style={{ width: '45px', height: '45px', filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.5))' }} />
                   {w.title}
                 </h1>
-                <p className={styles['hero-desc']}>
-                  ✍️ {w.creator || '미상'} &nbsp;|&nbsp; 🏷️ {genreHtml}
-                </p>
+                <div className={styles['hero-desc']} style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <IconPen size={14} color="rgba(255,255,255,0.8)" /> {w.creator || '미상'}
+                  </span>
+                  <span style={{ opacity: 0.5 }}>|</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <IconTag size={14} color="rgba(255,255,255,0.8)" /> {genreHtml}
+                  </span>
+                </div>
               </div>
             </div>
           );

@@ -46,7 +46,7 @@ const FabMemoTreeRenderer = ({ node, sidebarHooks, currentFolder, setCurrentFold
               </div>
             </div>
 
-            {/* 자식 폴더가 열려있을 경우 재귀 호출 - 수정: FabMemoTreeRenderer 명칭 통일 */}
+            {/* 자식 폴더가 열려있을 경우 재귀 호출 - FabMemoTreeRenderer 명칭 통일 */}
             {isChildExpanded && (
               <FabMemoTreeRenderer
                 node={childNode}
@@ -62,7 +62,7 @@ const FabMemoTreeRenderer = ({ node, sidebarHooks, currentFolder, setCurrentFold
         );
       })}
 
-      {/* 해당 레벨에 존재하는 메모 아이템 렌더링 - 수정: FabMemoItem 명칭 통일 */}
+      {/* 해당 레벨에 존재하는 메모 아이템 렌더링 - FabMemoItem 명칭 통일 */}
       <div style={{ minHeight: '5px' }}>
         {node.memos.map((m) => (
           <FabMemoItem

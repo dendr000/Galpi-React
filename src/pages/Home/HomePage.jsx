@@ -1,14 +1,13 @@
 // 파일 위치: src/pages/Home/HomePage.jsx
-// 연결 파일: src/pages/Home/Home.module.css와 연결되며, 분리된 훅과 컴포넌트들을 하나로 조립하여 출력합니다.
-// 기능 요약: 메인 대시보드의 검색 툴바, 뷰 모드 스위처, Datalist 추천 검색, 갤러리 그리드를 렌더링하는 진입 페이지 컴포넌트
-// 버전: v2.0.0
-
+// 기능 요약: 이모지 제거, 도메인 SVG 연결, 하위 분할 훅 연결 및 최종 UI 렌더링을 담당하는 클린 허브로 재작성되었습니다.
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
-import { useHomeData } from './useHomeData';
+import { useHomeData } from './hooks/useHomeData';
 import HeroSlider from './HeroSlider';
 import WorkCard from './WorkCard';
+import { IconBook, IconArchive } from '../../components/common/icons/DomainIcons';
+import { IconViewGrid, IconViewSmall, IconViewList } from './components/HomeIcons';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -35,15 +34,17 @@ const HomePage = () => {
         {/* 2. 툴바 영역 (필터 및 검색 엔진 UI) */}
         <div className={styles['toolbar-wrap']}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <h2 style={{ margin: '0 15px 0 0', fontSize: '22px', fontWeight: 800 }}>📚 세계관 목록</h2>
+            <h2 style={{ margin: '0 15px 0 0', fontSize: '22px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <IconBook size={24} color="var(--primary-color)" /> 세계관 목록
+            </h2>
             
             <button 
               type="button" 
               className="wiki-btn" 
-              style={{ background: 'var(--surface-color)', color: 'var(--primary-color)', border: '1px solid var(--primary-color)', borderRadius: '6px', padding: '6px 12px', fontSize: '13px', fontWeight: 900, cursor: 'pointer', transition: '0.2s', boxShadow: '0 2px 6px rgba(59,91,219,0.15)' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--surface-color)', color: 'var(--primary-color)', border: '1px solid var(--primary-color)', borderRadius: '6px', padding: '6px 12px', fontSize: '13px', fontWeight: 900, cursor: 'pointer', transition: '0.2s', boxShadow: '0 2px 6px rgba(59,91,219,0.15)' }}
               onClick={() => navigate('/category')}
             >
-              🗂️ 전체 분류 보기
+              <IconArchive size={16} /> 전체 분류 보기
             </button>
             
             <select className={styles['filter-select']} value={sortType} onChange={(e) => setSortType(e.target.value)}>
@@ -99,9 +100,9 @@ const HomePage = () => {
               {isLoading ? '로딩 중...' : `총 ${filteredWorks.length}개`}
             </span>
             <div className={styles['view-btn-group']}>
-              <button className={`${styles['view-btn']} ${viewMode === 'grid' ? styles.active : ''}`} onClick={() => setViewMode('grid')} title="큰 카드 뷰">🔲</button>
-              <button className={`${styles['view-btn']} ${viewMode === 'small' ? styles.active : ''}`} onClick={() => setViewMode('small')} title="작은 카드 뷰">▦</button>
-              <button className={`${styles['view-btn']} ${viewMode === 'list' ? styles.active : ''}`} onClick={() => setViewMode('list')} title="리스트 뷰">📄</button>
+              <button className={`${styles['view-btn']} ${viewMode === 'grid' ? styles.active : ''}`} onClick={() => setViewMode('grid')} title="큰 카드 뷰" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconViewGrid size={16} /></button>
+              <button className={`${styles['view-btn']} ${viewMode === 'small' ? styles.active : ''}`} onClick={() => setViewMode('small')} title="작은 카드 뷰" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconViewSmall size={16} /></button>
+              <button className={`${styles['view-btn']} ${viewMode === 'list' ? styles.active : ''}`} onClick={() => setViewMode('list')} title="리스트 뷰" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconViewList size={16} /></button>
             </div>
           </div>
         </div>

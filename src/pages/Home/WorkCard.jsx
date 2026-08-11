@@ -1,11 +1,9 @@
 // 파일 위치: src/pages/Home/WorkCard.jsx
-// 연결 파일: src/pages/Home/Home.module.css와 연결되어 개별 작품의 그리드 및 리스트 디자인을 형성합니다.
-// 기능 요약: 뷰 모드에 따른 개별 작품 카드 렌더링, 즐겨찾기 토글, 상태 토글, 빠른 태그 검색 인터랙션을 제공하는 컴포넌트
-// 버전: v1.0.0
-
+// 기능 요약: 이모지(⭐/☆, ✍️)를 제거하고 DomainIcons.jsx의 커스텀 SVG로 교체하여 브라우저 간 렌더링 파편화를 막았습니다.
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
+import { IconStarActive, IconStarInactive, IconPen } from '../../components/common/icons/DomainIcons';
 
 const WorkCard = ({ work, viewMode, isFav, onToggleFav, onToggleStatus, onQuickTagSearch }) => {
   const navigate = useNavigate();
@@ -39,8 +37,9 @@ const WorkCard = ({ work, viewMode, isFav, onToggleFav, onToggleStatus, onQuickT
         className={`${styles['fav-btn']} ${isFav ? styles['active'] : ''}`} 
         onClick={(e) => onToggleFav(e, work.id)} 
         title="즐겨찾기 추가/해제"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       >
-        {isFav ? '⭐' : '☆'}
+        {isFav ? <IconStarActive size={18} /> : <IconStarInactive size={18} color="var(--text-secondary)" />}
       </button>
 
       <span 
@@ -52,7 +51,9 @@ const WorkCard = ({ work, viewMode, isFav, onToggleFav, onToggleStatus, onQuickT
       </span>
 
       <h3 className={styles['work-card-title']}>{work.title}</h3>
-      <div className={styles['work-card-creator']}>✍️ {work.creator || '미상'}</div>
+      <div className={styles['work-card-creator']} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <IconPen size={12} color="var(--text-secondary)" /> {work.creator || '미상'}
+      </div>
       <div className={styles['work-card-preview']}></div>
       
       <div className={styles['work-card-genres']}>
