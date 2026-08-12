@@ -19,7 +19,7 @@ const EditorPage = () => {
     workContext, isHidden, setIsHidden
   } = useEditorData();
 
-  const [layoutMode, setLayoutMode] = useState('dual');
+  const [layoutMode, setLayoutMode] = useState('focus'); // ★ 기본값을 'dual'에서 'focus'로 변경
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const badgeText = 
