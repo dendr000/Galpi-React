@@ -46,7 +46,6 @@ export const parseWikiText = (text) => {
             if (inQuote) { newLines.push(`\n<div class="galpi-ext-quote">${quoteBuffer.join('<br>')}</div>\n`); inQuote = false; quoteBuffer = []; }
             if (!inTable) { 
                 inTable = true; 
-                // 변경: <table> 태그에 묶여있던 text-align:center;를 제거하여 강제 중앙 정렬 버그 원천 차단
                 tableBuffer.push('<div style="overflow-x:auto; margin: 15px 0;"><table style="width:100%; border-collapse:collapse; background:var(--surface-color); font-size:13px; border-radius:8px; border-style:hidden; box-shadow:0 0 0 1px var(--border-color), 0 2px 8px rgba(0,0,0,0.02);"><tbody>'); 
             }
             let cells = trimmed.substring(2, trimmed.length - 2).split('||');
@@ -59,7 +58,6 @@ export const parseWikiText = (text) => {
                 let colSpan = 1;
                 let rowSpan = 1;
                 
-                // 변경: 옵션 태그(<left>, <-2> 등)를 정규식으로 안전하게 파싱하여 속성값으로 반영
                 let match = cellContent.match(/^<([a-z0-9,\-|]+)>/i);
                 if (match) {
                     let isValid = false;
@@ -79,7 +77,6 @@ export const parseWikiText = (text) => {
                 if (colSpan > 1) attrs += ` colspan="${colSpan}"`;
                 if (rowSpan > 1) attrs += ` rowspan="${rowSpan}"`;
 
-                // 변경: 파싱된 align 속성을 개별 셀 스타일(text-align)에 명시적으로 주입
                 tableBuffer.push(`<${tag}${attrs} style="border:1px solid var(--border-color); padding:10px 14px; text-align:${align}; ${bg}">${cellContent}</${tag}>`);
             });
             tableBuffer.push('</tr>');
@@ -103,11 +100,11 @@ export const parseWikiText = (text) => {
     preText = preText.replace(/▤REL_END▤/g, '[\/RELATION_GRAPH]');
     preText = preText.replace(/▤META_START▤:/g, '[META_DATA:');
 
-    // ★ 각주 [* 내용] 파서 복구
+    // ★ 각주 [* 내용] 파서 강화 (멀티라인 감지 및 br 태그 치환으로 팝오버 줄바꿈 허용)
     let fnCount = 1;
-    preText = preText.replace(/\[\*(.*?)\]/g, (match, content) => {
+    preText = preText.replace(/\[\*([\s\S]*?)\]/g, (match, content) => {
         const num = fnCount++;
-        const escaped = content.trim().replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const escaped = content.trim().replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
         return `<sup class="wiki-footnote" data-content="${escaped}" style="cursor:help; color:var(--primary-color); font-weight:bold;">[${num}]</sup>`;
     });
 

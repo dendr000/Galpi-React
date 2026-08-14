@@ -1,9 +1,8 @@
 // 파일 위치: src/domains/macro/hooks/useFootnoteTooltip.js
 // 기능 요약: 
 // - 마크다운 텍스트 내에서 파싱된 각주([*내용]) 요소에 대한 전역 마우스 이벤트를 통제하는 커스텀 훅입니다.
-// - 특정 요소 호버 시 `document.body` 최상단에 물리적인 Tooltip DOM 노드를 동적으로 생성/부착합니다.
 // - 부모 컨테이너의 `overflow: hidden` 제약으로 인해 팝오버가 잘려나가는 현상(Clipping)을 원천 차단합니다.
-// - 화면의 가장자리 경계를 인식하여 툴팁의 좌표를 동적으로 조정하는 안전망 로직을 포함하고 있습니다.
+// - 띄어쓰기가 없는 무식한 문자열이 들어와도 가로로 폭주하지 않도록 CSS 줄바꿈(Break-all) 안전망을 갖추고 있습니다.
 
 import { useEffect } from 'react';
 
@@ -16,18 +15,27 @@ export const useFootnoteTooltip = () => {
         if (!tooltip) {
           tooltip = document.createElement('div');
           tooltip.id = 'wiki-footnote-tooltip';
-          tooltip.style.cssText = "display:none; position:absolute; z-index:999999; background:var(--surface-color); border:2px solid var(--primary-color); border-radius:8px; padding:12px 16px; box-shadow:0 4px 15px rgba(0,0,0,0.2); max-width:300px; font-size:13px; font-weight:normal; line-height:1.6; word-break:keep-all; color:var(--text-primary); pointer-events:none;";
+          // ★ absolute -> fixed로 교체하여 스크롤 꼬임 및 부모 제약 완벽 탈피, white-space/word-break로 가로 폭주 차단
+          tooltip.style.cssText = "display:none; position:fixed; z-index:999999; background:var(--surface-color); border:2px solid var(--primary-color); border-radius:8px; padding:12px 16px; box-shadow:0 4px 20px rgba(0,0,0,0.15); max-width:350px; font-size:13px; font-weight:normal; line-height:1.6; word-break:break-all; white-space:pre-wrap; color:var(--text-primary); pointer-events:none; box-sizing:border-box;";
           document.body.appendChild(tooltip);
         }
         tooltip.innerHTML = target.getAttribute('data-content');
         tooltip.style.display = 'block';
         
         const rect = target.getBoundingClientRect();
-        const top = rect.bottom + window.scrollY + 8;
-        let left = rect.left + window.scrollX - (tooltip.offsetWidth / 2) + (rect.width / 2);
         
+        // fixed 포지셔닝에 맞춰 scrollY 덧셈 제거
+        let top = rect.bottom + 8; 
+        let left = rect.left - (tooltip.offsetWidth / 2) + (rect.width / 2);
+        
+        // 좌우 화면 이탈 보정
         if (left < 10) left = 10;
         if (left + tooltip.offsetWidth > window.innerWidth - 10) left = window.innerWidth - tooltip.offsetWidth - 10;
+        
+        // 하단 화면 이탈 시 마커의 위쪽으로 팝업을 밀어올리는 스마트 Y좌표 보정
+        if (top + tooltip.offsetHeight > window.innerHeight - 10) {
+            top = rect.top - tooltip.offsetHeight - 8;
+        }
         
         tooltip.style.top = top + 'px';
         tooltip.style.left = left + 'px';
