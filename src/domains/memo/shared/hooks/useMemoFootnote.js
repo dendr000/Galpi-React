@@ -5,7 +5,7 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
   const [popover, setPopover] = useState({ isOpen: false, x: 0, y: 0, mode: 'view', content: '', targetNode: null });
   const timeoutRef = useRef(null);
 
-  // ★ CSS 정밀 교정: 글자에 착 달라붙도록 margin과 padding 최소화
+  // ★ CSS 정밀 교정: 줄바꿈 방지를 위해 inline-block 적용 및 여백 최소화
   useEffect(() => {
     if (!document.getElementById('memo-footnote-styles')) {
       const style = document.createElement('style');
@@ -15,15 +15,17 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
             color: var(--primary-color); 
             font-weight: 900; 
             background: var(--table-bg-alt); 
-            padding: 0 2px; 
-            margin: 0 1px; 
+            padding: 0 1px; /* ★ 내부 여백 압축 */
+            margin: 0; /* ★ 외부 여백 완전 제거 (글자에 밀착) */
             border-radius: 3px; 
             cursor: pointer; 
             font-size: 0.8em; 
             vertical-align: super; 
             text-decoration: none; 
             user-select: none; 
-            display: inline;
+            display: inline-block; /* ★ 렌더링 튕김 방지 */
+            white-space: nowrap;
+            line-height: 1;
         }
         .memo-footnote:hover { background: rgba(59,91,219,0.2); }
       `;
@@ -83,8 +85,9 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
     // 삽입 시점의 총 각주 개수를 파악하여 [*] 대신 즉각 번호를 부여
     const currentCount = editorRef.current.querySelectorAll('.memo-footnote').length + 1;
     
-    // ★ 핵심 픽스: 각주 뒤에 보이지 않는 공백(&#8203;)을 추가하여 캐럿 함정(클릭 안 됨)과 백스페이스 통째로 날아감 방지
-    const html = `<sup class="memo-footnote" contenteditable="false" data-id="${fnId}" data-note="">[${currentCount}]</sup>&#8203;`;
+    // ★ 핵심 픽스: 각주 양옆(앞뒤)에 보이지 않는 공백(&#8203;)을 추가하는 양방향 샌드위치 랩핑. 
+    // 브라우저가 문장 끝을 오해하여 각주를 아랫줄로 던져버리는 현상을 원천 차단합니다.
+    const html = `&#8203;<sup class="memo-footnote" contenteditable="false" data-id="${fnId}" data-note="">[${currentCount}]</sup>&#8203;`;
     
     document.execCommand('insertHTML', false, html);
     if (updateCharCount) updateCharCount();

@@ -1,5 +1,6 @@
 // 파일 위치: src/domains/memo/shared/components/MemoFootnotePopover.jsx
 import React, { useState, useEffect, useRef } from 'react';
+import { PinIcon, XIcon, TrashIcon, SaveIcon } from './MemoIcons';
 
 const MemoFootnotePopover = ({ popover, closePopover, switchToEdit, updateFootnote, deleteFootnote, timeoutRef }) => {
   const popoverRef = useRef(null);
@@ -40,6 +41,7 @@ const MemoFootnotePopover = ({ popover, closePopover, switchToEdit, updateFootno
 
   if (!popover.isOpen) return null;
 
+  // [모드 1] 마우스 호버 시 보여주는 뷰 모드
   if (popover.mode === 'view') {
     return (
       <div
@@ -55,13 +57,14 @@ const MemoFootnotePopover = ({ popover, closePopover, switchToEdit, updateFootno
           background: 'rgba(0, 0, 0, 0.85)',
           color: 'white',
           borderRadius: '6px',
-          padding: '8px 12px',
+          padding: '10px 14px',
           boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-          maxWidth: '300px',
+          maxWidth: '350px',
+          width: 'max-content',
           cursor: 'pointer',
-          fontSize: '12px',
-          lineHeight: 1.5,
-          wordBreak: 'keep-all',
+          fontSize: '13px',
+          lineHeight: 1.6,
+          wordBreak: 'break-all',
           whiteSpace: 'pre-wrap', 
           boxSizing: 'border-box'
         }}
@@ -71,6 +74,7 @@ const MemoFootnotePopover = ({ popover, closePopover, switchToEdit, updateFootno
     );
   }
 
+  // [모드 2] 클릭 시 나타나는 입력/수정/삭제 모달 패널 (넓이 360px로 확장 및 SVG 적용)
   return (
     <div
       ref={popoverRef}
@@ -83,28 +87,37 @@ const MemoFootnotePopover = ({ popover, closePopover, switchToEdit, updateFootno
         background: 'var(--surface-color)',
         border: '2px solid var(--primary-color)',
         borderRadius: '8px',
-        padding: '12px',
-        boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
-        width: '260px',
-        maxWidth: '85vw',
+        padding: '16px',
+        boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
+        width: '360px',
+        maxWidth: '90vw',
         boxSizing: 'border-box'
       }}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '6px' }}>
-          <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--primary-color)' }}>📌 각주 편집</span>
-          <button onClick={closePopover} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '14px', padding: 0 }}>✖</button>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+          <span style={{ fontSize: '13px', fontWeight: '900', color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <PinIcon size={14} /> 각주 편집
+          </span>
+          <button onClick={closePopover} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', borderRadius: '4px', transition: '0.2s' }}>
+            <XIcon size={16} />
+          </button>
         </div>
         
         <textarea
           ref={textareaRef} 
-          placeholder="각주 설명을 입력하세요..."
-          style={{ width: '100%', height: '80px', padding: '8px', fontSize: '13px', background: 'var(--bg-color)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '4px', outline: 'none', resize: 'none', boxSizing: 'border-box' }}
+          placeholder="각주 설명을 상세히 입력하세요..."
+          style={{ width: '100%', minHeight: '120px', padding: '10px', fontSize: '13px', background: 'var(--bg-color)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: '1.5' }}
         />
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
-          <button className="wiki-btn" onClick={deleteFootnote} style={{ padding: '4px 8px', fontSize: '11px', background: 'transparent', color: '#e53e3e', border: '1px solid rgba(229,62,62,0.3)', borderRadius: '4px' }}>🗑️ 삭제</button>
+        
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
+          <button className="wiki-btn" onClick={deleteFootnote} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 10px', fontSize: '11.5px', background: 'transparent', color: '#e53e3e', border: '1px solid rgba(229,62,62,0.3)', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
+            <TrashIcon /> 삭제
+          </button>
           
-          <button className="wiki-btn" onClick={() => updateFootnote(textareaRef.current.value)} style={{ padding: '4px 12px', fontSize: '11px', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>💾 적용</button>
+          <button className="wiki-btn" onClick={() => updateFootnote(textareaRef.current.value)} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 16px', fontSize: '11.5px', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
+            <SaveIcon /> 적용
+          </button>
         </div>
       </div>
     </div>
