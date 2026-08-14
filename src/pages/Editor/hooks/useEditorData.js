@@ -1,7 +1,7 @@
 // 파일 위치: src/pages/Editor/hooks/useEditorData.js
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import api from '../../api/axiosCore';
+import api from '../../../api/axiosCore';
 import { useEditorState } from './useEditorState';
 import { useEditorFetch } from './useEditorFetch';
 import { useEditorSave } from './useEditorSave';

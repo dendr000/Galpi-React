@@ -98,9 +98,12 @@ export const parseWikiText = (text) => {
     if (inQuote) { newLines.push(`\n<div class="galpi-ext-quote">${quoteBuffer.join('<br>')}</div>\n`); }
     preText = newLines.join('\n');
 
-    preText = preText.replace(/▤REL_START▤/g, '[RELATION_GRAPH]');
+   preText = preText.replace(/▤REL_START▤/g, '[RELATION_GRAPH]');
     preText = preText.replace(/▤REL_END▤/g, '[\/RELATION_GRAPH]');
     preText = preText.replace(/▤META_START▤:/g, '[META_DATA:');
+
+    // ★ 누락되었던 백링크 [[문서명]] 파싱 정규식 추가
+    preText = preText.replace(/\[\[(.*?)\]\]/g, '<span class="wiki-backlink">$1</span>');
 
     // ★ 각주 [* 내용] 파서 강화 (멀티라인 감지 및 br 태그 치환으로 팝오버 줄바꿈 허용)
     let fnCount = 1;

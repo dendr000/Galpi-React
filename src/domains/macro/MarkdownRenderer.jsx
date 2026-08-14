@@ -1,7 +1,4 @@
-// 파일 위치: src/domains/macro/MarkdownRenderer.jsx
-// 기능 요약: 위키 커스텀 매크로(스포일러, 대화 초상화, 스탯 비교, 성향 매트릭스, 탭 등 신규 5종 포함)를 순수 HTML로 파싱하고 DOM 컨트롤 훅을 래핑하는 최종 렌더러
-// 버전: v1.4.0 (다중 확장 매크로 통합 파이프라인 대응)
-
+// src/domains/macro/MarkdownRenderer.jsx
 import React, { useMemo, useRef } from 'react';
 import { marked } from 'marked';
 import { parseWikiText } from '../../utils/markdownParser';
@@ -30,18 +27,15 @@ const MarkdownRenderer = ({ rawText, onNodeClick, startH1 = 1 }) => {
     let parsedText = parseWikiText(rawText);
     let rawHtml = marked.parse(parsedText, { breaks: true });
 
-    // 신규 확장: 스포일러 블록 및 아바타 챗버블(표정 포함) 매핑
     rawHtml = rawHtml.replace(/(?:<p>)?\[스포일러\]([\s\S]*?)\[\/스포일러\](?:<\/p>)?/g, (m, content) => createSpoilerHtml(content));
     rawHtml = rawHtml.replace(/(?:<p>)?\[(대화|우대화):\s*(.*?)(?:\((.*?)\))?:\s*\]?([\s\S]*?)\[\/(?:대화|우대화)\](?:<\/p>)?/g, (m, type, name, expr, msg) => createChatHtml(type, name, expr, msg));
 
-    // 기존 및 신규 그래픽 위젯(스탯 비교, 성향 매트릭스, 인라인 탭) 매핑
     rawHtml = rawHtml.replace(/(?:<p>)?\[스탯:(.*?)\](?:<\/p>)?/g, (m, p1) => createRadarChartHtml(p1.replace(/<[^>]*>?/gm, ''))); 
     rawHtml = rawHtml.replace(/(?:<p>)?\[스탯비교:(.*?)\](?:<\/p>)?/g, (m, p1) => createRadarCompareHtml(p1.replace(/<[^>]*>?/gm, ''))); 
     rawHtml = rawHtml.replace(/(?:<p>)?\[성향:(.*?)\](?:<\/p>)?/g, (m, p1) => createAlignmentChartHtml(p1.replace(/<[^>]*>?/gm, ''))); 
     rawHtml = rawHtml.replace(/(?:<p>)?\[게이지:(.*?)\](?:<\/p>)?/g, (m, p1) => createBarGraphHtml(p1.replace(/<[^>]*>?/gm, ''))); 
     rawHtml = rawHtml.replace(/(?:<p>)?\[TIMELINE\]([\s\S]*?)\[\/TIMELINE\](?:<\/p>)?/g, (m, content) => createTimelineHtml(content.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>?/gm, ''))); 
     rawHtml = rawHtml.replace(/(?:<p>)?\[RELATION_GRAPH\]([\s\S]*?)\[\/RELATION_GRAPH\](?:<\/p>)?/g, (m, content) => createRelationGraphHtml(content.replace(/<[^>]*>?/gm, '')));
-    // 매크로 함수명 일치(createLogTabHtml) 및 탭 이름(p1)과 본문(p2)을 정확히 분리하여 파라미터로 전달
     rawHtml = rawHtml.replace(/(?:<p>)?\[로그탭:(.*?)\]([\s\S]*?)\[\/로그탭\](?:<\/p>)?/g, (m, p1, p2) => createLogTabHtml(p1, p2.replace(/<[^>]*>?/gm, '')));
 
     return processMarkdownHtml(rawHtml, startH1);
@@ -60,6 +54,17 @@ const MarkdownRenderer = ({ rawText, onNodeClick, startH1 = 1 }) => {
         .markdown-body h2:first-child, .markdown-body h3:first-child { margin-top: 0; }
         .galpi-spoiler { background-color: #111; color: #111; cursor: pointer; padding: 2px 6px; border-radius: 4px; font-weight: bold; transition: color 0.3s ease; }
         .galpi-spoiler:hover { color: #fff; }
+        
+        /* ★ 백링크(하이퍼링크) 텍스트 강제 제어 (밑줄 삭제, 순수 파란 텍스트) */
+        .wiki-backlink { 
+          color: var(--primary-color) !important; 
+          font-weight: 900; 
+          text-decoration: none !important; 
+          border-bottom: none !important; 
+          cursor: pointer; 
+          transition: opacity 0.2s ease; 
+        }
+        .wiki-backlink:hover { opacity: 0.6; }
       `}</style>
       <div 
         ref={containerRef}
