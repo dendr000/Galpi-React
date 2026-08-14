@@ -5,7 +5,7 @@ import styles from '../EditorPage.module.css';
 import EditorToolbar from './EditorToolbar';
 
 const EditorWritePane = ({
-  docType, title, setTitle, rawText, setRawText, editorRef, handleEditorKeyDown
+  docType, title, setTitle, rawText, setRawText, editorRef, handleEditorKeyDown, fontList
 }) => {
 
   // 내부 서식 단축키(Ctrl+B, Ctrl+I 등) 적용을 위한 로직
@@ -86,6 +86,7 @@ const EditorWritePane = ({
       <EditorToolbar 
         editorRef={editorRef}
         setRawText={setRawText}
+        fontList={fontList} // ★ 툴바로 전달
       />
 
       <textarea 

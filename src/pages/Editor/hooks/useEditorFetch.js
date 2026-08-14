@@ -8,8 +8,32 @@ export const useEditorFetch = ({
   docType, docAction, targetId, targetWorkId,
   setLoading, setTitle, setRawText, setOverviewText,
   setWorkMeta, setWorkContext, setThemeColor, setIsHidden,
-  setCardLabels, setCharProps
+  setCardLabels, setCharProps, setFontList // ★ 폰트 세터 수신
 }) => {
+  
+  // ★ 폰트 데이터 패치 및 글로벌 CSS 주입 파이프라인
+  useEffect(() => {
+    api.get('/api/fonts').then(res => {
+      if (res.data && res.data.length > 0) {
+        const sortedFonts = res.data.sort((a, b) => a.displayName.localeCompare(b.displayName, 'ko-KR'));
+        setFontList(sortedFonts);
+        
+        const styleId = 'galpi-dynamic-fonts';
+        if (!document.getElementById(styleId)) {
+          const style = document.createElement('style');
+          style.id = styleId;
+          let css = '';
+          sortedFonts.forEach(f => {
+            // 마크다운 파서와의 호환성을 위해 displayName을 폰트 패밀리 명칭으로 직결
+            css += `@font-face { font-family: '${f.displayName}'; src: url('/fonts/${f.filename}'); }\n`;
+          });
+          style.innerHTML = css;
+          document.head.appendChild(style);
+        }
+      }
+    }).catch(e => console.warn("[useEditorFetch] 폰트 스캔 실패:", e));
+  }, [setFontList]);
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);

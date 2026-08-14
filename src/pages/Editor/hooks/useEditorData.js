@@ -1,4 +1,4 @@
-// 파일 위치: src/pages/Editor/useEditorData.js
+// 파일 위치: src/pages/Editor/hooks/useEditorData.js
 import { useSearchParams } from 'react-router-dom';
 import { useEditorState } from './useEditorState';
 import { useEditorFetch } from './useEditorFetch';

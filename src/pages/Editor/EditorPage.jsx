@@ -16,7 +16,7 @@ const EditorPage = () => {
     title, setTitle, rawText, setRawText, overviewText, setOverviewText,
     workMeta, setWorkMeta, charProps, setCharProps, themeColor, setThemeColor,
     cardLabels, setCardLabels, editorRef, handleGoBack, handleSave, saveStatus,
-    workContext, isHidden, setIsHidden
+    workContext, isHidden, setIsHidden, fontList // ★ 훅에서 추출
   } = useEditorData();
 
   const [layoutMode, setLayoutMode] = useState('focus'); // 기본값을 'dual'에서 'focus'로 변경
@@ -129,6 +129,7 @@ const EditorPage = () => {
               setRawText={setRawText}
               editorRef={editorRef}
               handleEditorKeyDown={handleEditorKeyDown}
+              fontList={fontList} // ★ 패널로 폰트 리스트 하달
             />
         </div>
       </div>

@@ -12,7 +12,9 @@ export const parseWikiText = (text) => {
 
     preText = preText.replace(/\[폰트:(.*?):([\s\S]*?)\]/g, (match, fontName, content) => {
         const fontMap = { '궁서': "'Gungsuh', '궁서', serif", '바탕': "'Batang', '바탕', serif", '돋움': "'Dotum', '돋움', sans-serif", '굴림': "'Gulim', '굴림', sans-serif", '명조': "'Noto Serif KR', serif" };
-        return `<span style="font-family: ${fontMap[fontName.trim()] || "inherit"};">${content}</span>`;
+        // ★ 하드코딩된 폰트가 아닐 경우, 동적 주입된 폰트 이름(displayName)을 폰트 패밀리로 렌더링하도록 픽스
+        const family = fontMap[fontName.trim()] || `'${fontName.trim()}', sans-serif`;
+        return `<span style="font-family: ${family};">${content}</span>`;
     });
     preText = preText.replace(/\[크기:([0-9]+):([\s\S]*?)\]/g, (match, size, content) => `<span style="font-size: ${size}px;">${content}</span>`);
     preText = preText.replace(/\[정렬:(좌측|중앙|우측):([\s\S]*?)\]/g, (match, alignName, content) => {

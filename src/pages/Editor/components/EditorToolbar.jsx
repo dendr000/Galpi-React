@@ -1,14 +1,14 @@
 // 절대 경로: src/pages/Editor/components/EditorToolbar.jsx
-// 기능 요약: 텍스트 에디터의 서식 지정(글꼴, 크기, 굵기 등) 및 텍스트 정렬 기능을 제공하는 툴바 컴포넌트 v1.2.0
+// 기능 요약: 텍스트 에디터의 서식 지정(글꼴, 크기, 굵기 등) 및 텍스트 정렬 기능을 제공하는 툴바 컴포넌트 v1.3.0 (Ctrl+Z 히스토리 보존 패치)
 
 import React from 'react';
 import styles from '../EditorPage.module.css';
 import { BoldIcon, ItalicIcon, StrikethroughIcon, AlignCenterIcon, AlignRightIcon, IndentIcon, SortIcon } from './EditorIcons';
 
-const EditorToolbar = ({ editorRef, setRawText }) => {
+const EditorToolbar = ({ editorRef, setRawText, fontList }) => {
   console.log("[EditorToolbar] 컴포넌트 렌더링 됨");
 
-  // 기능: 마크다운 텍스트 영역에 특정 포맷(태그)을 씌우거나 벗기는 로직을 수행합니다.
+  // 기능: 마크다운 텍스트 영역에 특정 포맷(태그)을 씌우거나 벗기는 로직을 수행합니다. (Ctrl+Z 보존)
   const applyTextFormat = (prefix, suffix) => {
     console.log(`[EditorToolbar] 텍스트 서식 적용 호출됨 - prefix: ${prefix}, suffix: ${suffix}`);
     const textarea = editorRef.current;
@@ -29,7 +29,14 @@ const EditorToolbar = ({ editorRef, setRawText }) => {
     let isUnwrap = (before === prefix && after === suffix);
     let newInsertedText = isUnwrap ? selected : prefix + selected + suffix;
 
-    setRawText(text.substring(0, isUnwrap ? start - prefix.length : start) + newInsertedText + text.substring(isUnwrap ? end + suffix.length : end));
+    // ★ 핵심 픽스: setRawText로 전체를 덮어씌우지 않고, 변경할 텍스트 구간만 정확히 블록 지정하여 네이티브 명령으로 삽입 (Undo 스택 보존)
+    if (isUnwrap) {
+      textarea.setSelectionRange(start - prefix.length, end + suffix.length);
+    } else {
+      textarea.setSelectionRange(start, end);
+    }
+
+    document.execCommand('insertText', false, newInsertedText);
 
     setTimeout(() => {
       textarea.focus();
@@ -42,7 +49,7 @@ const EditorToolbar = ({ editorRef, setRawText }) => {
     }, 0);
   };
 
-  // 기능: 선택된 영역의 여러 줄 텍스트를 가나다순으로 정렬합니다.
+  // 기능: 선택된 영역의 여러 줄 텍스트를 가나다순으로 정렬합니다. (Ctrl+Z 보존)
   const sortSelectedLines = () => {
     console.log("[EditorToolbar] 가나다 정렬 호출됨");
     const textarea = editorRef.current;
@@ -62,7 +69,10 @@ const EditorToolbar = ({ editorRef, setRawText }) => {
     lines.sort((a, b) => a.localeCompare(b, 'ko-KR'));
     const sortedText = lines.join('\n');
 
-    setRawText(text.substring(0, start) + sortedText + text.substring(end));
+    // ★ 여기도 동일하게 execCommand 적용
+    textarea.setSelectionRange(start, end);
+    document.execCommand('insertText', false, sortedText);
+
     setTimeout(() => {
       textarea.focus();
       textarea.setSelectionRange(start, start + sortedText.length);
@@ -82,7 +92,7 @@ const EditorToolbar = ({ editorRef, setRawText }) => {
         minHeight: '44px' 
       }}
     >
-      {/* 글꼴 변경 드롭다운 */}
+      {/* 글꼴 변경 드롭다운 (백엔드 연동 자동 렌더링) */}
       <select 
         className={styles.formatSelect} 
         defaultValue="" 
@@ -92,14 +102,22 @@ const EditorToolbar = ({ editorRef, setRawText }) => {
             e.target.value = ''; 
           } 
         }}
-        style={{ height: '32px', padding: '0 8px', borderRadius: '4px', border: '1px solid var(--border-color)', boxSizing: 'border-box' }}
+        style={{ height: '32px', padding: '0 8px', borderRadius: '4px', border: '1px solid var(--border-color)', boxSizing: 'border-box', maxWidth: '140px' }}
       >
         <option value="" disabled>글꼴 변경</option>
-        <option value="명조">명조체</option>
-        <option value="궁서">궁서체</option>
-        <option value="바탕">바탕체</option>
-        <option value="돋움">돋움체</option>
-        <option value="굴림">굴림체</option>
+        {fontList && fontList.length > 0 ? (
+          fontList.map(f => (
+            <option key={f.fontFamily} value={f.displayName}>{f.displayName}</option>
+          ))
+        ) : (
+          <>
+            <option value="명조">명조체</option>
+            <option value="궁서">궁서체</option>
+            <option value="바탕">바탕체</option>
+            <option value="돋움">돋움체</option>
+            <option value="굴림">굴림체</option>
+          </>
+        )}
       </select>
       
       {/* 크기 변경 드롭다운 */}

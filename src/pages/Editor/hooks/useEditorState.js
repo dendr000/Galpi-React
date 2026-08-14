@@ -20,6 +20,7 @@ export const useEditorState = () => {
   const [cardLabels, setCardLabels] = useState({ label1: '나이', label2: '성격' });
   const [workContext, setWorkContext] = useState(null);
   const [isHidden, setIsHidden] = useState(false);
+  const [fontList, setFontList] = useState([]); // ★ 동적 폰트 리스트 상태 추가
 
   const editorRef = useRef(null);
 
@@ -35,6 +36,7 @@ export const useEditorState = () => {
     cardLabels, setCardLabels,
     workContext, setWorkContext,
     isHidden, setIsHidden,
+    fontList, setFontList, // ★ 반환값에 폰트 세터 추출
     editorRef
   };
 };
