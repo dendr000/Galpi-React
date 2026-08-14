@@ -16,16 +16,16 @@ const EditorPage = () => {
     title, setTitle, rawText, setRawText, overviewText, setOverviewText,
     workMeta, setWorkMeta, charProps, setCharProps, themeColor, setThemeColor,
     cardLabels, setCardLabels, editorRef, handleGoBack, handleSave, saveStatus,
-    workContext, isHidden, setIsHidden, fontList // ★ 훅에서 추출
+    workContext, isHidden, setIsHidden, fontList, backlinkCandidates
   } = useEditorData();
 
   const [layoutMode, setLayoutMode] = useState('focus'); // 기본값을 'dual'에서 'focus'로 변경
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
-  const badgeText = 
-    docType === 'work' ? (docAction === 'new' ? <><IconBook /> 새 작품 등록</> : <><IconBook /> 작품 편집</>) : 
-    docType === 'page' ? (docAction === 'new' ? <><IconDocument /> 새 위키 문서</> : <><IconDocument /> 문서 편집</>) :
-    (docAction === 'new' ? <><IconUser /> 새 캐릭터 추가</> : <><IconUser /> 캐릭터 상세 편집</>);
+  const badgeText =
+    docType === 'work' ? (docAction === 'new' ? <><IconBook /> 새 작품 등록</> : <><IconBook /> 작품 편집</>) :
+      docType === 'page' ? (docAction === 'new' ? <><IconDocument /> 새 위키 문서</> : <><IconDocument /> 문서 편집</>) :
+        (docAction === 'new' ? <><IconUser /> 새 캐릭터 추가</> : <><IconUser /> 캐릭터 상세 편집</>);
 
   const handleEditorKeyDown = (e) => {
     if (e.key === 'Tab') {
@@ -57,16 +57,16 @@ const EditorPage = () => {
 
   return (
     <div className={styles.editorFullBleed} style={{ overflowX: 'hidden' }}>
-      
-      <EditorSearch editorRef={editorRef} updatePreview={() => {}} />
+
+      <EditorSearch editorRef={editorRef} updatePreview={() => { }} />
       <MacroToolbar editorRef={editorRef} onInsert={handleMacroInsert} />
 
-      <EditorHeader 
-        badgeText={badgeText} 
+      <EditorHeader
+        badgeText={badgeText}
         saveStatus={saveStatus}
         layoutMode={layoutMode}
         setLayoutMode={setLayoutMode}
-        handleGoBack={handleGoBack} 
+        handleGoBack={handleGoBack}
         handleSave={handleSave}
         onOpenSettings={() => setIsSettingsModalOpen(true)}
       />
@@ -92,7 +92,7 @@ const EditorPage = () => {
       />
 
       {/* ★ 핵심: 듀얼 모드일 땐 100% 와이드, 그 외엔 1000px로 예쁘게 중앙 정렬되되, 창을 좁히면 찌그러짐 없이 100% 수축 (가로 스크롤 없음) */}
-      <div 
+      <div
         className={styles.editorLayout}
         style={{
           width: '100%',
@@ -103,34 +103,35 @@ const EditorPage = () => {
         }}
       >
         <div style={{ flex: 1, display: layoutMode === 'focus' ? 'none' : 'flex', flexDirection: 'column', minWidth: 0 }}>
-            <EditorPreviewPane
-              isPreviewOpen={true}
-              title={title}
-              docType={docType}
-              workMeta={workMeta}
-              charProps={charProps}
-              overviewText={overviewText}
-              rawText={rawText}
-            />
+          <EditorPreviewPane
+            isPreviewOpen={true}
+            title={title}
+            docType={docType}
+            workMeta={workMeta}
+            charProps={charProps}
+            overviewText={overviewText}
+            rawText={rawText}
+          />
         </div>
 
         {layoutMode === 'dual' && (
-            <div className={styles.paneResizer}>
-              <div style={{ width: '4px', height: '30px', background: 'var(--text-secondary)', borderRadius: '2px', opacity: 0.5 }}></div>
-            </div>
+          <div className={styles.paneResizer}>
+            <div style={{ width: '4px', height: '30px', background: 'var(--text-secondary)', borderRadius: '2px', opacity: 0.5 }}></div>
+          </div>
         )}
 
         <div style={{ flex: 1, display: layoutMode === 'preview' ? 'none' : 'flex', flexDirection: 'column', minWidth: 0 }}>
-            <EditorWritePane
-              docType={docType}
-              title={title}
-              setTitle={setTitle}
-              rawText={rawText}
-              setRawText={setRawText}
-              editorRef={editorRef}
-              handleEditorKeyDown={handleEditorKeyDown}
-              fontList={fontList} // ★ 패널로 폰트 리스트 하달
-            />
+          <EditorWritePane
+            docType={docType}
+            title={title}
+            setTitle={setTitle}
+            rawText={rawText}
+            setRawText={setRawText}
+            editorRef={editorRef}
+            handleEditorKeyDown={handleEditorKeyDown}
+            fontList={fontList}
+            backlinkCandidates={backlinkCandidates}
+          />
         </div>
       </div>
     </div>
