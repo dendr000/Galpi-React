@@ -1,3 +1,5 @@
+// 파일 위치: src/domains/memo/page/PageMemoEditorPane.jsx
+// 기능 요약: 1서클 마법사의 '무한 팽창' 꼼수를 삭제하고 가로 스크롤을 완벽히 차단하여 글자가 정상적으로 줄바꿈되도록 교정한 에디터 패널
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,7 +13,6 @@ const PageMemoEditorPane = (props) => {
   const navigate = useNavigate();
   const editorHooks = usePageMemoEditor({ ...props, navigate });
   
-  // ★ 읽기 전용(보기 모드) 스위칭 상태
   const [isReadOnly, setIsReadOnly] = useState(false);
 
   const {
@@ -25,14 +26,12 @@ const PageMemoEditorPane = (props) => {
   } = editorHooks;
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg-color)', position: 'relative', overflow: 'hidden', height: '100%' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg-color)', position: 'relative', overflow: 'hidden', height: '100%', minWidth: 0 }}>
       
       <PageMemoEditorHeader 
         titleRef={titleRef}
         handleTitleKeyDown={handleTitleKeyDown}
         charCount={charCount}
-        selectedColor={selectedColor}
-        setSelectedColor={setSelectedColor}
         folders={props.folders}
         editData={props.editData}
         setEditData={props.setEditData}
@@ -40,12 +39,12 @@ const PageMemoEditorPane = (props) => {
         handleSaveMemo={handleSaveMemo}
         activeMemoId={props.activeMemoId}
         handleDeleteMemo={handleDeleteMemo}
-        handleCloseTab={(e) => props.handleCloseTab(e, props.activeMemoId, props.paneType)}
-        isReadOnly={isReadOnly}        // ★ 상태 주입
-        setIsReadOnly={setIsReadOnly}  // ★ 상태 변경 함수 주입
+        handleCloseTab={props.handleCloseTab}
+        isReadOnly={isReadOnly}
+        setIsReadOnly={setIsReadOnly}
+        paneType={props.paneType}
       />
 
-      {/* ★ 읽기 전용 모드일 때는 서식 툴바 렌더링 생략 */}
       {!isReadOnly && (
         <PageMemoFormatBar 
           executeCmd={executeCmd}
@@ -67,20 +66,33 @@ const PageMemoEditorPane = (props) => {
         />
       )}
 
+      {/* ★ 가로 스크롤 절대 금지 (overflow-x: hidden) 및 세로 스크롤만 허용 */}
       <div 
-        style={{ flex: 1, overflowY: 'auto', padding: '0', position: 'relative' }} 
+        style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '0', position: 'relative' }} 
         className="galpi-sidebar-scroll"
-        onClick={!isReadOnly ? handleEditorClick : undefined} // 보기 모드면 클릭 포커스 차단
+        onClick={!isReadOnly ? handleEditorClick : undefined}
       >
+        {/* ★ 무한히 늘어나던 max-content 삭제 -> width: 100% 꽉 채우고 자연스럽게 줄바꿈(pre-wrap, break-word) 발동 */}
         <div
           id="memo-edit-content"
           ref={editorRef}
-          contentEditable={isReadOnly ? "false" : "true"} // ★ 읽기 모드면 입력을 완벽히 차단
+          contentEditable={isReadOnly ? "false" : "true"}
           onKeyDown={!isReadOnly ? handleEditorKeyDown : undefined}
           onKeyUp={!isReadOnly ? handleEditorKeyUp : undefined}
           onCopy={handleCopy}
           onInput={updateCharCount}
-          style={{ padding: '30px', minHeight: '100%', outline: 'none', fontSize: '14px', lineHeight: 1.8, color: 'var(--text-primary)' }}
+          style={{ 
+            padding: '30px', 
+            minHeight: '100%', 
+            width: '100%', 
+            boxSizing: 'border-box', 
+            outline: 'none', 
+            fontSize: '14px', 
+            lineHeight: 1.8, 
+            color: 'var(--text-primary)',
+            whiteSpace: 'pre-wrap',       // 띄어쓰기/엔터 유지하되 벽에 닿으면 줄바꿈
+            wordBreak: 'break-word'       // 긴 단어나 URL도 벽에 닿으면 무조건 강제 줄바꿈
+          }}
         />
         
         {!isReadOnly && (

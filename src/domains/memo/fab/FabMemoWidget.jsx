@@ -66,6 +66,16 @@ const FabMemoWidget = () => {
         #memo-edit-content div { margin-top: 0; margin-bottom: 0; }
         .memo-move-item { padding:8px 12px; font-size:12px; cursor:pointer; transition:0.2s; font-weight:bold; color:var(--text-primary); }
         .memo-move-item:hover { background:var(--table-bg-alt); color:var(--primary-color); }
+        
+        /* ★ 추가된 표 가출 방지 및 줄바꿈 강제 족쇄 */
+        #memo-edit-content table { 
+          max-width: 100% !important; 
+          table-layout: auto !important;
+        }
+        #memo-edit-content th, #memo-edit-content td { 
+          white-space: pre-wrap !important; 
+          word-break: break-word !important; 
+        }
       `;
       document.head.appendChild(style);
     }

@@ -5,7 +5,7 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
   const [popover, setPopover] = useState({ isOpen: false, x: 0, y: 0, mode: 'view', content: '', targetNode: null });
   const timeoutRef = useRef(null);
 
-  // ★ CSS 정밀 교정: 줄바꿈 방지를 위해 inline-block 적용 및 여백 최소화
+  // ★ CSS 정밀 교정: inline을 유지하여 튕김 차단
   useEffect(() => {
     if (!document.getElementById('memo-footnote-styles')) {
       const style = document.createElement('style');
@@ -15,15 +15,15 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
             color: var(--primary-color); 
             font-weight: 900; 
             background: var(--table-bg-alt); 
-            padding: 0 1px; /* ★ 내부 여백 압축 */
-            margin: 0; /* ★ 외부 여백 완전 제거 (글자에 밀착) */
+            padding: 0 1px; 
+            margin: 0; 
             border-radius: 3px; 
             cursor: pointer; 
             font-size: 0.8em; 
             vertical-align: super; 
             text-decoration: none; 
             user-select: none; 
-            display: inline-block; /* ★ 렌더링 튕김 방지 */
+            display: inline;
             white-space: nowrap;
             line-height: 1;
         }
@@ -59,12 +59,17 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
 
   const openPopover = (node, mode = 'view') => {
     const rect = node.getBoundingClientRect();
+    const rawContent = node.getAttribute('data-note') || '';
+    
+    // 에디터 로드 시 속성 내부에 잘못 치환된 <br> 텍스트를 다시 정상 줄바꿈(\n)으로 복구
+    const cleanContent = rawContent.replace(/<br\s*\/?>/gi, '\n');
+
     setPopover({
       isOpen: true,
       x: rect.left,
       y: rect.bottom + 6,
       mode,
-      content: node.getAttribute('data-note') || '',
+      content: cleanContent,
       targetNode: node
     });
   };
@@ -77,21 +82,50 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
     setPopover(prev => ({ ...prev, mode: 'edit' }));
   };
 
+  // ★ 핵심 변경 구역: 브라우저 기본 삽입(execCommand)을 폐기하고, Range API를 통한 물리적 DOM 강제 삽입 적용
   const insertFootnote = () => {
     if (!editorRef.current) return;
     editorRef.current.focus();
-    
+
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+
     const fnId = `fn_${Date.now()}`;
-    // 삽입 시점의 총 각주 개수를 파악하여 [*] 대신 즉각 번호를 부여
     const currentCount = editorRef.current.querySelectorAll('.memo-footnote').length + 1;
-    
-    // ★ 핵심 픽스: 각주 양옆(앞뒤)에 보이지 않는 공백(&#8203;)을 추가하는 양방향 샌드위치 랩핑. 
-    // 브라우저가 문장 끝을 오해하여 각주를 아랫줄로 던져버리는 현상을 원천 차단합니다.
-    const html = `&#8203;<sup class="memo-footnote" contenteditable="false" data-id="${fnId}" data-note="">[${currentCount}]</sup>&#8203;`;
-    
-    document.execCommand('insertHTML', false, html);
+
+    // 1. 단어 결합자 (Word Joiner, U+2060): 브라우저에게 "절대 여기서 줄을 바꾸지 마라"고 명령하는 특수 본드
+    const wj1 = document.createTextNode('\u2060');
+    const wj2 = document.createTextNode('\u2060');
+
+    // 2. 각주 태그 순수 DOM 생성
+    const sup = document.createElement('sup');
+    sup.className = 'memo-footnote';
+    sup.contentEditable = 'false';
+    sup.setAttribute('data-id', fnId);
+    sup.setAttribute('data-note', '');
+    sup.textContent = `[${currentCount}]`;
+
+    // 3. 조각상(Fragment)에 본드와 각주를 하나로 묶음
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(wj1);
+    fragment.appendChild(sup);
+    fragment.appendChild(wj2);
+
+    // 4. 현재 커서 위치를 정확히 가져와서 드래그된 내용이 있으면 지우고, 그 자리에 조각상을 꽂아 넣음
+    const range = selection.getRangeAt(0);
+    range.deleteContents();
+    range.insertNode(fragment);
+
+    // 5. 커서를 각주 뒤의 본드(wj2) 바로 뒤로 이동시켜 줌
+    range.setStartAfter(wj2);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+
     if (updateCharCount) updateCharCount();
-    
+    if (saveMemo) setTimeout(saveMemo, 100); // 돔 구조 변경 시 수동 강제 저장 유도
+
+    // 생성 직후 편집 팝오버 띄우기
     setTimeout(() => {
       const node = editorRef.current.querySelector(`.memo-footnote[data-id="${fnId}"]`);
       if (node) openPopover(node, 'edit');
@@ -123,12 +157,16 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
         setPopover(prev => {
           if (prev.mode === 'edit') return prev;
           const rect = target.getBoundingClientRect();
+          const rawContent = target.getAttribute('data-note') || '';
+          
+          const cleanContent = rawContent.replace(/<br\s*\/?>/gi, '\n');
+
           return {
             isOpen: true,
             x: rect.left,
             y: rect.bottom + 6,
             mode: 'view',
-            content: target.getAttribute('data-note') || '',
+            content: cleanContent,
             targetNode: target
           };
         });
