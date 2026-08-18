@@ -1,6 +1,6 @@
 // 파일 위치: src/domains/fab_tools/BoilerplateModal.jsx
 // 기능 요약: 비즈니스 훅을 주입받아 폴더/리스트/폼 및 환경설정 스위치를 그리는 팝업 컨테이너
-// 버전: v2.3.1 (리스트 지연 렌더링/토글 기능 추가 완비)
+// 버전: v2.3.2 (모달 내부 가로 스크롤 완전 소멸 패치)
 
 import React, { useState, useEffect } from 'react';
 import ModalOverlay from '../../components/common/ModalOverlay';
@@ -12,10 +12,8 @@ const BoilerplateModal = ({ showToast }) => {
   const { closeModal } = useModalStore();
   const bpData = useBoilerplateData(showToast);
 
-  // ★ 상용구 리스트 지연 렌더링(성능 최적화)을 위한 상태 추가
   const [isListVisible, setIsListVisible] = useState(false);
 
-  // ★ 모달이 열릴 때, 드래그해서 넘겨진 HTML 템플릿 초안이 있는지, 또는 '빈 폼 열기' 명령이 떨어졌는지 확인합니다.
   useEffect(() => {
     const draftHtml = localStorage.getItem('galpi-draft-bp');
     const isEmptyRequest = localStorage.getItem('galpi-draft-bp-empty');
@@ -25,7 +23,7 @@ const BoilerplateModal = ({ showToast }) => {
       localStorage.removeItem('galpi-draft-bp');
       if (showToast) showToast("✅ 선택된 영역이 템플릿 본문으로 로드되었습니다.");
     } else if (isEmptyRequest) {
-      bpData.setBpInput({ title: '', content: '' }); // 폼 강제 비우기
+      bpData.setBpInput({ title: '', content: '' }); 
       localStorage.removeItem('galpi-draft-bp-empty');
     }
   }, [bpData.setBpInput, showToast]);
@@ -91,8 +89,10 @@ const BoilerplateModal = ({ showToast }) => {
       {bpData.isBpBulkMode && (
          <div style={{ padding: '10px', background: 'rgba(59,91,219,0.05)', border: '1px dashed var(--primary-color)', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
            <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '4px' }}><IconFileText size={14} /> 상용구 벌크 매크로 세션 등록 (단축어::::본문 양식 구분)</span>
-           <textarea value={bpData.bpBulk} onChange={e => bpData.setBpBulk(e.target.value)} style={{ padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', resize: 'none', height: '80px', fontFamily: 'inherit', outline: 'none', background: 'var(--surface-color)', color: 'var(--text-primary)' }} placeholder="예시:&#13;&#10;!주인공::::비뢰검({#})이 울부짖었다."></textarea>
-           <button className="wiki-btn primary-btn" onClick={bpData.handleBpBulk} style={{ background: 'var(--primary-color)', color: 'white', border: 'none', padding: '8px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><IconRocket size={14} /> 서식 일괄 릴리즈</button>
+           {/* 벌크 모드 textarea 규격 폭주 차단: boxSizing 추가 */}
+           <textarea value={bpData.bpBulk} onChange={e => bpData.setBpBulk(e.target.value)} style={{ padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', resize: 'none', height: '80px', fontFamily: 'inherit', outline: 'none', background: 'var(--surface-color)', color: 'var(--text-primary)', boxSizing: 'border-box' }} placeholder="예시:&#13;&#10;!주인공::::비뢰검({#})이 울부짖었다."></textarea>
+           {/* 버튼 마진 찌꺼기 제거: marginLeft: 0 추가 */}
+           <button className="wiki-btn primary-btn" onClick={bpData.handleBpBulk} style={{ marginLeft: 0, background: 'var(--primary-color)', color: 'white', border: 'none', padding: '8px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><IconRocket size={14} /> 서식 일괄 릴리즈</button>
          </div>
       )}
       
@@ -101,10 +101,18 @@ const BoilerplateModal = ({ showToast }) => {
         className="wiki-btn"
         onClick={() => setIsListVisible(!isListVisible)}
         style={{ 
-          width: '100%', padding: '10px', background: 'var(--table-bg-alt)', 
-          border: '1px solid var(--border-color)', borderRadius: '6px', 
-          cursor: 'pointer', fontWeight: 'bold', color: 'var(--text-primary)', 
-          marginBottom: '8px', transition: '0.2s', boxSizing: 'border-box'
+          width: '100%', 
+          marginLeft: 0, // ★ 글로벌 CSS(.wiki-btn)의 5px 마진 강제 무효화로 스크롤바 원천 차단
+          padding: '10px', 
+          background: 'var(--table-bg-alt)', 
+          border: '1px solid var(--border-color)', 
+          borderRadius: '6px', 
+          cursor: 'pointer', 
+          fontWeight: 'bold', 
+          color: 'var(--text-primary)', 
+          marginBottom: '8px', 
+          transition: '0.2s', 
+          boxSizing: 'border-box'
         }}
       >
         {isListVisible ? '목록 숨기기 ▲' : `전체 상용구 목록 펼치기 (${bpData.bpList.length}개) ▼`}
