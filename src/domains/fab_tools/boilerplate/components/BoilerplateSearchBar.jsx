@@ -1,11 +1,11 @@
-// src/domains/fab_tools/dict/components/DictSearchBar.jsx
+// src/domains/fab_tools/boilerplate/components/BoilerplateSearchBar.jsx
 import React from 'react';
 import { IconSearch } from '../../components/FabIcons';
-import { inpSty } from '../utils/dictStyles';
+import { inpSty } from '../utils/boilerplateStyles';
 
-const DictSearchBar = ({ dictSearch, setDictSearch, submitSearch }) => {
+const BoilerplateSearchBar = ({ bpSearch, setBpSearch, submitSearch }) => {
   return (
-    <div style={{ position: 'relative', marginTop: '12px', marginBottom: '12px' }}>
+    <div style={{ position: 'relative', marginBottom: '12px' }}>
       <button 
         onClick={submitSearch}
         style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
@@ -15,11 +15,11 @@ const DictSearchBar = ({ dictSearch, setDictSearch, submitSearch }) => {
       </button>
       <input 
         type="text" 
-        placeholder="검색어 입력 후 Enter를 누르세요..." 
-        value={dictSearch} 
-        onChange={e => setDictSearch(e.target.value)} 
+        placeholder="단축어 또는 본문 내용 검색 (Enter를 누르세요)..." 
+        value={bpSearch} 
+        onChange={e => setBpSearch(e.target.value)} 
         onKeyDown={e => e.key === 'Enter' && submitSearch()}
-        style={{...inpSty, width: '100%', paddingLeft: '32px', boxSizing: 'border-box'}} 
+        style={{...inpSty, width: '100%', paddingLeft: '32px'}} 
         autoComplete="off" 
         spellCheck="false" 
       />
@@ -27,4 +27,4 @@ const DictSearchBar = ({ dictSearch, setDictSearch, submitSearch }) => {
   );
 };
 
-export default DictSearchBar;
+export default BoilerplateSearchBar;

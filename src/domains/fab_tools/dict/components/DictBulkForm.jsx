@@ -1,3 +1,4 @@
+// src/domains/fab_tools/dict/components/DictBulkForm.jsx
 import React from 'react';
 import { IconFileText, IconRocket } from '../../components/FabIcons';
 

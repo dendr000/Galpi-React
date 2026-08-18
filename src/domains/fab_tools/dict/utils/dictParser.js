@@ -1,3 +1,4 @@
+// src/domains/fab_tools/dict/utils/dictParser.js
 export const parseBulkDict = (bulkText) => {
   const lines = bulkText.split('\n');
   const parsed = [];

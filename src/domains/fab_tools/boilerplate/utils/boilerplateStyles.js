@@ -1,4 +1,4 @@
-// src/domains/fab_tools/dict/utils/dictStyles.js
+// src/domains/fab_tools/boilerplate/utils/boilerplateStyles.js
 export const inpSty = { 
   padding: '8px 12px', 
   border: '1px solid var(--border-color)', 

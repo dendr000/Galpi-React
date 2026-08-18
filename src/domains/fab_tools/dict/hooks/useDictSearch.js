@@ -1,3 +1,4 @@
+// src/domains/fab_tools/dict/hooks/useDictSearch.js
 import { useState, useMemo } from 'react';
 
 export const useDictSearch = (globalDictList) => {

@@ -1,7 +1,4 @@
-// 파일 위치: src/domains/fab_tools/BoilerplateSuggestPopup.jsx
-// 기능 요약: 에디터에서 타이핑 중 단축어 매칭 시 커서 좌표 하단에 나타나는 지능형 추천 팝업
-// 버전: v1.0.0
-
+// src/domains/fab_tools/boilerplate/components/BoilerplateSuggestPopup.jsx
 import React from 'react';
 
 const BoilerplateSuggestPopup = ({ popupState, commitBpExpansion, updatePopupState }) => {

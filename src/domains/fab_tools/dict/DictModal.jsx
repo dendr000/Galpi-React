@@ -1,3 +1,4 @@
+// src/domains/fab_tools/dict/DictModal.jsx
 import React from 'react';
 import ModalOverlay from '../../../components/common/ModalOverlay';
 import { useModalStore } from '../../../store/useModalStore';

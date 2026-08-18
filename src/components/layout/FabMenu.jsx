@@ -14,10 +14,10 @@ import RecentModal from '../../domains/fab_tools/RecentModal';
 import MemoModal from '../../domains/memo/fab/FabMemoModal';
 
 // 상용구 모듈 인젝션
-import BoilerplateModal from '../../domains/fab_tools/BoilerplateModal';
-import BoilerplateSuggestPopup from '../../domains/fab_tools/BoilerplateSuggestPopup';
-import { useBoilerplateCore } from '../../domains/fab_tools/hooks/useBoilerplateCore';
-import { useBoilerplateListener } from '../../domains/fab_tools/hooks/useBoilerplateListener';
+import BoilerplateModal from '../../domains/fab_tools/boilerplate/BoilerplateModal';
+import BoilerplateSuggestPopup from '../../domains/fab_tools/boilerplate/components/BoilerplateSuggestPopup';
+import { useBoilerplateCore } from '../../domains/fab_tools/boilerplate/hooks/useBoilerplateCore';
+import { useBoilerplateListener } from '../../domains/fab_tools/boilerplate/hooks/useBoilerplateListener';
 
 const FabMenu = () => {
   const [isOpen, setIsOpen] = useState(false);

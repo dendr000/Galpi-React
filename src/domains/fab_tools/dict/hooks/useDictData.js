@@ -1,3 +1,4 @@
+// src/domains/fab_tools/dict/hooks/useDictData.js
 import { useState } from 'react';
 import api from '../../../../api/axiosCore';
 import { parseBulkDict } from '../utils/dictParser';

@@ -1,3 +1,4 @@
+// src/domains/fab_tools/dict/components/DictForm.jsx
 import React from 'react';
 import { IconSave, IconPlus, IconChevronDown } from '../../components/FabIcons';
 import { inpSty } from '../utils/dictStyles';

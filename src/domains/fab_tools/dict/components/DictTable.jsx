@@ -1,3 +1,4 @@
+// src/domains/fab_tools/dict/components/DictTable.jsx
 import React from 'react';
 import { IconEdit, IconTrash } from '../../components/FabIcons';
 
