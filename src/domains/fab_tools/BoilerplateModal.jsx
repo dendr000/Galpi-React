@@ -1,18 +1,20 @@
 // 파일 위치: src/domains/fab_tools/BoilerplateModal.jsx
 // 기능 요약: 비즈니스 훅을 주입받아 폴더/리스트/폼 및 환경설정 스위치를 그리는 팝업 컨테이너
-// 버전: v2.3.2 (모달 내부 가로 스크롤 완전 소멸 패치)
+// 버전: v2.4.0 (리스트 접기 버튼 제거 및 Enter 지연 검색 엔진 탑재)
 
 import React, { useState, useEffect } from 'react';
 import ModalOverlay from '../../components/common/ModalOverlay';
 import { useModalStore } from '../../store/useModalStore';
 import { useBoilerplateData } from './hooks/useBoilerplateData';
-import { IconFolder, IconPlus, IconEdit, IconTrash, IconChevronDown, IconZap, IconFileText, IconRocket, IconSave } from './components/FabIcons';
+import { IconFolder, IconPlus, IconEdit, IconTrash, IconChevronDown, IconZap, IconFileText, IconRocket, IconSave, IconSearch } from './components/FabIcons';
 
 const BoilerplateModal = ({ showToast }) => {
   const { closeModal } = useModalStore();
   const bpData = useBoilerplateData(showToast);
 
-  const [isListVisible, setIsListVisible] = useState(false);
+  // ★ 상용구 검색 최적화 상태 관리 (타이핑 상태와 렌더링 상태 분리)
+  const [bpSearch, setBpSearch] = useState('');
+  const [submittedSearch, setSubmittedSearch] = useState('');
 
   useEffect(() => {
     const draftHtml = localStorage.getItem('galpi-draft-bp');
@@ -42,7 +44,11 @@ const BoilerplateModal = ({ showToast }) => {
           <IconFolder size={16} style={{ color: 'var(--primary-color)' }} />
           <select 
             value={bpData.activeFolder} 
-            onChange={e => bpData.changeFolder(e.target.value)}
+            onChange={e => {
+              bpData.changeFolder(e.target.value);
+              setSubmittedSearch(''); // 폴더 변경 시 검색 결과 초기화
+              setBpSearch('');
+            }}
             style={{ padding: '6px 8px', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', color: 'var(--text-primary)', fontWeight: 'bold', outline: 'none' }}
           >
             {bpData.bpFolders.map(f => <option key={f} value={f}>{f}</option>)}
@@ -89,52 +95,67 @@ const BoilerplateModal = ({ showToast }) => {
       {bpData.isBpBulkMode && (
          <div style={{ padding: '10px', background: 'rgba(59,91,219,0.05)', border: '1px dashed var(--primary-color)', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
            <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '4px' }}><IconFileText size={14} /> 상용구 벌크 매크로 세션 등록 (단축어::::본문 양식 구분)</span>
-           {/* 벌크 모드 textarea 규격 폭주 차단: boxSizing 추가 */}
            <textarea value={bpData.bpBulk} onChange={e => bpData.setBpBulk(e.target.value)} style={{ padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', resize: 'none', height: '80px', fontFamily: 'inherit', outline: 'none', background: 'var(--surface-color)', color: 'var(--text-primary)', boxSizing: 'border-box' }} placeholder="예시:&#13;&#10;!주인공::::비뢰검({#})이 울부짖었다."></textarea>
-           {/* 버튼 마진 찌꺼기 제거: marginLeft: 0 추가 */}
            <button className="wiki-btn primary-btn" onClick={bpData.handleBpBulk} style={{ marginLeft: 0, background: 'var(--primary-color)', color: 'white', border: 'none', padding: '8px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><IconRocket size={14} /> 서식 일괄 릴리즈</button>
          </div>
       )}
       
-      {/* 5. 상용구 목록 리스트 토글 버튼 신설 */}
-      <button 
-        className="wiki-btn"
-        onClick={() => setIsListVisible(!isListVisible)}
-        style={{ 
-          width: '100%', 
-          marginLeft: 0, // ★ 글로벌 CSS(.wiki-btn)의 5px 마진 강제 무효화로 스크롤바 원천 차단
-          padding: '10px', 
-          background: 'var(--table-bg-alt)', 
-          border: '1px solid var(--border-color)', 
-          borderRadius: '6px', 
-          cursor: 'pointer', 
-          fontWeight: 'bold', 
-          color: 'var(--text-primary)', 
-          marginBottom: '8px', 
-          transition: '0.2s', 
-          boxSizing: 'border-box'
-        }}
-      >
-        {isListVisible ? '목록 숨기기 ▲' : `전체 상용구 목록 펼치기 (${bpData.bpList.length}개) ▼`}
-      </button>
+      {/* 5. 검색 필드 (Enter 적용) - 기존 목록 펼치기 버튼 대체 */}
+      <div style={{ position: 'relative', marginBottom: '12px' }}>
+        <button 
+          onClick={() => setSubmittedSearch(bpSearch)}
+          style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+          title="검색 (Enter)"
+        >
+          <IconSearch size={14} />
+        </button>
+        <input 
+          type="text" 
+          placeholder="단축어 또는 본문 내용 검색 (Enter를 누르세요)..." 
+          value={bpSearch} 
+          onChange={e => setBpSearch(e.target.value)} 
+          onKeyDown={e => e.key === 'Enter' && setSubmittedSearch(bpSearch)}
+          style={{...inpSty, width: '100%', paddingLeft: '32px'}} 
+          autoComplete="off" 
+          spellCheck="false" 
+        />
+      </div>
 
-      {/* 6. 상용구 목록 리스트 (토글 상태에 따라 조건부 렌더링) */}
-      {isListVisible && (
-        <div style={{ flex: 1, overflowY: 'auto', maxHeight: '300px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {bpData.bpList.map(b => (
-            <div key={b.id} className="bp-item" style={{ display: 'flex', padding: '10px 12px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '6px', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
-              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', background: 'var(--bg-color)', padding: '2px 6px', borderRadius: '4px', whiteSpace: 'nowrap' }}>{b.category}</div>
-              <div style={{ width: '100px', fontWeight: 'bold', color: 'var(--primary-color)', fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.title}</div>
-              <div style={{ flex: 1, color: 'var(--text-primary)', fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.content.replace('{#}', '[커서]')}</div>
-              <div style={{ display: 'flex', gap: '6px' }}>
-                <button onClick={() => bpData.handleBpEdit(b)} style={{ border: 'none', background: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>수정</button>
-                <button onClick={() => bpData.handleBpDelete(b.id, b.title)} style={{ border: 'none', background: 'none', color: '#e53e3e', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>삭제</button>
+      {/* 6. 상용구 목록 리스트 (submittedSearch 기준 지연 렌더링) */}
+      <div style={{ flex: 1, overflowY: 'auto', maxHeight: '300px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {submittedSearch.trim() === '' ? (
+          <div className="modal-empty" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
+            검색어를 입력하고 Enter 키를 누르면 해당 폴더의 결과가 출력됩니다.
+          </div>
+        ) : (
+          (() => {
+            const matched = bpData.bpList.filter(b => 
+              b.title.toLowerCase().includes(submittedSearch.toLowerCase()) || 
+              b.content.toLowerCase().includes(submittedSearch.toLowerCase())
+            );
+
+            if (matched.length === 0) {
+              return (
+                <div className="modal-empty" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
+                  일치하는 상용구 검색 결과가 없습니다.
+                </div>
+              );
+            }
+
+            return matched.map(b => (
+              <div key={b.id} className="bp-item" style={{ display: 'flex', padding: '10px 12px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '6px', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-secondary)', background: 'var(--bg-color)', padding: '2px 6px', borderRadius: '4px', whiteSpace: 'nowrap' }}>{b.category}</div>
+                <div style={{ width: '100px', fontWeight: 'bold', color: 'var(--primary-color)', fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.title}</div>
+                <div style={{ flex: 1, color: 'var(--text-primary)', fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.content.replace('{#}', '[커서]')}</div>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <button onClick={() => bpData.handleBpEdit(b)} style={{ border: 'none', background: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>수정</button>
+                  <button onClick={() => bpData.handleBpDelete(b.id, b.title)} style={{ border: 'none', background: 'none', color: '#e53e3e', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>삭제</button>
+                </div>
               </div>
-            </div>
-          ))}
-          {bpData.bpList.length === 0 && <div className="modal-empty" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>해당 폴더에 저장된 서식이 존재하지 않습니다.</div>}
-        </div>
-      )}
+            ));
+          })()
+        )}
+      </div>
     </ModalOverlay>
   );
 };
