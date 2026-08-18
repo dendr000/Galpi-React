@@ -3,7 +3,7 @@
 // 버전: v2.2.0 (실시간 전역 동기화 이벤트 탑재)
 
 import { useState, useEffect } from 'react';
-import api from '../../../api/axiosCore';
+import api from '../../../../api/axiosCore';
 
 export const useBoilerplateData = (showToast) => {
   const [bpList, setBpList] = useState([]);

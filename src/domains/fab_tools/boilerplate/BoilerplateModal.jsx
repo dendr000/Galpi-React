@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import ModalOverlay from '../../../components/common/ModalOverlay';
 import { useModalStore } from '../../../store/useModalStore';
-import { IconZap } from '../../components/FabIcons';
+import { IconZap } from '../components/FabIcons';
 
 import { useBoilerplateData } from './hooks/useBoilerplateData';
 import { useBoilerplateSearch } from './hooks/useBoilerplateSearch';

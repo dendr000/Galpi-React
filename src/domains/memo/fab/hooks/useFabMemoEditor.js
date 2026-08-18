@@ -9,10 +9,11 @@ import { useMemoFindReplace } from '../../shared/hooks/useMemoFindReplace';
 import { useMemoLink } from '../../shared/hooks/useMemoLink';
 import { useMemoBlockDrag } from '../../shared/hooks/useMemoBlockDrag';
 import api from '../../../../api/axiosCore';
-import { useBoilerplateCore } from '../../../fab_tools/hooks/useBoilerplateCore';
-import { useBoilerplateListener } from '../../../fab_tools/hooks/useBoilerplateListener';
+import { useBoilerplateCore } from '../../../fab_tools/boilerplate/hooks/useBoilerplateCore';
+import { useBoilerplateListener } from '../../../fab_tools/boilerplate/hooks/useBoilerplateListener';
 import { useMemoAutoSave } from '../../shared/hooks/useMemoAutoSave';
 import { useMemoBookmark } from '../../shared/hooks/useMemoBookmark';
+import { useMemoDictListener } from '../../shared/hooks/useMemoDictListener';
 import { useModalStore } from '../../../../store/useModalStore';
 
 export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder, setActiveMemoId, navigate }) => {
@@ -24,6 +25,7 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
   const [charCount, setCharCount] = useState({ selected: 0, total: 0 });
   const [memoTags, setMemoTags] = useState("");
   const [globalBpList, setGlobalBpList] = useState([]);
+  const [globalDictList, setGlobalDictList] = useState([]);
   const [fontList, setFontList] = useState([]);
 
   const [isAutoSnippet, setIsAutoSnippet] = useState(() => localStorage.getItem('galpi-bp-preview') !== 'false');
@@ -65,6 +67,28 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
 
   useEffect(() => {
     api.get('/api/boilerplates').then(res => setGlobalBpList(res.data)).catch(() => {});
+    
+    const searchParams = new URLSearchParams(window.location.search);
+    const currentWorkId = searchParams.get('workId') || searchParams.get('id') || window.location.pathname.match(/\/work\/(\d+)/)?.[1] || 'global';
+    
+    const fetchDictionaries = async () => {
+      try {
+        const globalRes = await api.get('/api/dicts?workId=global');
+        let combinedList = globalRes.data;
+
+        if (currentWorkId && currentWorkId !== 'global') {
+          const localRes = await api.get(`/api/dicts?workId=${currentWorkId}`);
+          combinedList = [...combinedList, ...localRes.data];
+        }
+        const uniqueList = combinedList.filter((v, i, a) => 
+          a.findIndex(t => (t.word === v.word && t.translation === v.translation)) === i
+        );
+        setGlobalDictList(uniqueList);
+      } catch (e) {
+        console.error("사전 데이터 로드 실패", e);
+      }
+    };
+    fetchDictionaries();
     
     api.get('/api/fonts').then(res => {
       if (res.data && res.data.length > 0) {
@@ -113,6 +137,8 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
 
   const bpCore = useBoilerplateCore();
   useBoilerplateListener({ globalBpList, bpCore });
+  
+  useMemoDictListener({ editorRef, globalDictList });
 
   const openTemplateList = () => {
     bpCore.openTemplateList(globalBpList, editorRef.current);
