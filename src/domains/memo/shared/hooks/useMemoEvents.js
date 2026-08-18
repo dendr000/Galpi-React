@@ -53,19 +53,34 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
 
     const selection = window.getSelection();
 
-    // ★ 추가: 큰따옴표(") 자동 완성 및 드래그 텍스트 감싸기 로직 (Undo 스택 보호)
-    if (e.key === '"') {
+    // ★ 추가 및 확장: 자동 완성 기호 짝꿍 매핑 (쌍/홑따옴표, 별표, 소/중/대괄호)
+    const pairMap = {
+      '"': '"',
+      "'": "'",
+      '*': '*',
+      '(': ')',
+      '{': '}',
+      '[': ']'
+    };
+
+    // 사용자가 입력한 키가 쌍을 이루는 기호 중 하나인지 확인
+    if (pairMap[e.key]) {
       if (selection.rangeCount > 0 && editorRef.current && editorRef.current.contains(selection.anchorNode)) {
         e.preventDefault();
         e.stopPropagation();
+        
         const selectedText = selection.toString();
+        const openChar = e.key;
+        const closeChar = pairMap[e.key]; // 맵핑된 닫는 기호 가져오기
         
-        document.execCommand('insertText', false, '"' + selectedText + '"');
+        // execCommand를 사용해 Undo(실행 취소) 히스토리 보존 및 강제 삽입
+        document.execCommand('insertText', false, openChar + selectedText + closeChar);
         
-        // 빈 텍스트(허공)에서 따옴표를 친 경우 커서를 두 따옴표 정중앙으로 이동
+        // 빈 텍스트(허공)에서 쳤을 경우 커서를 삽입된 두 기호 정중앙으로 이동
         if (selectedText.length === 0) {
           selection.modify('move', 'backward', 'character');
         }
+        
         if (updateCharCount) updateCharCount();
         return;
       }
