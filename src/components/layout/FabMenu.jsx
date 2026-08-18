@@ -8,7 +8,7 @@ import { useModalStore } from '../../store/useModalStore';
 import api from '../../api/axiosCore';
 
 import ClipboardModal from '../../domains/fab_tools/ClipboardModal';
-import DictModal from '../../domains/fab_tools/DictModal';
+import DictModal from '../../domains/fab_tools/dict/DictModal';
 import SearchModal from '../../domains/fab_tools/SearchModal';
 import RecentModal from '../../domains/fab_tools/RecentModal';
 import MemoModal from '../../domains/memo/fab/FabMemoModal';
