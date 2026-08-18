@@ -1,6 +1,6 @@
 // 파일 위치: src/domains/fab_tools/components/FabIcons.jsx
 // 기능 요약: FAB 도구(상용구, 사전 등) 전용 범용 SVG 아이콘 모음
-// 버전: v1.0.0
+// 버전: v1.1.0 (사전 전용 Book, Search 아이콘 신규 추가)
 
 import React from 'react';
 
@@ -67,5 +67,20 @@ export const IconSave = ({ size = 14 }) => (
     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
     <polyline points="17 21 17 13 7 13 7 21"></polyline>
     <polyline points="7 3 7 8 15 8"></polyline>
+  </svg>
+);
+
+// ★ 신규 추가 아이콘
+export const IconBook = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+  </svg>
+);
+
+export const IconSearch = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8"></circle>
+    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
   </svg>
 );
