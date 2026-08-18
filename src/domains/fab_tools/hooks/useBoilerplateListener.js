@@ -1,6 +1,6 @@
 // 파일 위치: src/domains/fab_tools/hooks/useBoilerplateListener.js
 // 기능 요약: 텍스트 입력망을 전역 감시하여 상용구를 즉각 추천하고 발동시키는 물리 이벤트 스캐너
-// 버전: v2.1.0 (ContentEditable 줄바꿈(\n) 완벽 인식 및 과잉 매칭 오작동 차단 패치)
+// 버전: v2.2.0 (다중 리스너 중복 팝업, 투명 공백 매칭 오류, 모달창 입력 먹통 완벽 해결)
 
 import { useEffect } from 'react';
 
@@ -42,15 +42,26 @@ const getCurrentLineText = (editor, isContentEditable) => {
 export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
   useEffect(() => {
     const handleInput = (e) => {
+      // ★ 픽스 3: 다중 마운트된 리스너들이 동일 이벤트를 중복 처리해 팝업을 2개 띄우는 것 방어
+      if (e._bpHandled) return;
+
       const isTextarea = e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT';
       const isContentEditable = e.target.isContentEditable;
       if (!isTextarea && !isContentEditable) return;
       
+      // ★ 픽스 4: 상용구 관리 원장(모달) 내부의 입력칸은 탐욕 스캐너 감시망에서 완전히 제외
+      if (e.target.closest('.modal-overlay')) return;
+
+      e._bpHandled = true;
+
       const isPreviewOn = localStorage.getItem('galpi-bp-preview') !== 'false';
       if (!isPreviewOn || bpCore.popupStateRef.current.mode === 'choice') return;
 
       const editor = e.target;
-      const currentLine = getCurrentLineText(editor, isContentEditable);
+      let currentLine = getCurrentLineText(editor, isContentEditable);
+      
+      // ★ 픽스 1 & 2: 에디터 렌더링용 보이지 않는 특수 공백(\u2060 등)을 분쇄하여 스캔 무결성 확보
+      currentLine = currentLine.replace(/[\u200B-\u200D\uFEFF\u2060]/g, '');
 
       if (currentLine.length >= 1) {
         const activeCat = localStorage.getItem('galpi-bp-active-folder') || '전체';
@@ -64,11 +75,12 @@ export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
           let suffix = currentLine.substring(i);
           if (suffix.trim() === '') continue;
 
-          let matched = activeBps.filter(b => b.title.startsWith(suffix));
+          // 대소문자 무시 완벽 매칭
+          let matched = activeBps.filter(b => b.title.toLowerCase().startsWith(suffix.toLowerCase()));
           if (matched.length > 0) {
             matched.sort((a, b) => {
-              if (a.title === suffix && b.title !== suffix) return -1;
-              if (b.title === suffix && a.title !== suffix) return 1;
+              if (a.title.toLowerCase() === suffix.toLowerCase() && b.title.toLowerCase() !== suffix.toLowerCase()) return -1;
+              if (b.title.toLowerCase() === suffix.toLowerCase() && a.title.toLowerCase() !== suffix.toLowerCase()) return 1;
               return a.title.length - b.title.length;
             });
             suggests = matched;
@@ -102,9 +114,17 @@ export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
     };
 
     const handleKeydown = (e) => {
+      // 중복 팝업 제어 락
+      if (e._bpHandledKey) return;
+
       const isTextarea = e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT';
       const isContentEditable = e.target.isContentEditable;
       if (!isTextarea && !isContentEditable) return;
+
+      // 모달 오버레이 내부 차단
+      if (e.target.closest('.modal-overlay')) return;
+
+      e._bpHandledKey = true;
 
       const state = bpCore.popupStateRef.current;
       const editor = e.target;
@@ -139,10 +159,16 @@ export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
       const isManual = e.altKey && e.key === 'Enter';
 
       if (isManual || isAuto) {
-        const currentLine = getCurrentLineText(editor, isContentEditable);
+        let currentLine = getCurrentLineText(editor, isContentEditable);
+        
+        // ★ 픽스 1: 투명 공백 제거 및 Alt+Enter 시 뒤에 실수로 띄어쓰기를 쳤더라도 무시하고 매칭(trimEnd)
+        currentLine = currentLine.replace(/[\u200B-\u200D\uFEFF\u2060]/g, '').trimEnd();
+
         const activeCat = localStorage.getItem('galpi-bp-active-folder') || '전체';
         const activeBps = globalBpList.filter(b => activeCat === '전체' || b.category === activeCat || b.category === '공통');
-        const exactMatches = activeBps.filter(b => currentLine.endsWith(b.title));
+        
+        // 대소문자 무시 완벽 매칭
+        const exactMatches = activeBps.filter(b => currentLine.toLowerCase().endsWith(b.title.toLowerCase()));
 
         if (exactMatches.length > 0) {
           const maxLength = Math.max(...exactMatches.map(b => b.title.length));

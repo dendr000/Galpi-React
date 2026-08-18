@@ -1,6 +1,6 @@
 // 파일 위치: src/components/layout/FabMenu.jsx
 // 기능 요약: 글로벌 모달 트리거들을 감싸고 있으며, 사전 및 상용구 데이터를 전역으로 패치하여 백그라운드 키보드 감시망에 연결하는 컴포넌트
-// 버전: v2.5.0
+// 버전: v2.7.0 (서브 모달 스택 구조 대응)
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -13,7 +13,7 @@ import SearchModal from '../../domains/fab_tools/SearchModal';
 import RecentModal from '../../domains/fab_tools/RecentModal';
 import MemoModal from '../../domains/memo/fab/FabMemoModal';
 
-// 상용구 모듈 신규 인젝션
+// 상용구 모듈 인젝션
 import BoilerplateModal from '../../domains/fab_tools/BoilerplateModal';
 import BoilerplateSuggestPopup from '../../domains/fab_tools/BoilerplateSuggestPopup';
 import { useBoilerplateCore } from '../../domains/fab_tools/hooks/useBoilerplateCore';
@@ -21,14 +21,16 @@ import { useBoilerplateListener } from '../../domains/fab_tools/hooks/useBoilerp
 
 const FabMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { activeModal, openModal, addClipboard } = useModalStore();
+  
+  // ★ subModal 상태 추가 호출
+  const { activeModal, subModal, openModal, closeModal, addClipboard } = useModalStore();
   const navigate = useNavigate();
   const location = useLocation();
 
   const currentWorkId = new URLSearchParams(location.search).get('workId') || location.pathname.match(/\/work\/(\d+)/)?.[1] || 'global';
 
   const [globalDictList, setGlobalDictList] = useState([]);
-  const [globalBpList, setGlobalBpList] = useState([]); // 글로벌 상용구 상태 추가
+  const [globalBpList, setGlobalBpList] = useState([]); 
   const [toastMsg, setToastMsg] = useState('');
 
   const showToast = (msg) => {
@@ -36,19 +38,16 @@ const FabMenu = () => {
     setTimeout(() => setToastMsg(''), 2000);
   };
 
-  // 사전 동기화
   useEffect(() => {
     if (currentWorkId !== 'global') {
       api.get(`/api/dicts?workId=${currentWorkId}`).then(res => setGlobalDictList(res.data)).catch(() => {});
     }
   }, [currentWorkId]);
 
-  // 상용구 동기화
   useEffect(() => {
     api.get('/api/boilerplates').then(res => setGlobalBpList(res.data)).catch(() => {});
   }, []);
 
-  // 상용구 코어 엔진 및 전역 리스너 마운트
   const bpCore = useBoilerplateCore(showToast);
   useBoilerplateListener({ globalBpList, bpCore, showToast });
 
@@ -62,6 +61,12 @@ const FabMenu = () => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'v') {
         e.preventDefault(); e.stopPropagation();
         openModal('clipboard');
+      }
+      
+      // ★ 이전에 작성한 열려있는 팹 모달을 닫는 전역 단축키 (Ctrl + Esc) 유지
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Escape') {
+        e.preventDefault(); e.stopPropagation();
+        closeModal();
       }
       
       if (e.altKey && e.key.toLowerCase() === 'h' && e.target.tagName.match(/INPUT|TEXTAREA/)) {
@@ -101,13 +106,15 @@ const FabMenu = () => {
       document.removeEventListener('cut', handleCopy);
       document.removeEventListener('keydown', handleKey, true);
     };
-  }, [addClipboard, openModal, globalDictList]);
+  }, [addClipboard, openModal, closeModal, globalDictList]);
 
   const btnSty = { width: '48px', height: '48px', borderRadius: '50%', padding: '0', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--surface-color)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', cursor: 'pointer', transition: '0.2s', outline: 'none' };
 
+  // ★ 핵심: 메인 모달이나 서브 모달 둘 중 하나라도 켜져 있으면 렌더링을 허용하는 함수
+  const isModalOpen = (name) => activeModal === name || subModal === name;
+
   return (
     <>
-      {/* 팝업 UI 독립 렌더링 컨테이너 */}
       <BoilerplateSuggestPopup 
         popupState={bpCore.bpPopupState} 
         commitBpExpansion={bpCore.commitBpExpansion} 
@@ -141,12 +148,13 @@ const FabMenu = () => {
         </div>
       )}
 
-      {activeModal === 'clipboard' && <ClipboardModal showToast={showToast} />}
-      {activeModal === 'dict' && <DictModal currentWorkId={currentWorkId} showToast={showToast} globalDictList={globalDictList} setGlobalDictList={setGlobalDictList} />}
-      {activeModal === 'boilerplate' && <BoilerplateModal showToast={showToast} />}
-      {activeModal === 'search' && <SearchModal currentWorkId={currentWorkId} />}
-      {activeModal === 'recent' && <RecentModal />}
-      {activeModal === 'memo' && <MemoModal />}
+      {/* ★ 변경: activeModal뿐만 아니라 subModal 상태일 때도 렌더링되도록 스마트 허용 로직 적용 */}
+      {isModalOpen('clipboard') && <ClipboardModal showToast={showToast} />}
+      {isModalOpen('dict') && <DictModal currentWorkId={currentWorkId} showToast={showToast} globalDictList={globalDictList} setGlobalDictList={setGlobalDictList} />}
+      {isModalOpen('boilerplate') && <BoilerplateModal showToast={showToast} />}
+      {isModalOpen('search') && <SearchModal currentWorkId={currentWorkId} />}
+      {isModalOpen('recent') && <RecentModal />}
+      {isModalOpen('memo') && <MemoModal />}
     </>
   );
 };

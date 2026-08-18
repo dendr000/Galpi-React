@@ -1,10 +1,9 @@
 // 파일 위치: src/domains/memo/components/MemoFormatMainBar.jsx
-
 import React, { useState, useEffect, useRef } from 'react';
 import {
   BoldIcon, ItalicIcon, StrikethroughIcon, FootnoteIcon, LinkIcon,
   TableIcon, TodoIcon, FoldIcon, SearchIcon, TemplateIcon, TemplateSaveIcon,
-  FontResetIcon, CrackIcon, BabyIcon
+  FontResetIcon, CrackIcon, BabyIcon, AutoSnippetIcon
 } from './MemoIcons';
 
 const MemoFormatMainBar = ({
@@ -15,6 +14,18 @@ const MemoFormatMainBar = ({
 }) => {
   const selectRef = useRef(null);
   const [recentFonts, setRecentFonts] = useState([]);
+  
+  // ★ 픽스: 부모 컴포넌트(Props)에 의존하지 않고, 툴바 내부에서 독자적으로 토글 상태 관리
+  const [isAutoSnippet, setIsAutoSnippet] = useState(() => localStorage.getItem('galpi-bp-preview') !== 'false');
+
+  const toggleAutoSnippet = () => {
+    const nextState = !isAutoSnippet;
+    setIsAutoSnippet(nextState);
+    localStorage.setItem('galpi-bp-preview', String(nextState));
+    
+    // 강제로 스토리지 이벤트를 발생시켜 상용구 엔진이 실시간으로 상태 변화를 감지하도록 유도
+    window.dispatchEvent(new Event('storage'));
+  };
 
   useEffect(() => {
     setRecentFonts(JSON.parse(localStorage.getItem('galpi-recent-fonts') || '[]'));
@@ -25,13 +36,11 @@ const MemoFormatMainBar = ({
 
   const checkHTML = `<div style="display:flex; align-items:center; gap:8px; margin:4px 0;" contenteditable="false"><button type="button" onclick="this.parentElement.remove()" style="background:transparent; color:#e53e3e; border:none; cursor:pointer; font-size:14px; padding:0; outline:none; display:flex; align-items:center; justify-content:center;" title="삭제">${svgClose}</button><input type="checkbox" style="cursor:pointer; width:16px; height:16px;"><span contenteditable="true" style="outline:none; flex:1; font-size:13px; min-width:50px;">할 일 입력...</span></div>`;
   
-  // ★ 변경됨: 표 전체에 white-space:pre-wrap; word-break:break-word; 부여 및 각 셀의 min-width를 80px으로 상향 조정
   const tableHTML = `<table style="width:max-content; min-width:100%; border-collapse:collapse; text-align:center; font-size:13px; background:var(--surface-color); white-space:pre-wrap; word-break:break-word; margin: 15px 0;"><tbody><tr><th style="border:1px solid var(--border-color); padding:10px; background:var(--table-bg-alt); color:var(--primary-color); min-width:80px; resize:horizontal; overflow:hidden;">제목1</th><th style="border:1px solid var(--border-color); padding:10px; background:var(--table-bg-alt); color:var(--primary-color); min-width:80px; resize:horizontal; overflow:hidden;">제목2</th></tr><tr><td style="border:1px solid var(--border-color); padding:10px; min-width:80px; resize:horizontal; overflow:hidden;">내용1</td><td style="border:1px solid var(--border-color); padding:10px; min-width:80px; resize:horizontal; overflow:hidden;">내용2</td></tr></tbody></table><div><br></div>`;
   
-  // ★ 픽스: svgPlay의 중복 클릭 스크립트 제거 (pointer-events:none 추가) 및 삭제 버튼 확보용 여백(padding-top: 28px) 확장
   const foldHTML = `<div style="position:relative; margin:15px 0; padding-top:28px;" contenteditable="false"><button type="button" onclick="this.parentElement.remove()" style="position:absolute; top:0; right:0; background:#e53e3e; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:11px; font-weight:bold; z-index:10; display:flex; align-items:center; gap:4px;">${svgClose} 박스 삭제</button><details open style="border: 1px solid var(--border-color); border-radius: 8px; background: var(--table-bg-alt); overflow: hidden; font-size:13px;"><summary onmousedown="if(event.target.closest('.fold-title')) return; event.preventDefault(); const d = this.closest('details'); d.open = !d.open;" onclick="if(!event.target.closest('.fold-title')) event.preventDefault();" style="padding: 10px 15px; font-weight: 900; cursor: pointer; color: var(--primary-color); outline: none; list-style:none; display:flex; align-items:center; gap:8px;"><span contenteditable="false" style="display:flex; align-items:center; justify-content:center; user-select:none; padding:2px; pointer-events:none;">${svgPlay}</span><span class="fold-title" contenteditable="true" data-placeholder="접기 박스 제목 (Tab을 눌러 내용으로)" style="outline:none; flex:1; min-width:50px; cursor:text;"></span></summary><div class="fold-content" contenteditable="true" data-placeholder="숨길 내용을 입력하세요..." style="padding: 15px; border-top: 1px dashed var(--border-color); line-height: 1.6; background: var(--surface-color); outline:none; min-height:50px;"></div></details></div><div><br></div>`;
 
-  const iconBtnStyle = { padding: '4px 6px', background: 'var(--bg-color)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px' };
+  const iconBtnStyle = { padding: '4px 6px', background: 'var(--bg-color)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px', transition: '0.2s' };
 
   const handleFontChange = (e) => {
     const val = e.target.value;
@@ -53,14 +62,12 @@ const MemoFormatMainBar = ({
     if (selectRef.current) selectRef.current.value = 'default';
   };
 
-  // ★ 추가: contentEditable 환경에 최적화된 텍스트 감싸기 전용 매크로 함수 (Undo 스택 보호용)
   const applyTextWrap = (prefix, suffix) => {
     const selection = window.getSelection();
     if (!selection.rangeCount) return;
     const selectedText = selection.toString();
     document.execCommand('insertText', false, prefix + selectedText + suffix);
     
-    // 선택된 텍스트 없이 버튼만 눌렀을 경우, 커서를 기호 정중앙으로 자동 텔레포트
     if (selectedText.length === 0) {
       for (let i = 0; i < suffix.length; i++) {
         selection.modify('move', 'backward', 'character');
@@ -112,7 +119,6 @@ const MemoFormatMainBar = ({
         <StrikethroughIcon />
       </button>
 
-      {/* ★ 추가: Crack, Baby 텍스트 감싸기 매크로 버튼 */}
       <button className="wiki-btn" onClick={() => applyTextWrap('*', '*')} style={iconBtnStyle} title="별표 감싸기 (*텍스트*)">
         <CrackIcon />
       </button>
@@ -141,11 +147,30 @@ const MemoFormatMainBar = ({
         <SearchIcon />
       </button>
 
-      <button className="wiki-btn" onClick={openTemplateList} style={iconBtnStyle} title="템플릿/양식 불러오기">
+      {/* ★ 상용구 툴바 그룹 */}
+      <button className="wiki-btn" onClick={openTemplateList} style={iconBtnStyle} title="상용구 목록 불러오기">
         <TemplateIcon />
       </button>
-      <button className="wiki-btn" onClick={saveAsTemplate} style={iconBtnStyle} title="드래그한 영역을 템플릿으로 저장">
+      
+      {/* 두 번째 버튼: 드래그 시 저장, 미드래그 시 '새 상용구 폼 추가' 모달로 스마트 분기 */}
+      <button className="wiki-btn" onClick={saveAsTemplate} style={iconBtnStyle} title="새 상용구 추가 / 선택 영역 템플릿 저장">
         <TemplateSaveIcon />
+      </button>
+
+      {/* 세 번째 마술봉 버튼: 상용구 추천 기능 즉각 토글 */}
+      <button 
+        className="wiki-btn" 
+        onClick={toggleAutoSnippet} 
+        style={{ 
+          ...iconBtnStyle, 
+          marginLeft: '4px',
+          color: isAutoSnippet ? 'white' : 'var(--text-primary)',
+          background: isAutoSnippet ? 'var(--primary-color)' : 'var(--bg-color)',
+          borderColor: isAutoSnippet ? 'var(--primary-color)' : 'var(--border-color)',
+        }} 
+        title={isAutoSnippet ? "상용구 실시간 추천 켜짐 (클릭 시 꺼짐)" : "상용구 실시간 추천 꺼짐 (클릭 시 켜짐)"}
+      >
+        <AutoSnippetIcon />
       </button>
     </div>
   );

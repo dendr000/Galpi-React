@@ -63,6 +63,9 @@ export const SplitVerticalIcon = () => <svg width="14" height="14" viewBox="0 0 
 export const SplitHorizontalIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="3" x2="12" y2="21"></line></svg>;
 export const EyeIcon = ({ size = 14 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
 
-// ★ 텍스트 감싸기 전용 매크로 아이콘 (스케일 보정 및 원본 디자인 정밀 맵핑 적용)
+// 텍스트 감싸기 전용 매크로 아이콘 (스케일 보정 및 원본 디자인 정밀 맵핑 적용)
 export const CrackIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M15 2L3 13h8l-2 9 12-11h-8l2-9z"></path></svg>;
 export const BabyIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21.5C7 16 3 12 3 7.5a4.5 4.5 0 0 1 9 0 4.5 4.5 0 0 1 9 0c0 4.5-4 8.5-9 14z"></path><path d="M15.5 12C14 10.5 12 11 12 12s-2 1.5-3.5 0"></path></svg>;
+
+// 상용구 실시간 추천(Auto Snippet) 토글 전용 매크로 마술봉 아이콘
+export const AutoSnippetIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 4.5l-2-2-5 5 2 2 5-5z"></path><path d="M14 11.5l-9 9-2-2 9-9"></path><path d="M2.5 18.5l3 3"></path><path d="M18.5 2.5l3 3"></path></svg>;

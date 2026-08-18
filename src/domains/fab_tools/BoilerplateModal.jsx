@@ -1,26 +1,29 @@
 // 파일 위치: src/domains/fab_tools/BoilerplateModal.jsx
 // 기능 요약: 비즈니스 훅을 주입받아 폴더/리스트/폼 및 환경설정 스위치를 그리는 팝업 컨테이너
-// 버전: v2.2.0
+// 버전: v2.3.0
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import ModalOverlay from '../../components/common/ModalOverlay';
 import { useModalStore } from '../../store/useModalStore';
 import { useBoilerplateData } from './hooks/useBoilerplateData';
 import { IconFolder, IconPlus, IconEdit, IconTrash, IconChevronDown, IconZap, IconFileText, IconRocket, IconSave } from './components/FabIcons';
 
-import { useEffect } from 'react'; // ★ useEffect 임포트 누락 시 추가
-
 const BoilerplateModal = ({ showToast }) => {
   const { closeModal } = useModalStore();
   const bpData = useBoilerplateData(showToast);
 
-  // ★ 모달이 열릴 때, 드래그해서 넘겨진 HTML 템플릿 초안이 있는지 스캔하여 자동 입력합니다.
+  // ★ 모달이 열릴 때, 드래그해서 넘겨진 HTML 템플릿 초안이 있는지, 또는 '빈 폼 열기' 명령이 떨어졌는지 확인합니다.
   useEffect(() => {
     const draftHtml = localStorage.getItem('galpi-draft-bp');
+    const isEmptyRequest = localStorage.getItem('galpi-draft-bp-empty');
+
     if (draftHtml) {
       bpData.setBpInput(prev => ({ ...prev, content: draftHtml }));
       localStorage.removeItem('galpi-draft-bp');
       if (showToast) showToast("✅ 선택된 영역이 템플릿 본문으로 로드되었습니다.");
+    } else if (isEmptyRequest) {
+      bpData.setBpInput({ title: '', content: '' }); // 폼 강제 비우기
+      localStorage.removeItem('galpi-draft-bp-empty');
     }
   }, [bpData.setBpInput, showToast]);
 

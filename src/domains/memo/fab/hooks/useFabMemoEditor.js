@@ -26,6 +26,15 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
   const [globalBpList, setGlobalBpList] = useState([]);
   const [fontList, setFontList] = useState([]);
 
+  // ★ 툴바 전용: 상용구 추천 기능 토글 상태 관리 (로컬스토리지 동기화)
+  const [isAutoSnippet, setIsAutoSnippet] = useState(() => localStorage.getItem('galpi-bp-preview') !== 'false');
+
+  const toggleAutoSnippet = () => {
+    const nextState = !isAutoSnippet;
+    setIsAutoSnippet(nextState);
+    localStorage.setItem('galpi-bp-preview', String(nextState));
+  };
+
   const updateCharCount = () => {
     if (!editorRef.current) return;
     const text = editorRef.current.innerText || "";
@@ -110,12 +119,16 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
     bpCore.openTemplateList(globalBpList, editorRef.current);
   };
 
+  // ★ 핵심 변경: 드래그 안 하면 에러창 띄우지 말고 빈 '새 상용구 폼'으로 오픈 (옵션 A)
   const saveAsTemplate = () => {
     const sel = window.getSelection();
     if (!sel.rangeCount || sel.isCollapsed) {
-      alert("템플릿으로 저장할 텍스트나 표를 먼저 드래그(선택)해 주십시오.");
+      // 빈 폼으로 열라는 비밀 플래그 삽입 후 모달 오픈
+      localStorage.setItem('galpi-draft-bp-empty', 'true');
+      openModal('boilerplate');
       return;
     }
+    
     const range = sel.getRangeAt(0);
     const div = document.createElement('div');
     div.appendChild(range.cloneContents());
@@ -158,6 +171,8 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
     updatePopupState: bpCore.updatePopupState,
     openTemplateList, 
     saveAsTemplate,
-    fontList
+    fontList,
+    isAutoSnippet,         // ★ 툴바에 주입
+    toggleAutoSnippet      // ★ 툴바에 주입
   };
 };
