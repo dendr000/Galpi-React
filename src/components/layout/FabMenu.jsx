@@ -27,7 +27,9 @@ const FabMenu = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const currentWorkId = new URLSearchParams(location.search).get('workId') || location.pathname.match(/\/work\/(\d+)/)?.[1] || 'global';
+  // ★ 픽스 1: ?id=15 형태의 주소에서도 정확히 작품 번호를 뽑아내도록 스캐너 업그레이드
+  const searchParams = new URLSearchParams(location.search);
+  const currentWorkId = searchParams.get('workId') || searchParams.get('id') || location.pathname.match(/\/work\/(\d+)/)?.[1] || 'global';
 
   const [globalDictList, setGlobalDictList] = useState([]);
   const [globalBpList, setGlobalBpList] = useState([]); 
@@ -38,10 +40,29 @@ const FabMenu = () => {
     setTimeout(() => setToastMsg(''), 2000);
   };
 
+  // ★ 픽스 2: 차단막을 철거하고, 16,000개가 든 '전역 사전'과 '15번 개별 사전'을 모두 가져와 합침
   useEffect(() => {
-    if (currentWorkId !== 'global') {
-      api.get(`/api/dicts?workId=${currentWorkId}`).then(res => setGlobalDictList(res.data)).catch(() => {});
-    }
+    const fetchDictionaries = async () => {
+      try {
+        const globalRes = await api.get('/api/dicts?workId=global');
+        let combinedList = globalRes.data;
+
+        if (currentWorkId && currentWorkId !== 'global') {
+          const localRes = await api.get(`/api/dicts?workId=${currentWorkId}`);
+          combinedList = [...combinedList, ...localRes.data];
+        }
+        
+        // 전역과 개별에 똑같은 한자가 등록된 경우를 대비한 중복 제거
+        const uniqueList = combinedList.filter((v, i, a) => 
+          a.findIndex(t => (t.word === v.word && t.translation === v.translation)) === i
+        );
+        setGlobalDictList(uniqueList);
+      } catch (e) {
+        console.error("사전 데이터 로드 실패", e);
+      }
+    };
+    
+    fetchDictionaries();
   }, [currentWorkId]);
 
   // 상용구 동기화 (실시간 핑 수신 대기)

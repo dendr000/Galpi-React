@@ -92,8 +92,8 @@ const DictModal = ({ currentWorkId, showToast, globalDictList, setGlobalDictList
                   <button 
                     onClick={async () => { 
                       if (window.confirm(`[${d.word}(${d.translation})] 고유 어휘 쌍을 사전에서 소각하시겠습니까?`)) {
-                        // ★ 원문뿐만 아니라 번역본까지 전송하여 해당 한자만 정확하게 핀포인트 파괴
-                        await api.delete(`/api/dicts?workId=${currentWorkId}&word=${encodeURIComponent(d.word)}&translation=${encodeURIComponent(d.translation)}`); 
+                        // ★ 현재 켜진 창의 ID가 아니라, 해당 단어가 원래 소속된 진짜 ID(d.workId)를 전송하여 완벽 삭제
+                        await api.delete(`/api/dicts?workId=${d.workId}&word=${encodeURIComponent(d.word)}&translation=${encodeURIComponent(d.translation)}`); 
                         setGlobalDictList(prev => prev.filter(x => !(x.word === d.word && x.translation === d.translation))); 
                         showToast("🗑️ 해당 사전 색인이 말소 처리되었습니다.");
                       }
