@@ -137,27 +137,45 @@ const DictModal = ({ currentWorkId, showToast, globalDictList, setGlobalDictList
             </tr>
           </thead>
           <tbody>
-            {globalDictList.filter(d => d.word.includes(dictSearch) || d.translation.includes(dictSearch)).map((d, i) => (
-              <tr key={i}>
-                <td style={{padding:'8px', borderBottom:'1px solid var(--border-color)', color: 'var(--text-primary)'}}><b>{d.word}</b></td>
-                <td style={{padding:'8px', borderBottom:'1px solid var(--border-color)', color:'var(--primary-color)', fontWeight:'bold'}}>{d.translation}</td>
-                <td style={{padding:'8px', borderBottom:'1px solid var(--border-color)'}}>
-                  <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                    <button onClick={() => handleEditClick(d)} style={{ border:'none', background:'none', color:'var(--text-secondary)', cursor:'pointer', padding: 0 }} title="수정"><IconEdit size={15} /></button>
-                    <button 
-                      onClick={async () => { 
-                        if (window.confirm(`[${d.word}(${d.translation})] 고유 어휘 쌍을 사전에서 소각하시겠습니까?`)) {
-                          await api.delete(`/api/dicts?workId=${d.workId}&word=${encodeURIComponent(d.word)}&translation=${encodeURIComponent(d.translation)}`); 
-                          setGlobalDictList(prev => prev.filter(x => !(x.word === d.word && x.translation === d.translation))); 
-                          showToast("🗑️ 사전 색인이 말소 처리되었습니다.");
-                        }
-                      }} 
-                      style={{ border:'none', background:'none', color:'#e53e3e', cursor:'pointer', padding: 0 }} title="삭제"
-                    ><IconTrash size={15} /></button>
-                  </div>
+            {/* 검색어가 비어있을 경우 렌더링을 차단하여 1만 개 이상의 데이터 렉 방지 */}
+            {dictSearch.trim() === '' ? (
+              <tr>
+                <td colSpan="3" style={{ padding: '30px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                  검색어를 입력하시면 해당하는 사전 데이터가 출력됩니다.
                 </td>
               </tr>
-            ))}
+            ) : (
+              globalDictList.filter(d => d.word.includes(dictSearch) || d.translation.includes(dictSearch)).map((d, i) => (
+                <tr key={i}>
+                  <td style={{padding:'8px', borderBottom:'1px solid var(--border-color)', color: 'var(--text-primary)'}}><b>{d.word}</b></td>
+                  <td style={{padding:'8px', borderBottom:'1px solid var(--border-color)', color:'var(--primary-color)', fontWeight:'bold'}}>{d.translation}</td>
+                  <td style={{padding:'8px', borderBottom:'1px solid var(--border-color)'}}>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                      <button onClick={() => handleEditClick(d)} style={{ border:'none', background:'none', color:'var(--text-secondary)', cursor:'pointer', padding: 0 }} title="수정"><IconEdit size={15} /></button>
+                      <button 
+                        onClick={async () => { 
+                          if (window.confirm(`[${d.word}(${d.translation})] 고유 어휘 쌍을 사전에서 소각하시겠습니까?`)) {
+                            await api.delete(`/api/dicts?workId=${d.workId}&word=${encodeURIComponent(d.word)}&translation=${encodeURIComponent(d.translation)}`); 
+                            setGlobalDictList(prev => prev.filter(x => !(x.word === d.word && x.translation === d.translation))); 
+                            showToast("🗑️ 사전 색인이 말소 처리되었습니다.");
+                          }
+                        }} 
+                        style={{ border:'none', background:'none', color:'#e53e3e', cursor:'pointer', padding: 0 }} title="삭제"
+                      ><IconTrash size={15} /></button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+            
+            {/* 검색어는 입력했는데 결과가 없을 경우 */}
+            {dictSearch.trim() !== '' && globalDictList.filter(d => d.word.includes(dictSearch) || d.translation.includes(dictSearch)).length === 0 && (
+              <tr>
+                <td colSpan="3" style={{ padding: '30px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                  일치하는 검색 결과가 없습니다.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
