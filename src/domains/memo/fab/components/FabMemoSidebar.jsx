@@ -1,6 +1,6 @@
 // 파일 위치: src/domains/memo/fab/components/FabMemoSidebar.jsx
 // 기능 요약: 스마트 폴더, 재귀 폴더 트리, 태그 탐색기 등 분리된 서브 모듈들을 조합하여 화면 좌측 탐색기를 렌더링하는 허브 래퍼
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFabMemoSidebar } from '../hooks/useFabMemoSidebar';
 import { FolderPlusIcon, FilePlusIcon, FolderIcon, XIcon } from '../../shared/components/MemoIcons';
 import FabMemoSmartFolders from './FabMemoSmartFolders';
@@ -12,6 +12,20 @@ import FabMemoItem from './FabMemoItem';
 const FabMemoSidebar = (props) => {
   const sidebarHooks = useFabMemoSidebar(props);
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // ★ VSC 방식: 사이드바가 열리거나 활성 메모가 바뀔 때, 해당 메모 위치로 스크롤 자동 이동
+  useEffect(() => {
+    if (isExpanded && props.activeMemoId) {
+      // 트리가 펼쳐지고 DOM이 그려질 시간을 잠시(100ms) 기다린 후 추적
+      const timer = setTimeout(() => {
+        const activeNode = document.querySelector('.galpi-active-menu-btn');
+        if (activeNode) {
+          activeNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isExpanded, props.activeMemoId]);
 
   const handleCopyPath = (e, type, target) => {
     e.stopPropagation();
