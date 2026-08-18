@@ -1,10 +1,9 @@
 // 파일 위치: src/domains/fab_tools/hooks/useBoilerplateListener.js
 // 기능 요약: 텍스트 입력망을 전역 감시하여 상용구를 즉각 추천하고 발동시키는 물리 이벤트 스캐너
-// 버전: v2.2.0 (다중 리스너 중복 팝업, 투명 공백 매칭 오류, 모달창 입력 먹통 완벽 해결)
+// 버전: v2.4.0 (다중 리스너 고스트 팝업 제거 및 DB 타이틀 투명 공백 완벽 클렌징)
 
 import { useEffect } from 'react';
 
-// ContentEditable과 Textarea 환경을 모두 지원하는 무결성 현재 줄 텍스트 추출기
 const getCurrentLineText = (editor, isContentEditable) => {
   if (!isContentEditable) {
     const textBefore = editor.value.substring(0, editor.selectionStart);
@@ -15,14 +14,12 @@ const getCurrentLineText = (editor, isContentEditable) => {
   if (!sel.rangeCount) return "";
   const range = sel.getRangeAt(0);
   
-  // 현재 커서가 위치한 블록 엘리먼트 탐색
   let block = range.startContainer;
   while (block && block !== editor && !['DIV', 'P', 'LI', 'TH', 'TD', 'TR'].includes(block.tagName)) {
     block = block.parentNode;
   }
   if (!block || block === editor) block = range.startContainer.parentNode;
   
-  // 해당 블록 내부에서 커서 이전까지의 노드만 복제
   const preRange = range.cloneRange();
   preRange.selectNodeContents(block);
   preRange.setEnd(range.startContainer, range.startOffset);
@@ -31,7 +28,6 @@ const getCurrentLineText = (editor, isContentEditable) => {
   const tempDiv = document.createElement('div');
   tempDiv.appendChild(frag);
   
-  // Range.toString()이 무시하는 <br> 태그를 명시적인 \n으로 강제 치환
   const brs = tempDiv.querySelectorAll('br');
   brs.forEach(br => br.replaceWith(document.createTextNode('\n')));
   
@@ -42,14 +38,15 @@ const getCurrentLineText = (editor, isContentEditable) => {
 export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
   useEffect(() => {
     const handleInput = (e) => {
-      // ★ 픽스 3: 다중 마운트된 리스너들이 동일 이벤트를 중복 처리해 팝업을 2개 띄우는 것 방어
-      if (e._bpHandled) return;
+      if (e._bpHandled) {
+        bpCore.closeBpPopup();
+        return;
+      }
 
       const isTextarea = e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT';
       const isContentEditable = e.target.isContentEditable;
       if (!isTextarea && !isContentEditable) return;
       
-      // ★ 픽스 4: 상용구 관리 원장(모달) 내부의 입력칸은 탐욕 스캐너 감시망에서 완전히 제외
       if (e.target.closest('.modal-overlay')) return;
 
       e._bpHandled = true;
@@ -60,7 +57,6 @@ export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
       const editor = e.target;
       let currentLine = getCurrentLineText(editor, isContentEditable);
       
-      // ★ 픽스 1 & 2: 에디터 렌더링용 보이지 않는 특수 공백(\u2060 등)을 분쇄하여 스캔 무결성 확보
       currentLine = currentLine.replace(/[\u200B-\u200D\uFEFF\u2060]/g, '');
 
       if (currentLine.length >= 1) {
@@ -75,13 +71,20 @@ export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
           let suffix = currentLine.substring(i);
           if (suffix.trim() === '') continue;
 
-          // 대소문자 무시 완벽 매칭
-          let matched = activeBps.filter(b => b.title.toLowerCase().startsWith(suffix.toLowerCase()));
+          // ★ 픽스: 내가 친 글자뿐만 아니라, 등록된 상용구 이름(title)에 묻은 투명 찌꺼기까지 완벽히 털어내고 비교합니다.
+          let matched = activeBps.filter(b => {
+             const cleanTitle = b.title.replace(/[\u200B-\u200D\uFEFF\u2060]/g, '').toLowerCase();
+             return cleanTitle.startsWith(suffix.toLowerCase());
+          });
+          
           if (matched.length > 0) {
             matched.sort((a, b) => {
-              if (a.title.toLowerCase() === suffix.toLowerCase() && b.title.toLowerCase() !== suffix.toLowerCase()) return -1;
-              if (b.title.toLowerCase() === suffix.toLowerCase() && a.title.toLowerCase() !== suffix.toLowerCase()) return 1;
-              return a.title.length - b.title.length;
+              const cleanA = a.title.replace(/[\u200B-\u200D\uFEFF\u2060]/g, '').toLowerCase();
+              const cleanB = b.title.replace(/[\u200B-\u200D\uFEFF\u2060]/g, '').toLowerCase();
+              const cleanSuffix = suffix.toLowerCase();
+              if (cleanA === cleanSuffix && cleanB !== cleanSuffix) return -1;
+              if (cleanB === cleanSuffix && cleanA !== cleanSuffix) return 1;
+              return cleanA.length - cleanB.length;
             });
             suggests = matched;
             keywordLen = suffix.length;
@@ -114,14 +117,15 @@ export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
     };
 
     const handleKeydown = (e) => {
-      // 중복 팝업 제어 락
-      if (e._bpHandledKey) return;
+      if (e._bpHandledKey) {
+        bpCore.closeBpPopup();
+        return;
+      }
 
       const isTextarea = e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT';
       const isContentEditable = e.target.isContentEditable;
       if (!isTextarea && !isContentEditable) return;
 
-      // 모달 오버레이 내부 차단
       if (e.target.closest('.modal-overlay')) return;
 
       e._bpHandledKey = true;
@@ -161,23 +165,24 @@ export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
       if (isManual || isAuto) {
         let currentLine = getCurrentLineText(editor, isContentEditable);
         
-        // ★ 픽스 1: 투명 공백 제거 및 Alt+Enter 시 뒤에 실수로 띄어쓰기를 쳤더라도 무시하고 매칭(trimEnd)
         currentLine = currentLine.replace(/[\u200B-\u200D\uFEFF\u2060]/g, '').trimEnd();
 
         const activeCat = localStorage.getItem('galpi-bp-active-folder') || '전체';
         const activeBps = globalBpList.filter(b => activeCat === '전체' || b.category === activeCat || b.category === '공통');
         
-        // 대소문자 무시 완벽 매칭
-        const exactMatches = activeBps.filter(b => currentLine.toLowerCase().endsWith(b.title.toLowerCase()));
+        const exactMatches = activeBps.filter(b => {
+           const cleanTitle = b.title.replace(/[\u200B-\u200D\uFEFF\u2060]/g, '').toLowerCase();
+           return currentLine.toLowerCase().endsWith(cleanTitle);
+        });
 
         if (exactMatches.length > 0) {
-          const maxLength = Math.max(...exactMatches.map(b => b.title.length));
-          const longestMatches = exactMatches.filter(b => b.title.length === maxLength);
+          const maxLength = Math.max(...exactMatches.map(b => b.title.replace(/[\u200B-\u200D\uFEFF\u2060]/g, '').length));
+          const longestMatches = exactMatches.filter(b => b.title.replace(/[\u200B-\u200D\uFEFF\u2060]/g, '').length === maxLength);
 
           if (longestMatches.length === 1) {
             e.preventDefault();
             bpCore.targetEditorRef.current = editor;
-            bpCore.popupStateRef.current = { ...bpCore.popupStateRef.current, active: true, matches: longestMatches, selectedIdx: 0, keywordLength: longestMatches[0].title.length };
+            bpCore.popupStateRef.current = { ...bpCore.popupStateRef.current, active: true, matches: longestMatches, selectedIdx: 0, keywordLength: longestMatches[0].title.replace(/[\u200B-\u200D\uFEFF\u2060]/g, '').length };
             bpCore.commitBpExpansion();
             return;
           } else if (longestMatches.length > 1) {
@@ -191,7 +196,7 @@ export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
             
             bpCore.updatePopupState({
               active: true, mode: 'choice', matches: longestMatches, selectedIdx: 0,
-              keywordLength: longestMatches[0].title.length, x: leftPos, y: topPos
+              keywordLength: longestMatches[0].title.replace(/[\u200B-\u200D\uFEFF\u2060]/g, '').length, x: leftPos, y: topPos
             });
             return;
           }

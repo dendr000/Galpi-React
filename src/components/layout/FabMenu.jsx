@@ -44,8 +44,12 @@ const FabMenu = () => {
     }
   }, [currentWorkId]);
 
+  // 상용구 동기화 (실시간 핑 수신 대기)
   useEffect(() => {
-    api.get('/api/boilerplates').then(res => setGlobalBpList(res.data)).catch(() => {});
+    const fetchBps = () => api.get('/api/boilerplates').then(res => setGlobalBpList(res.data)).catch(() => {});
+    fetchBps();
+    window.addEventListener('galpi-bp-sync', fetchBps);
+    return () => window.removeEventListener('galpi-bp-sync', fetchBps);
   }, []);
 
   const bpCore = useBoilerplateCore(showToast);

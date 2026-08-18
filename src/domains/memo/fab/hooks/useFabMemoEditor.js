@@ -65,8 +65,12 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
   }, [activeMemo?.id]);
 
   useEffect(() => {
-    api.get('/api/boilerplates').then(res => setGlobalBpList(res.data)).catch(() => {});
+    // 1. 상용구 리스트 동기화 (실시간 핑 수신 대기)
+    const fetchBps = () => api.get('/api/boilerplates').then(res => setGlobalBpList(res.data)).catch(() => {});
+    fetchBps();
+    window.addEventListener('galpi-bp-sync', fetchBps);
     
+    // 2. 폰트 목록 스캔
     api.get('/api/fonts').then(res => {
       if (res.data && res.data.length > 0) {
         const sortedFonts = res.data.sort((a, b) => a.displayName.localeCompare(b.displayName, 'ko-KR'));

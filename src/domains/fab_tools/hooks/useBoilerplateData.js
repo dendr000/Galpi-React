@@ -1,6 +1,6 @@
 // 파일 위치: src/domains/fab_tools/hooks/useBoilerplateData.js
-// 기능 요약: 상용구 폴더 관리, 환경설정 로컬 저장소 동기화, 벌크 매크로 제어를 전담하는 커스텀 훅
-// 버전: v2.1.0
+// 기능 요약: 상용구 폴더 관리, 환경설정 로컬 저장소 동기화, 벌크 매크로 제어 및 전역 동기화(Sync) 발송 훅
+// 버전: v2.2.0 (실시간 전역 동기화 이벤트 탑재)
 
 import { useState, useEffect } from 'react';
 import api from '../../../api/axiosCore';
@@ -19,7 +19,6 @@ export const useBoilerplateData = (showToast) => {
   const [bpBulk, setBpBulk] = useState('');
   const [isBpBulkMode, setIsBpBulkMode] = useState(false);
 
-  // 환경설정 토글 상태 관리 (LocalStorage 연동)
   const [isBpAuto, setIsBpAuto] = useState(() => localStorage.getItem('galpi-bp-auto') !== 'false');
   const [isBpPreview, setIsBpPreview] = useState(() => localStorage.getItem('galpi-bp-preview') !== 'false');
 
@@ -32,6 +31,11 @@ export const useBoilerplateData = (showToast) => {
       const res = await api.get('/api/boilerplates');
       setBpList(res.data);
     } catch (e) {}
+  };
+
+  // ★ 전역 스캐너들에게 데이터가 변경되었음을 알리는 핑(Ping) 발송 함수
+  const broadcastSync = () => {
+    window.dispatchEvent(new Event('galpi-bp-sync'));
   };
 
   const changeFolder = (folder) => {
@@ -76,7 +80,9 @@ export const useBoilerplateData = (showToast) => {
       setBpList(updatedBps);
 
       const affected = updatedBps.filter(bp => bp.category === finalName);
-      Promise.all(affected.map(bp => api.put(`/api/boilerplates/${bp.id}`, bp))).catch(() => {});
+      Promise.all(affected.map(bp => api.put(`/api/boilerplates/${bp.id}`, bp)))
+        .then(broadcastSync)
+        .catch(() => {});
       
       changeFolder(finalName);
     }
@@ -95,7 +101,9 @@ export const useBoilerplateData = (showToast) => {
       setBpList(updatedBps);
 
       const affected = bpList.filter(bp => bp.category === target);
-      Promise.all(affected.map(bp => api.put(`/api/boilerplates/${bp.id}`, { ...bp, category: '공통' }))).catch(() => {});
+      Promise.all(affected.map(bp => api.put(`/api/boilerplates/${bp.id}`, { ...bp, category: '공통' })))
+        .then(broadcastSync)
+        .catch(() => {});
       
       changeFolder('전체');
     }
@@ -127,6 +135,7 @@ export const useBoilerplateData = (showToast) => {
         setBpList(prev => [...prev, res.data]);
         showToast("스마트 오토 상용구 서식 등록에 성공했습니다.");
       }
+      broadcastSync(); // ★ 동기화 핑 발송
       handleBpCancelEdit();
     } catch (e) {}
   };
@@ -150,6 +159,7 @@ export const useBoilerplateData = (showToast) => {
         await api.delete(`/api/boilerplates/${id}`);
         setBpList(prev => prev.filter(x => x.id !== id));
         showToast("단축 상용구 양식이 제거되었습니다.");
+        broadcastSync(); // ★ 동기화 핑 발송
         if (editingId === id) handleBpCancelEdit();
       } catch (e) {}
     }
@@ -189,6 +199,7 @@ export const useBoilerplateData = (showToast) => {
       setBpBulk('');
       setIsBpBulkMode(false);
       showToast(`총 ${count}개의 문장형 상용구 인프라 배포 완료!`);
+      broadcastSync(); // ★ 동기화 핑 발송
     } else {
       alert("배포 가능한 가용 라인이 존재하지 않거나 기존 원장과 중복됩니다.");
     }
