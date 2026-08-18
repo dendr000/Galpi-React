@@ -73,27 +73,50 @@ const FabMenu = () => {
         closeModal();
       }
       
+      // Alt + H 고유명사 한자 실시간 다중 순환 치환 연산 (한자 단독 출력 제거)
       if (e.altKey && e.key.toLowerCase() === 'h' && e.target.tagName.match(/INPUT|TEXTAREA/)) {
         e.preventDefault(); e.stopPropagation();
         const input = e.target;
         const text = input.value;
         const cursor = input.selectionStart;
         const textBefore = text.substring(0, cursor);
-        const keys = globalDictList.map(d => d.word).sort((a, b) => b.length - a.length);
         
-        for (let k of keys) {
-          const trans = globalDictList.find(d => d.word === k)?.translation || '';
-          const pureVal = trans.match(/\((.*?)\)/) ? trans.match(/\((.*?)\)/)[1] : trans.replace(k, '').replace(/[\(\)]/g, '');
-          const step1 = k; const step2 = `${k}(${pureVal})`; const step3 = pureVal;
-          let rep = null; let mLen = 0;
+        // 중복된 원문을 하나로 묶어 긴 단어부터 스캔 방어망 구축
+        const uniqueKeys = [...new Set(globalDictList.map(d => d.word))].sort((a, b) => b.length - a.length);
+        
+        for (let k of uniqueKeys) {
+          // 해당 원문에 등록된 모든 치환 데이터(다중 한자)를 긁어옴
+          const matchingDicts = globalDictList.filter(d => d.word === k);
           
-          if (textBefore.endsWith(step1)) { rep = step2; mLen = step1.length; } 
-          else if (textBefore.endsWith(step2)) { rep = step3; mLen = step2.length; } 
-          else if (textBefore.endsWith(step3)) { rep = step1; mLen = step3.length; }
+          // 동적 순환 배열 생성: [ "뇌극", "뇌극(雷極)", "뇌극(雷戟)" ... ]
+          const cycleList = [k];
+          matchingDicts.forEach(dict => {
+            const trans = dict.translation;
+            const pureVal = trans.match(/\((.*?)\)/) ? trans.match(/\((.*?)\)/)[1] : trans.replace(k, '').replace(/[\(\)]/g, '');
+            cycleList.push(`${k}(${pureVal})`);
+          });
 
-          if (rep) {
-            input.value = text.substring(0, cursor - mLen) + rep + text.substring(cursor);
-            input.selectionStart = input.selectionEnd = cursor - mLen + rep.length;
+          let matchIndex = -1;
+          let matchLength = 0;
+
+          // 가장 긴 문자열(원문(한자))부터 매칭하여 짧은 단어가 덮어쓰는 오류 방지
+          const sortedCycleList = [...cycleList].map((val, idx) => ({val, idx})).sort((a, b) => b.val.length - a.val.length);
+
+          for (let item of sortedCycleList) {
+            if (textBefore.endsWith(item.val)) {
+              matchIndex = item.idx;
+              matchLength = item.val.length;
+              break;
+            }
+          }
+
+          if (matchIndex !== -1) {
+            // 현재 매칭된 인덱스에서 다음 인덱스로 이동, 배열 끝이면 다시 0번(원문 단독)으로 복귀
+            const nextIndex = (matchIndex + 1) % cycleList.length;
+            const rep = cycleList[nextIndex];
+
+            input.value = text.substring(0, cursor - matchLength) + rep + text.substring(cursor);
+            input.selectionStart = input.selectionEnd = cursor - matchLength + rep.length;
             input.dispatchEvent(new Event('input', { bubbles: true }));
             break;
           }

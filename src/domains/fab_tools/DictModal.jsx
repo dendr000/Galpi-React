@@ -36,7 +36,8 @@ const DictModal = ({ currentWorkId, showToast, globalDictList, setGlobalDictList
       if (match) {
         let key = match[1].trim(); let val = match[2].trim();
         if (/[가-힣]/.test(val) && !/[가-힣]/.test(key)) { key = match[2].trim(); val = match[1].trim(); }
-        if (!newDict.some(d => d.word === key)) {
+        // 완전히 동일한 쌍(원문+한자)일 때만 차단하고, 한자가 다르면 순환 구조에 끼워넣기 위해 통과시킴
+        if (!newDict.some(d => d.word === key && d.translation === val)) {
           newDict.push({ workId: currentWorkId, word: key, translation: val });
           payloads.push({ workId: currentWorkId, word: key, translation: val });
         }
@@ -90,10 +91,11 @@ const DictModal = ({ currentWorkId, showToast, globalDictList, setGlobalDictList
                 <td style={{padding:'8px', borderBottom:'1px solid var(--border-color)'}}>
                   <button 
                     onClick={async () => { 
-                      if (window.confirm(`[${d.word}] 고유 어휘를 사전에서 소각하시겠습니까?`)) {
-                        await api.delete(`/api/dicts?workId=${currentWorkId}&word=${encodeURIComponent(d.word)}`); 
-                        setGlobalDictList(prev => prev.filter(x => x.word !== d.word)); 
-                        showToast("🗑️ 사전 색인에서 말소 처리되었습니다.");
+                      if (window.confirm(`[${d.word}(${d.translation})] 고유 어휘 쌍을 사전에서 소각하시겠습니까?`)) {
+                        // ★ 원문뿐만 아니라 번역본까지 전송하여 해당 한자만 정확하게 핀포인트 파괴
+                        await api.delete(`/api/dicts?workId=${currentWorkId}&word=${encodeURIComponent(d.word)}&translation=${encodeURIComponent(d.translation)}`); 
+                        setGlobalDictList(prev => prev.filter(x => !(x.word === d.word && x.translation === d.translation))); 
+                        showToast("🗑️ 해당 사전 색인이 말소 처리되었습니다.");
                       }
                     }} 
                     style={{ border:'none', background:'none', color:'#e53e3e', cursor:'pointer', fontWeight:'bold', fontSize: '14px' }}
