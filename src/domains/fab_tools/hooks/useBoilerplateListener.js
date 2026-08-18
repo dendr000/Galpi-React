@@ -1,15 +1,47 @@
 // 파일 위치: src/domains/fab_tools/hooks/useBoilerplateListener.js
 // 기능 요약: 텍스트 입력망을 전역 감시하여 상용구를 즉각 추천하고 발동시키는 물리 이벤트 스캐너
-// 버전: v2.1.0 (모달 내부 입력 보호 방어막 추가)
+// 버전: v2.1.0 (ContentEditable 줄바꿈(\n) 완벽 인식 및 과잉 매칭 오작동 차단 패치)
 
 import { useEffect } from 'react';
+
+// ContentEditable과 Textarea 환경을 모두 지원하는 무결성 현재 줄 텍스트 추출기
+const getCurrentLineText = (editor, isContentEditable) => {
+  if (!isContentEditable) {
+    const textBefore = editor.value.substring(0, editor.selectionStart);
+    return textBefore.substring(textBefore.lastIndexOf('\n') + 1);
+  }
+  
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return "";
+  const range = sel.getRangeAt(0);
+  
+  // 현재 커서가 위치한 블록 엘리먼트 탐색
+  let block = range.startContainer;
+  while (block && block !== editor && !['DIV', 'P', 'LI', 'TH', 'TD', 'TR'].includes(block.tagName)) {
+    block = block.parentNode;
+  }
+  if (!block || block === editor) block = range.startContainer.parentNode;
+  
+  // 해당 블록 내부에서 커서 이전까지의 노드만 복제
+  const preRange = range.cloneRange();
+  preRange.selectNodeContents(block);
+  preRange.setEnd(range.startContainer, range.startOffset);
+  
+  const frag = preRange.cloneContents();
+  const tempDiv = document.createElement('div');
+  tempDiv.appendChild(frag);
+  
+  // Range.toString()이 무시하는 <br> 태그를 명시적인 \n으로 강제 치환
+  const brs = tempDiv.querySelectorAll('br');
+  brs.forEach(br => br.replaceWith(document.createTextNode('\n')));
+  
+  const textBefore = tempDiv.textContent || "";
+  return textBefore.substring(textBefore.lastIndexOf('\n') + 1);
+};
 
 export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
   useEffect(() => {
     const handleInput = (e) => {
-      // ★ 픽스: 모달창 내부에서 발생한 입력은 상용구 센서가 간섭하지 않고 즉시 무시합니다.
-      if (e.target.closest('.modal-overlay')) return;
-
       const isTextarea = e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT';
       const isContentEditable = e.target.isContentEditable;
       if (!isTextarea && !isContentEditable) return;
@@ -18,22 +50,7 @@ export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
       if (!isPreviewOn || bpCore.popupStateRef.current.mode === 'choice') return;
 
       const editor = e.target;
-      let textBefore = "";
-
-      if (isContentEditable) {
-        const sel = window.getSelection();
-        if (sel.rangeCount > 0) {
-          const range = sel.getRangeAt(0);
-          const preCaretRange = range.cloneRange();
-          preCaretRange.selectNodeContents(editor);
-          preCaretRange.setEnd(range.endContainer, range.endOffset);
-          textBefore = preCaretRange.toString();
-        }
-      } else {
-        textBefore = editor.value.substring(0, editor.selectionStart);
-      }
-
-      const currentLine = textBefore.substring(textBefore.lastIndexOf('\n') + 1);
+      const currentLine = getCurrentLineText(editor, isContentEditable);
 
       if (currentLine.length >= 1) {
         const activeCat = localStorage.getItem('galpi-bp-active-folder') || '전체';
@@ -85,9 +102,6 @@ export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
     };
 
     const handleKeydown = (e) => {
-      // ★ 픽스: 모달창 내부에서 발생한 단축키 이벤트는 낚아채지 않고 즉시 방생시킵니다.
-      if (e.target.closest('.modal-overlay')) return;
-
       const isTextarea = e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT';
       const isContentEditable = e.target.isContentEditable;
       if (!isTextarea && !isContentEditable) return;
@@ -108,8 +122,7 @@ export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
             return;
           }
         } else if (state.mode === 'suggest') {
-          // ★ Tab 키는 표 네비게이션을 방해하지 않도록 상용구 확정 단축키에서 완전히 제외합니다.
-          if (e.key === 'Enter') {
+          if (e.key === 'Tab' || e.key === 'Enter') {
             if (e.isComposing) return;
             e.preventDefault(); bpCore.commitBpExpansion(); return;
           }
@@ -126,23 +139,10 @@ export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
       const isManual = e.altKey && e.key === 'Enter';
 
       if (isManual || isAuto) {
-        let textBefore = "";
-        if (isContentEditable) {
-          const sel = window.getSelection();
-          if(sel.rangeCount) {
-            const range = sel.getRangeAt(0);
-            const preCaretRange = range.cloneRange();
-            preCaretRange.selectNodeContents(editor);
-            preCaretRange.setEnd(range.endContainer, range.endOffset);
-            textBefore = preCaretRange.toString();
-          }
-        } else {
-          textBefore = editor.value.substring(0, editor.selectionStart);
-        }
-
+        const currentLine = getCurrentLineText(editor, isContentEditable);
         const activeCat = localStorage.getItem('galpi-bp-active-folder') || '전체';
         const activeBps = globalBpList.filter(b => activeCat === '전체' || b.category === activeCat || b.category === '공통');
-        const exactMatches = activeBps.filter(b => textBefore.endsWith(b.title));
+        const exactMatches = activeBps.filter(b => currentLine.endsWith(b.title));
 
         if (exactMatches.length > 0) {
           const maxLength = Math.max(...exactMatches.map(b => b.title.length));
