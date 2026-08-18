@@ -26,7 +26,6 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
   const [globalBpList, setGlobalBpList] = useState([]);
   const [fontList, setFontList] = useState([]);
 
-  // ★ 툴바 전용: 상용구 추천 기능 토글 상태 관리 (로컬스토리지 동기화)
   const [isAutoSnippet, setIsAutoSnippet] = useState(() => localStorage.getItem('galpi-bp-preview') !== 'false');
 
   const toggleAutoSnippet = () => {
@@ -65,12 +64,8 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
   }, [activeMemo?.id]);
 
   useEffect(() => {
-    // 1. 상용구 리스트 동기화 (실시간 핑 수신 대기)
-    const fetchBps = () => api.get('/api/boilerplates').then(res => setGlobalBpList(res.data)).catch(() => {});
-    fetchBps();
-    window.addEventListener('galpi-bp-sync', fetchBps);
+    api.get('/api/boilerplates').then(res => setGlobalBpList(res.data)).catch(() => {});
     
-    // 2. 폰트 목록 스캔
     api.get('/api/fonts').then(res => {
       if (res.data && res.data.length > 0) {
         const sortedFonts = res.data.sort((a, b) => a.displayName.localeCompare(b.displayName, 'ko-KR'));
@@ -123,11 +118,9 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
     bpCore.openTemplateList(globalBpList, editorRef.current);
   };
 
-  // ★ 핵심 변경: 드래그 안 하면 에러창 띄우지 말고 빈 '새 상용구 폼'으로 오픈 (옵션 A)
   const saveAsTemplate = () => {
     const sel = window.getSelection();
     if (!sel.rangeCount || sel.isCollapsed) {
-      // 빈 폼으로 열라는 비밀 플래그 삽입 후 모달 오픈
       localStorage.setItem('galpi-draft-bp-empty', 'true');
       openModal('boilerplate');
       return;
@@ -156,7 +149,9 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
     insertBookmark: bookmarkHooks.insertBookmark,
     openBookmarkModal: bookmarkHooks.openBookmarkModal,
     navigate,
-    setActiveMemoId
+    setActiveMemoId,
+    saveAsTemplate,   // ★ 단축키 이벤트를 위해 추가 주입
+    toggleAutoSnippet // ★ 단축키 이벤트를 위해 추가 주입
   });
 
   return {
@@ -176,7 +171,7 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
     openTemplateList, 
     saveAsTemplate,
     fontList,
-    isAutoSnippet,         // ★ 툴바에 주입
-    toggleAutoSnippet      // ★ 툴바에 주입
+    isAutoSnippet,         
+    toggleAutoSnippet      
   };
 };

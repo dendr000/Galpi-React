@@ -2,7 +2,12 @@
 import { useMemoSelection } from './events/useMemoSelection';
 import { useMemoTableNav } from './events/useMemoTableNav';
 
-export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTableFocus, insertFootnote, handleFootnoteClick, triggerLinkEdit, closeLinkPopover, insertBookmark, openBookmarkModal, navigate, setActiveMemoId }) => {
+export const useMemoEvents = ({ 
+  editorRef, saveMemo, updateCharCount, checkTableFocus, 
+  insertFootnote, handleFootnoteClick, triggerLinkEdit, 
+  closeLinkPopover, insertBookmark, openBookmarkModal, navigate, setActiveMemoId,
+  saveAsTemplate, toggleAutoSnippet // ★ 훅에서 주입받은 상용구 함수
+}) => {
   const { handleSelectAll, handleCopy } = useMemoSelection({ editorRef, updateCharCount });
   const { handleTableNavigation } = useMemoTableNav({ editorRef, updateCharCount });
 
@@ -34,7 +39,7 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
   };
 
   const handleEditorKeyDown = (e) => {
-    // 1. 단축키 시스템 (저장, 각주, 북마크, 링크)
+    // 1. 단축키 시스템 (저장, 각주, 북마크, 링크, 취소선, 상용구)
     if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
       e.preventDefault(); e.stopPropagation(); saveMemo(); return;
     }
@@ -44,16 +49,41 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
     if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
       e.preventDefault(); e.stopPropagation(); if (insertBookmark) insertBookmark(); return;
     }
-    if (e.altKey && (e.key === 'w' || e.key === 'W')) {
+    
+    // Alt + W, Alt + G 단축키가 Alt + Shift와 충돌하지 않도록 !e.shiftKey 방어 로직 추가
+    if (e.altKey && !e.shiftKey && (e.key === 'w' || e.key === 'W')) {
       e.preventDefault(); e.stopPropagation(); insertMarkdownLink(); return;
     }
-    if (e.altKey && (e.key === 'g' || e.key === 'G')) {
+    if (e.altKey && !e.shiftKey && (e.key === 'g' || e.key === 'G')) {
       e.preventDefault(); e.stopPropagation(); if (openBookmarkModal) openBookmarkModal(); return;
+    }
+
+    // ★ 신규 단축키: 취소선 (Ctrl + Shift + Alt + -)
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.altKey && e.key === '-') {
+      e.preventDefault(); e.stopPropagation();
+      document.execCommand('strikeThrough', false, null);
+      if (updateCharCount) updateCharCount();
+      return;
+    }
+
+    // ★ 신규 단축키: 상용구 토글 ON/OFF (Alt + Shift + T)
+    // 대소문자 무시를 위해 .toLowerCase() 로 처리
+    if (e.altKey && e.shiftKey && e.key.toLowerCase() === 't') {
+      e.preventDefault(); e.stopPropagation();
+      if (toggleAutoSnippet) toggleAutoSnippet();
+      return;
+    }
+
+    // ★ 신규 단축키: 상용구 모달 띄우기 (Alt + T)
+    if (e.altKey && !e.shiftKey && e.key.toLowerCase() === 't') {
+      e.preventDefault(); e.stopPropagation();
+      if (saveAsTemplate) saveAsTemplate();
+      return;
     }
 
     const selection = window.getSelection();
 
-    // ★ 추가 및 확장: 자동 완성 기호 짝꿍 매핑 (쌍/홑따옴표, 별표, 소/중/대괄호)
+    // 자동 완성 기호 짝꿍 매핑
     const pairMap = {
       '"': '"',
       "'": "'",
@@ -63,7 +93,6 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
       '[': ']'
     };
 
-    // 사용자가 입력한 키가 쌍을 이루는 기호 중 하나인지 확인
     if (pairMap[e.key]) {
       if (selection.rangeCount > 0 && editorRef.current && editorRef.current.contains(selection.anchorNode)) {
         e.preventDefault();
@@ -71,12 +100,10 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
         
         const selectedText = selection.toString();
         const openChar = e.key;
-        const closeChar = pairMap[e.key]; // 맵핑된 닫는 기호 가져오기
+        const closeChar = pairMap[e.key]; 
         
-        // execCommand를 사용해 Undo(실행 취소) 히스토리 보존 및 강제 삽입
         document.execCommand('insertText', false, openChar + selectedText + closeChar);
         
-        // 빈 텍스트(허공)에서 쳤을 경우 커서를 삽입된 두 기호 정중앙으로 이동
         if (selectedText.length === 0) {
           selection.modify('move', 'backward', 'character');
         }
@@ -90,7 +117,6 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
       const anchor = selection.anchorNode;
       const element = anchor.nodeType === 3 ? anchor.parentNode : anchor;
 
-      // ★ 픽스 3: 접기 박스 전용 스마트 제어 (Tab 텔레포트 및 Backspace 방어)
       const foldTitle = element.closest ? element.closest('.fold-title') : null;
       if (foldTitle) {
         if (e.key === 'Tab') {
@@ -98,7 +124,7 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
           e.stopPropagation();
           const details = foldTitle.closest('details');
           if (details) {
-            details.open = true; // 무조건 열기
+            details.open = true;
             const contentBox = details.querySelector('.fold-content');
             if (contentBox) {
               contentBox.focus();
@@ -115,7 +141,6 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
         if (e.key === 'Backspace') {
           const range = selection.getRangeAt(0);
           if (range.collapsed && range.startOffset === 0) {
-            // 커서가 맨 앞 텍스트 노드에 있거나 foldTitle 본체일 경우 백스페이스 무시 (▶ 삭제 방어)
             if (range.startContainer === foldTitle || range.startContainer === foldTitle.firstChild) {
               e.preventDefault();
               e.stopPropagation();
@@ -126,12 +151,10 @@ export const useMemoEvents = ({ editorRef, saveMemo, updateCharCount, checkTable
       }
     }
 
-    // 2. Ctrl+A 격리 모드
     if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
       if (handleSelectAll(e)) return;
     }
 
-    // 3. 표 네비게이션
     if (e.key === 'Tab' || (e.key === 'Enter' && !e.shiftKey)) {
       if (handleTableNavigation(e)) return;
     }
