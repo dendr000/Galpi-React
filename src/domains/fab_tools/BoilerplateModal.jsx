@@ -1,8 +1,8 @@
 // 파일 위치: src/domains/fab_tools/BoilerplateModal.jsx
 // 기능 요약: 비즈니스 훅을 주입받아 폴더/리스트/폼 및 환경설정 스위치를 그리는 팝업 컨테이너
-// 버전: v2.3.0
+// 버전: v2.3.1 (리스트 지연 렌더링/토글 기능 추가 완비)
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import ModalOverlay from '../../components/common/ModalOverlay';
 import { useModalStore } from '../../store/useModalStore';
 import { useBoilerplateData } from './hooks/useBoilerplateData';
@@ -11,6 +11,9 @@ import { IconFolder, IconPlus, IconEdit, IconTrash, IconChevronDown, IconZap, Ic
 const BoilerplateModal = ({ showToast }) => {
   const { closeModal } = useModalStore();
   const bpData = useBoilerplateData(showToast);
+
+  // ★ 상용구 리스트 지연 렌더링(성능 최적화)을 위한 상태 추가
+  const [isListVisible, setIsListVisible] = useState(false);
 
   // ★ 모달이 열릴 때, 드래그해서 넘겨진 HTML 템플릿 초안이 있는지, 또는 '빈 폼 열기' 명령이 떨어졌는지 확인합니다.
   useEffect(() => {
@@ -93,21 +96,37 @@ const BoilerplateModal = ({ showToast }) => {
          </div>
       )}
       
-      {/* 5. 상용구 목록 리스트 */}
-      <div style={{ flex: 1, overflowY: 'auto', maxHeight: '300px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {bpData.bpList.map(b => (
-          <div key={b.id} className="bp-item" style={{ display: 'flex', padding: '10px 12px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '6px', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', background: 'var(--bg-color)', padding: '2px 6px', borderRadius: '4px', whiteSpace: 'nowrap' }}>{b.category}</div>
-            <div style={{ width: '100px', fontWeight: 'bold', color: 'var(--primary-color)', fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.title}</div>
-            <div style={{ flex: 1, color: 'var(--text-primary)', fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.content.replace('{#}', '[커서]')}</div>
-            <div style={{ display: 'flex', gap: '6px' }}>
-              <button onClick={() => bpData.handleBpEdit(b)} style={{ border: 'none', background: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>수정</button>
-              <button onClick={() => bpData.handleBpDelete(b.id, b.title)} style={{ border: 'none', background: 'none', color: '#e53e3e', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>삭제</button>
+      {/* 5. 상용구 목록 리스트 토글 버튼 신설 */}
+      <button 
+        className="wiki-btn"
+        onClick={() => setIsListVisible(!isListVisible)}
+        style={{ 
+          width: '100%', padding: '10px', background: 'var(--table-bg-alt)', 
+          border: '1px solid var(--border-color)', borderRadius: '6px', 
+          cursor: 'pointer', fontWeight: 'bold', color: 'var(--text-primary)', 
+          marginBottom: '8px', transition: '0.2s', boxSizing: 'border-box'
+        }}
+      >
+        {isListVisible ? '목록 숨기기 ▲' : `전체 상용구 목록 펼치기 (${bpData.bpList.length}개) ▼`}
+      </button>
+
+      {/* 6. 상용구 목록 리스트 (토글 상태에 따라 조건부 렌더링) */}
+      {isListVisible && (
+        <div style={{ flex: 1, overflowY: 'auto', maxHeight: '300px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {bpData.bpList.map(b => (
+            <div key={b.id} className="bp-item" style={{ display: 'flex', padding: '10px 12px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '6px', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', background: 'var(--bg-color)', padding: '2px 6px', borderRadius: '4px', whiteSpace: 'nowrap' }}>{b.category}</div>
+              <div style={{ width: '100px', fontWeight: 'bold', color: 'var(--primary-color)', fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.title}</div>
+              <div style={{ flex: 1, color: 'var(--text-primary)', fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.content.replace('{#}', '[커서]')}</div>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button onClick={() => bpData.handleBpEdit(b)} style={{ border: 'none', background: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>수정</button>
+                <button onClick={() => bpData.handleBpDelete(b.id, b.title)} style={{ border: 'none', background: 'none', color: '#e53e3e', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>삭제</button>
+              </div>
             </div>
-          </div>
-        ))}
-        {bpData.bpList.length === 0 && <div className="modal-empty" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>해당 폴더에 저장된 서식이 존재하지 않습니다.</div>}
-      </div>
+          ))}
+          {bpData.bpList.length === 0 && <div className="modal-empty" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>해당 폴더에 저장된 서식이 존재하지 않습니다.</div>}
+        </div>
+      )}
     </ModalOverlay>
   );
 };

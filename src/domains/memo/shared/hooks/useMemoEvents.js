@@ -59,7 +59,8 @@ export const useMemoEvents = ({
     }
 
     // ★ 신규 단축키: 취소선 (Ctrl + Shift + Alt + -)
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.altKey && e.key === '-') {
+    // Shift가 눌려 '-'가 '_'로 인식되거나 물리적 키(Minus)가 눌린 것을 모두 방어막 없이 포착합니다.
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.altKey && (e.key === '-' || e.key === '_' || e.code === 'Minus')) {
       e.preventDefault(); e.stopPropagation();
       document.execCommand('strikeThrough', false, null);
       if (updateCharCount) updateCharCount();
