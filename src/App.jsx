@@ -53,6 +53,7 @@ function App() {
   return (
     <div 
       className="galpi-app"
+      spellCheck={false}
       style={{ 
         '--markdown-font-size': `${fontSize}px`, 
         '--markdown-font-family': fontFamily === 'serif' ? "'Noto Serif KR', serif" : (fontFamily === 'monospace' ? "monospace" : "inherit"),
