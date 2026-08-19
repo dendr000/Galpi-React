@@ -1,3 +1,4 @@
+/* 파일 위치: src/pages/WorkDetail/WorkDetail.module.css */
 /* 공통 레이아웃 */
 .wikiContainer { display: flex; flex-direction: column; padding: 20px 0; }
 .wikiTitleArea { border-bottom: 2px solid var(--primary-color); margin-top: 30px; margin-bottom: 20px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
