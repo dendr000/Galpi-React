@@ -1,3 +1,4 @@
+// src/store/useSettingStore.js
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -6,7 +7,8 @@ const useSettingStore = create(
     (set) => ({
       // --- 화면 (Appearance) ---
       fontSize: '14', lineHeight: '1.6', fontFamily: 'default', layoutWidth: 'center',
-      isCustomCursor: false, // ★ 커스텀 커서 사용 여부 (기본값: false)
+      isCustomCursor: false, 
+      cursorColor: '#3b5bdb', // ★ 커스텀 커서 색상 (기본값: 메인 파랑)
       
       // --- 에디터 (Editor) ---
       autoSaveInterval: '0', bossKey: 'Alt+X', blindTheme: 'aurora',
