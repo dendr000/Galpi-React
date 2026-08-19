@@ -1,4 +1,5 @@
 // 파일 위치: src/components/common/CustomCursor.jsx
+
 import React, { useEffect, useRef, useState } from 'react';
 import useSettingStore from '../../store/useSettingStore';
 
@@ -17,12 +18,9 @@ const CustomCursor = () => {
 
   useEffect(() => {
     if (!isCustomCursor) {
-      document.body.style.cursor = 'auto';
       cancelAnimationFrame(requestRef.current);
       return;
     }
-
-    document.body.style.cursor = 'none';
 
     const onMouseMove = (e) => {
       mouse.current.x = e.clientX;
@@ -75,13 +73,11 @@ const CustomCursor = () => {
       window.removeEventListener('mouseup', onMouseUp);
       window.removeEventListener('mouseover', onMouseOver);
       cancelAnimationFrame(requestRef.current);
-      document.body.style.cursor = 'auto';
     };
   }, [isCustomCursor]);
 
   if (!isCustomCursor) return null;
 
-  // ★ 선택된 cursorColor 변수를 배경 및 테두리 색상에 동적 적용
   const outlineDynamicStyle = {
     width: isHovering ? '60px' : '40px',
     height: isHovering ? '60px' : '40px',
@@ -93,6 +89,13 @@ const CustomCursor = () => {
 
   return (
     <>
+      {/* ★ 핵심 픽스: 커스텀 커서가 활성화되면 웹페이지의 모든 기본 커서를 강제로 박살냄 */}
+      <style>{`
+        * {
+          cursor: none !important;
+        }
+      `}</style>
+      
       <div
         ref={outlineRef}
         style={{
