@@ -79,7 +79,7 @@ src/
  │   │   ├── RelationGraph.jsx                  # SVG 오비탈 궤도 연산을 통해 전체 등장인물 상호 관계망을 그리는 엔진
  │   │   ├── Timeline.jsx                       # 연도 및 사건 데이터셋을 하향식 일직선 타임라인 레이아웃으로 그리는 모듈
  │   │   └── TimelineViewer.jsx                 # 연대기 스크립트 감지 시 그래픽스 타임라인 패널로 트랜스파일해주는 위젯
- │   └── fab_tools/
+ │   └── fabTools/
  │       ├── BoilerplateModal.jsx               # 자주 쓰이는 문서 템플릿 및 설정 상용구를 즉시 붙여넣는 유틸리티 팝업
  │       ├── ClipboardModal.jsx                 # 시스템 멀티 클립보드 복사 이력을 역추적하여 데이터 보존을 돕는 모달
  │       ├── DictModal.jsx                      # 위키 집필 도중 외부 사전 데이터를 브라우저 이탈 없이 호출하는 연동 모달

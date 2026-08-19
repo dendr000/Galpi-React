@@ -8,7 +8,7 @@ import MemoFootnotePopover from '../shared/components/MemoFootnotePopover';
 import MemoLinkPopover from '../shared/components/MemoLinkPopover';
 import MemoEditorBody from '../shared/components/MemoEditorBody';
 import MemoTagBar from '../shared/components/MemoTagBar';
-import BoilerplateSuggestPopup from '../../fab_tools/boilerplate/components/BoilerplateSuggestPopup';
+import BoilerplateSuggestPopup from '../../fabTools/boilerplate/components/BoilerplateSuggestPopup';
 import MemoBookmarkModal from '../shared/components/MemoBookmarkModal';
 
 const FabMemoEditor = (props) => {

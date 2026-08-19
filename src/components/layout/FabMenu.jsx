@@ -7,17 +7,17 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useModalStore } from '../../store/useModalStore';
 import api from '../../api/axiosCore';
 
-import ClipboardModal from '../../domains/fab_tools/ClipboardModal';
-import DictModal from '../../domains/fab_tools/dict/DictModal';
-import SearchModal from '../../domains/fab_tools/SearchModal';
-import RecentModal from '../../domains/fab_tools/RecentModal';
+import ClipboardModal from '../../domains/fabTools/ClipboardModal';
+import DictModal from '../../domains/fabTools/dict/DictModal';
+import SearchModal from '../../domains/fabTools/SearchModal';
+import RecentModal from '../../domains/fabTools/RecentModal';
 import MemoModal from '../../domains/memo/fab/FabMemoModal';
 
 // 상용구 모듈 인젝션
-import BoilerplateModal from '../../domains/fab_tools/boilerplate/BoilerplateModal';
-import BoilerplateSuggestPopup from '../../domains/fab_tools/boilerplate/components/BoilerplateSuggestPopup';
-import { useBoilerplateCore } from '../../domains/fab_tools/boilerplate/hooks/useBoilerplateCore';
-import { useBoilerplateListener } from '../../domains/fab_tools/boilerplate/hooks/useBoilerplateListener';
+import BoilerplateModal from '../../domains/fabTools/boilerplate/BoilerplateModal';
+import BoilerplateSuggestPopup from '../../domains/fabTools/boilerplate/components/BoilerplateSuggestPopup';
+import { useBoilerplateCore } from '../../domains/fabTools/boilerplate/hooks/useBoilerplateCore';
+import { useBoilerplateListener } from '../../domains/fabTools/boilerplate/hooks/useBoilerplateListener';
 
 const FabMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
