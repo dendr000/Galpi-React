@@ -4,7 +4,7 @@ import useSettingStore from '../../store/useSettingStore';
 
 const SettingModal = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('appearance');
-  const { fontSize, lineHeight, fontFamily, layoutWidth, autoSaveInterval, bossKey, blindTheme, bootLock, hiddenCmd, updateSetting } = useSettingStore();
+  const { fontSize, lineHeight, fontFamily, layoutWidth, isCustomCursor, autoSaveInterval, bossKey, blindTheme, bootLock, hiddenCmd, updateSetting } = useSettingStore();
 
   if (!isOpen) return null;
 
@@ -53,6 +53,23 @@ const SettingModal = ({ isOpen, onClose }) => {
                 <label style={{fontWeight:'bold'}}>줄 간격: {lineHeight} <input type="range" min="1.2" max="2.5" step="0.1" value={lineHeight} onChange={e => updateSetting('lineHeight', e.target.value)} style={{width:'100%'}} /></label>
                 <label style={{fontWeight:'bold'}}>레이아웃: <select className="form-group" value={layoutWidth} onChange={e => updateSetting('layoutWidth', e.target.value)}><option value="center">집중 모드 (가운데 정렬)</option><option value="full">전체 모드 (가로 100%)</option></select></label>
                 <label style={{fontWeight:'bold'}}>글꼴: <select className="form-group" value={fontFamily} onChange={e => updateSetting('fontFamily', e.target.value)}><option value="default">기본 폰트</option><option value="serif">명조체</option><option value="monospace">모노스페이스</option></select></label>
+                
+                {/* ★ 추가: 커스텀 커서 토글 스위치 */}
+                <div style={{ marginTop: '10px', padding: '15px', background: 'var(--table-bg-alt)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={isCustomCursor} 
+                      onChange={e => updateSetting('isCustomCursor', e.target.checked)} 
+                      style={{ accentColor: 'var(--primary-color)', width: '16px', height: '16px', cursor: 'pointer' }} 
+                    /> 
+                    마우스 커서 스무스 모션 (Trailing Cursor)
+                  </label>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '6px', marginLeft: '24px' }}>
+                    버튼이나 링크에 올리면 원이 커지고 클릭 시 색이 채워집니다. 화면 전환이 잦을 경우 성능을 위해 꺼두는 것을 권장합니다.
+                  </div>
+                </div>
+
               </div>
             )}
             {activeTab === 'editor' && (
