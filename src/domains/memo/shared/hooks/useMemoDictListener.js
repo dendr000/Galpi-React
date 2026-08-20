@@ -10,8 +10,8 @@ export const useMemoDictListener = ({ editorRef, globalDictList }) => {
     if (!editor) return;
 
     const handleKeyDown = (e) => {
-      // Alt + H 입력 감지
-      if (e.altKey && e.key.toLowerCase() === 'h') {
+      // Alt + H 입력 감지 (★ Alt+Shift+H 단축키와 충돌하지 않도록 !e.shiftKey 조건 추가)
+      if (e.altKey && !e.shiftKey && e.key.toLowerCase() === 'h') {
         e.preventDefault();
         e.stopPropagation();
 

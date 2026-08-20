@@ -52,32 +52,33 @@ const FabMemoEditor = (props) => {
       />
 
       <FabMemoFormatBar 
-        executeCmd={editorHooks.executeCmd}
-        insertHtml={editorHooks.insertHtml}
-        tableCtrlVisible={editorHooks.tableCtrlVisible}
-        setTableCtrlVisible={editorHooks.setTableCtrlVisible}
-        addTableRowBelow={editorHooks.addTableRowBelow}
-        addTableColRight={editorHooks.addTableColRight}
-        delTableRow={editorHooks.delTableRow}
-        delTableCol={editorHooks.delTableCol}
-        delTable={editorHooks.delTable}
-        setCellAlign={editorHooks.setCellAlign}
-        toggleHeaderRow={editorHooks.toggleHeaderRow}
-        setCellBgColor={editorHooks.setCellBgColor}
-        toggleTableWidth={editorHooks.toggleTableWidth}
-        findReplaceVisible={editorHooks.findReplaceVisible}
-        setFindReplaceVisible={editorHooks.setFindReplaceVisible}
-        findText={editorHooks.findText}
-        setFindText={editorHooks.setFindText}
-        replaceText={editorHooks.replaceText}
-        setReplaceText={editorHooks.setReplaceText}
-        executeFindReplace={editorHooks.executeFindReplace}
-        insertFootnote={editorHooks.footnoteHooks.insertFootnote}
-        insertMarkdownLink={editorHooks.insertMarkdownLink}
+        executeCmd={editorHooks.executeCmd} 
+        insertHtml={editorHooks.insertHtml} 
+        tableCtrlVisible={editorHooks.tableCtrlVisible} 
+        setTableCtrlVisible={editorHooks.setTableCtrlVisible} 
+        addTableRowBelow={editorHooks.addTableRowBelow} 
+        addTableColRight={editorHooks.addTableColRight} 
+        delTableRow={editorHooks.delTableRow} 
+        delTableCol={editorHooks.delTableCol} 
+        delTable={editorHooks.delTable} 
+        setCellAlign={editorHooks.setCellAlign} 
+        toggleHeaderRow={editorHooks.toggleHeaderRow} 
+        setCellBgColor={editorHooks.setCellBgColor} 
+        toggleTableWidth={editorHooks.toggleTableWidth} 
+        findReplaceVisible={editorHooks.findReplaceVisible} 
+        setFindReplaceVisible={editorHooks.setFindReplaceVisible} 
+        findText={editorHooks.findText} 
+        setFindText={editorHooks.setFindText} 
+        replaceText={editorHooks.replaceText} 
+        setReplaceText={editorHooks.setReplaceText} 
+        executeFindReplace={editorHooks.executeFindReplace} 
+        insertFootnote={editorHooks.footnoteHooks.insertFootnote} 
+        insertMarkdownLink={editorHooks.insertMarkdownLink} 
         openTemplateList={editorHooks.openTemplateList} 
-        saveAsTemplate={editorHooks.saveAsTemplate}
+        saveAsTemplate={editorHooks.saveAsTemplate} 
+        saveToDict={editorHooks.saveToDict}
         fontList={editorHooks.fontList} 
-        applyFont={editorHooks.applyFont}
+        applyFont={editorHooks.applyFont} 
       />
 
       <MemoEditorBody editorHooks={editorHooks} />
