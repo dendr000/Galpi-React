@@ -49,7 +49,7 @@ export const useFontDict = (onClose) => {
     try {
       setIsSaving(true);
       const newDict = {
-        "_comment": "Galpi-media/fonts/font-dict.json"
+        "_comment": "Galpi-Media/fonts/font-dict.json"
       };
       
       dictList.forEach(item => {

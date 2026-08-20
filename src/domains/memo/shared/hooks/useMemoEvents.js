@@ -6,7 +6,7 @@ export const useMemoEvents = ({
   editorRef, saveMemo, updateCharCount, checkTableFocus, 
   insertFootnote, handleFootnoteClick, triggerLinkEdit, 
   closeLinkPopover, insertBookmark, openBookmarkModal, navigate, setActiveMemoId,
-  saveAsTemplate, toggleAutoSnippet // ★ 훅에서 주입받은 상용구 함수
+  saveAsTemplate, toggleAutoSnippet, saveToDict
 }) => {
   const { handleSelectAll, handleCopy } = useMemoSelection({ editorRef, updateCharCount });
   const { handleTableNavigation } = useMemoTableNav({ editorRef, updateCharCount });
@@ -68,17 +68,26 @@ export const useMemoEvents = ({
     }
 
     // ★ 신규 단축키: 상용구 토글 ON/OFF (Alt + Shift + T)
-    // 대소문자 무시를 위해 .toLowerCase() 로 처리
     if (e.altKey && e.shiftKey && e.key.toLowerCase() === 't') {
-      e.preventDefault(); e.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
       if (toggleAutoSnippet) toggleAutoSnippet();
       return;
     }
 
     // ★ 신규 단축키: 상용구 모달 띄우기 (Alt + T)
     if (e.altKey && !e.shiftKey && e.key.toLowerCase() === 't') {
-      e.preventDefault(); e.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
       if (saveAsTemplate) saveAsTemplate();
+      return;
+    }
+
+    // ★ 신규 단축키: 고유명사 사전 모달 띄우기 및 텍스트 스크랩 (Alt + Shift + H)
+    if (e.altKey && e.shiftKey && e.key.toLowerCase() === 'h') {
+      e.preventDefault();
+      e.stopPropagation();
+      if (saveToDict) saveToDict();
       return;
     }
 

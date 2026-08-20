@@ -155,12 +155,20 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
     const range = sel.getRangeAt(0);
     const div = document.createElement('div');
     div.appendChild(range.cloneContents());
-
     let html = div.innerHTML;
     html = html.replace(/data-id="fn_[^"]+"/g, 'data-id="fn_template"');
 
     localStorage.setItem('galpi-draft-bp', html);
     openModal('boilerplate');
+  };
+
+  // ★ 신규 추가: 드래그 영역 사전 전송 및 모달 오픈 트리거
+  const saveToDict = () => {
+    const sel = window.getSelection();
+    if (sel.rangeCount > 0 && !sel.isCollapsed) {
+      localStorage.setItem('galpi-draft-dict-word', sel.toString().trim());
+    }
+    openModal('dict');
   };
 
   const eventHooks = useMemoEvents({
@@ -176,8 +184,9 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
     openBookmarkModal: bookmarkHooks.openBookmarkModal,
     navigate,
     setActiveMemoId,
-    saveAsTemplate,   // ★ 단축키 이벤트를 위해 추가 주입
-    toggleAutoSnippet // ★ 단축키 이벤트를 위해 추가 주입
+    saveAsTemplate,   
+    toggleAutoSnippet,
+    saveToDict // ★ 이벤트 훅으로 전달
   });
 
   return {
@@ -196,8 +205,9 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
     updatePopupState: bpCore.updatePopupState,
     openTemplateList, 
     saveAsTemplate,
+    saveToDict, // ★ 렌더링 컨테이너로 전달
     fontList,
     isAutoSnippet,         
-    toggleAutoSnippet      
+    toggleAutoSnippet    
   };
 };

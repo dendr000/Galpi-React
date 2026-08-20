@@ -3,13 +3,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   BoldIcon, ItalicIcon, StrikethroughIcon, FootnoteIcon, LinkIcon,
   TableIcon, TodoIcon, FoldIcon, SearchIcon, TemplateIcon, TemplateSaveIcon,
-  FontResetIcon, CrackIcon, BabyIcon, AutoSnippetIcon
+  FontResetIcon, CrackIcon, BabyIcon, AutoSnippetIcon, DictAddIcon
 } from './MemoIcons';
 
 const MemoFormatMainBar = ({
   executeCmd, insertFootnote, insertMarkdownLink, insertHtml,
   findReplaceVisible, setFindReplaceVisible, setTableCtrlVisible,
-  openTemplateList, saveAsTemplate,
+  openTemplateList, saveAsTemplate, saveToDict, // ★ saveToDict 프롭스 추가
   fontList, applyFont
 }) => {
   const selectRef = useRef(null);
@@ -153,8 +153,13 @@ const MemoFormatMainBar = ({
       </button>
       
       {/* 두 번째 버튼: 드래그 시 저장, 미드래그 시 '새 상용구 폼 추가' 모달로 스마트 분기 */}
-      <button className="wiki-btn" onClick={saveAsTemplate} style={iconBtnStyle} title="새 상용구 추가 / 선택 영역 템플릿 저장">
+      <button className="wiki-btn" onClick={saveAsTemplate} style={iconBtnStyle} title="새 상용구 추가 / 선택 영역 템플릿 저장 (Alt+T)">
         <TemplateSaveIcon />
+      </button>
+
+      {/* 사전에 원문 등록 / 드래그 영역 사전 전송 */}
+      <button className="wiki-btn" onClick={saveToDict} style={iconBtnStyle} title="사전에 원문 등록 / 새 단어 추가 (Alt+Shift+H)">
+        <DictAddIcon />
       </button>
 
       {/* 세 번째 마술봉 버튼: 상용구 추천 기능 즉각 토글 */}

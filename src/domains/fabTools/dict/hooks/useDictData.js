@@ -1,5 +1,5 @@
 // src/domains/fabTools/dict/hooks/useDictData.js
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../../../../api/axiosCore';
 import { parseBulkDict } from '../utils/dictParser';
 
@@ -8,6 +8,17 @@ export const useDictData = ({ currentWorkId, showToast, globalDictList, setGloba
   const [editingTarget, setEditingTarget] = useState(null);
   const [dictBulk, setDictBulk] = useState('');
   const [isDictBulkMode, setIsDictBulkMode] = useState(false);
+
+  // ★ 추가: 모달이 열릴 때 드래그된 텍스트가 있다면 '원문' 인풋에 자동 바인딩
+  useEffect(() => {
+    const draftWord = localStorage.getItem('galpi-draft-dict-word');
+    if (draftWord) {
+      setDictInput(prev => ({ ...prev, word: draftWord }));
+      localStorage.removeItem('galpi-draft-dict-word');
+      setEditingTarget(null);
+      setIsDictBulkMode(false);
+    }
+  }, []);
 
   const handleDictSave = async () => {
     const word = dictInput.word.trim();
