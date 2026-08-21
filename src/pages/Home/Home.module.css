@@ -22,38 +22,74 @@
 .work-grid .genre-pill { font-size: 11px; padding: 4px 10px; border-radius: 8px; border: 1px solid var(--border-color); color: var(--text-secondary); font-weight: bold; background: var(--bg-color); transition: 0.2s; white-space: nowrap; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 .work-grid .genre-pill:hover { background: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 2px 5px rgba(59,91,219,0.3); }
 
-/* ★ 1. 큰 카드 뷰: 4칸 고정 및 제목 줄바꿈 완벽 차단 */
+/* ★ 1. 정갈한 서가 뷰: 책갈피 리본 + 장르색 책등 */
+.work-grid.view-grid,
+.work-grid.view-shelf {
+  --spine-navy: #2c3a5e; --spine-wine: #7c2f3a; --spine-forest: #3f5b45; --spine-brass: #a97a2f; --spine-slate: #55627a;
+  --shelf-paper: #fbf6ea; --shelf-paper-line: #ddd0ac; --shelf-ink-soft: #7a6f58; --shelf-ink: #241f17;
+}
+[data-theme="dark"] .work-grid.view-grid,
+[data-theme="dark"] .work-grid.view-shelf {
+  --spine-navy: #7f92c2; --spine-wine: #c46a78; --spine-forest: #7fa287; --spine-brass: #d1a350; --spine-slate: #93a0bb;
+  --shelf-paper: #292217; --shelf-paper-line: #423a28; --shelf-ink-soft: #a89a79; --shelf-ink: #ede4cf;
+}
+
 .work-grid.view-grid {
 display: grid !important;
-grid-template-columns: repeat(4, 1fr) !important;
-gap: 20px !important;
+grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+gap: 22px !important;
 }
-.work-grid.view-grid .work-card { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px 15px; cursor: pointer; display: flex; flex-direction: column; position: relative; overflow: hidden; transition: 0.2s; min-height: 140px; min-width: 0; }
-.work-grid.view-grid .work-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-color: transparent; }
+.work-grid.view-grid .work-card {
+  background: var(--shelf-paper); border: 1px solid var(--shelf-paper-line); border-radius: 3px;
+  padding: 26px 20px 18px 24px; cursor: pointer; display: flex; flex-direction: column; position: relative;
+  overflow: visible; transition: 0.2s; min-height: 150px; min-width: 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05), 2px 3px 0 rgba(0,0,0,0.04);
+}
+.work-grid.view-grid .work-card:hover { transform: translateY(-4px); box-shadow: 0 10px 18px rgba(0,0,0,0.14), 2px 3px 0 rgba(0,0,0,0.04); }
 
-.work-grid.view-grid .work-card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, var(--primary-color), #63b3ed); transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease; border-radius: 12px 12px 0 0; }
-.work-grid.view-grid .work-card:hover::before { transform: scaleX(1); }
+.work-grid.view-grid .work-card-spine { position: absolute; left: 0; top: 0; bottom: 0; width: 5px; border-radius: 3px 0 0 3px; }
 
-.work-grid.view-grid .fav-btn { position: absolute; top: 12px; right: 12px; font-size: 18px; cursor: pointer; z-index: 10; opacity: 0.3; border: none; background: transparent; padding: 0; margin: 0; }
+.work-grid.view-grid .fav-btn { position: absolute; top: 12px; left: 14px; font-size: 18px; cursor: pointer; z-index: 10; opacity: 0.3; border: none; background: transparent; padding: 0; margin: 0; }
 .work-grid.view-grid .fav-btn.active { opacity: 1; text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); transform: scale(1.15); }
 .work-grid.view-grid .fav-btn:hover { transform: scale(1.2); opacity: 0.8; }
-.work-grid.view-grid .work-card-status { position: absolute; top: 12px; left: 12px; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 12px; cursor: pointer; z-index: 5; margin: 0; }
-.work-grid.view-grid .work-card-status:hover { transform: scale(1.05); filter: brightness(1.1); }
 
-.work-grid.view-grid .work-card-title { font-size: 17px; font-weight: 900; color: var(--primary-color); margin: 30px 0 10px 0; line-height: 1.3; padding-right: 25px; }
-.work-grid.view-grid .work-card-creator { font-size: 12px; color: var(--text-secondary); font-weight: 600; margin-bottom: auto;}
+/* 책갈피 리본: 카드 오른쪽 위에 매달린 형태, 진행 상태를 세로 글자로 표시 */
+.work-grid.view-grid .work-card-ribbon {
+  position: absolute; top: -6px; right: 22px; width: 24px; padding: 12px 0 26px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 68%, 0 100%);
+  display: flex; align-items: flex-start; justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25); cursor: pointer; z-index: 5; transition: filter 0.15s;
+}
+.work-grid.view-grid .work-card-ribbon:hover { filter: brightness(1.1); }
+.work-grid.view-grid .work-card-ribbon-text {
+  writing-mode: vertical-rl; text-orientation: upright;
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.06em; color: #fff;
+}
+
+.work-grid.view-grid .work-card-title { font-family: 'Noto Serif KR', serif; font-size: 17px; font-weight: 700; color: var(--shelf-ink); margin: 26px 0 8px 2px; line-height: 1.45; padding-right: 32px; }
+.work-grid.view-grid .work-card-creator { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--shelf-ink-soft); margin: 0 0 auto 2px; }
+.work-grid.view-grid .work-card-creator::before { content: "지음 · "; opacity: 0.7; }
 .work-grid.view-grid .work-card-preview { display: none; }
 
-/* 큰 카드 뷰에서 제목 텍스트 줄바꿈 강제 금지 (말줄임표 처리) */
-.view-grid .work-card-title,
-.view-grid .work-card-title *,
-.view-grid .work-card-desc,
-.view-grid .work-card-desc * {
-white-space: nowrap !important;
+/* 정갈한 서가 뷰: 제목은 2줄까지 허용 후 말줄임 (세리프 타이틀은 줄바꿈이 더 자연스러움) */
+.view-grid .work-card-title {
+white-space: normal !important;
+display: -webkit-box !important;
+-webkit-line-clamp: 2;
+-webkit-box-orient: vertical;
 overflow: hidden !important;
 text-overflow: ellipsis !important;
-display: block !important;
 }
+
+/* 정갈한 서가 뷰: 장르 태그를 이탤릭 세리프 · 구분자로 정리 */
+.work-grid.view-grid .work-card-genres { margin-top: auto; border-top: 1px solid var(--shelf-paper-line); }
+.work-grid.view-grid .genre-pill {
+  background: transparent; border: none; padding: 0; box-shadow: none;
+  font-family: 'Noto Serif KR', serif; font-style: italic; font-weight: 400;
+  font-size: 12.5px; color: var(--shelf-ink-soft);
+}
+.work-grid.view-grid .genre-pill:not(:last-child)::after { content: " · "; font-style: normal; opacity: 0.55; }
+.work-grid.view-grid .genre-pill:hover { background: none; color: var(--primary-color); box-shadow: none; }
 
 /* 2. 작은 카드 뷰 */
 .work-grid.view-small { grid-template-columns: repeat(6, 1fr); gap: 15px; }
@@ -65,7 +101,66 @@ display: block !important;
 .work-grid.view-small .work-card-title { font-size: 15px; font-weight: 900; color: var(--primary-color); margin: 0; line-height: 1.3; padding-right: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .work-grid.view-small .work-card-creator, .work-grid.view-small .work-card-preview, .work-grid.view-small .work-card-genres { display: none; }
 
-/* 3. 대문 배너 장르(분류) 태그 스타일 (입체감 및 테두리 부여) */
+/* 3. 책등 뷰 (Spine Wall): 책장을 정면에서 보듯 책등을 나란히 배치 */
+.work-grid.view-shelf {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 3px;
+  padding-bottom: 30px;
+  border-bottom: 6px solid var(--shelf-ink);
+  position: relative;
+}
+.work-grid.view-shelf::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -14px;
+  height: 14px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.16), transparent);
+  pointer-events: none;
+}
+.work-spine {
+  width: 54px;
+  flex-shrink: 1;
+  border-radius: 3px 3px 0 0;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 16px;
+  box-shadow: inset -3px 0 6px rgba(0,0,0,0.16), inset 3px 0 6px rgba(255,255,255,0.05);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+  overflow: hidden;
+}
+.work-spine:hover { transform: translateY(-14px); box-shadow: 0 10px 16px rgba(0,0,0,0.28); z-index: 2; }
+.work-spine-title {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: 'Noto Serif KR', serif;
+  font-weight: 700;
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.95);
+  line-height: 1.5;
+  max-height: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.work-spine-foot {
+  margin-top: auto;
+  width: 100%;
+  padding: 6px 4px;
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: rgba(255,255,255,0.92);
+  background: rgba(0,0,0,0.2);
+}
+
+/* 4. 대문 배너 장르(분류) 태그 스타일 (입체감 및 테두리 부여) */
 .hero-genre-tag { display: inline-block; border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 12px; padding: 2px 10px; margin: 0 3px; font-size: 13px; font-weight: bold; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); color: #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
 /* =========================================================

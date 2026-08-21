@@ -35,3 +35,13 @@ export const IconViewList = ({ size = 16, color = "currentColor", className = ""
     <line x1="3" y1="18" x2="3.01" y2="18"></line>
   </svg>
 );
+
+export const IconViewShelf = ({ size = 16, color = "currentColor", className = "" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="4" y1="3" x2="4" y2="19"></line>
+    <line x1="9" y1="6" x2="9" y2="19"></line>
+    <line x1="14" y1="3" x2="14" y2="19"></line>
+    <line x1="19" y1="7" x2="19" y2="19"></line>
+    <line x1="2" y1="21" x2="22" y2="21"></line>
+  </svg>
+);

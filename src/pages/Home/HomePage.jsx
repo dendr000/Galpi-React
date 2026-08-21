@@ -7,7 +7,7 @@ import { useHomeData } from './hooks/useHomeData';
 import HeroSlider from './HeroSlider';
 import WorkCard from './WorkCard';
 import { IconBook, IconArchive } from '../../components/common/icons/DomainIcons';
-import { IconViewGrid, IconViewSmall, IconViewList } from './components/HomeIcons';
+import { IconViewGrid, IconViewSmall, IconViewList, IconViewShelf } from './components/HomeIcons';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ const HomePage = () => {
         <div className={styles['toolbar-wrap']}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             <h2 style={{ margin: '0 15px 0 0', fontSize: '22px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <IconBook size={24} color="var(--primary-color)" /> 세계관 목록
+              <IconBook size={24} color="var(--primary-color)" /> 작품 목록
             </h2>
             
             <button 
@@ -100,7 +100,8 @@ const HomePage = () => {
               {isLoading ? '로딩 중...' : `총 ${filteredWorks.length}개`}
             </span>
             <div className={styles['view-btn-group']}>
-              <button className={`${styles['view-btn']} ${viewMode === 'grid' ? styles.active : ''}`} onClick={() => setViewMode('grid')} title="큰 카드 뷰" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconViewGrid size={16} /></button>
+              <button className={`${styles['view-btn']} ${viewMode === 'grid' ? styles.active : ''}`} onClick={() => setViewMode('grid')} title="정갈한 서가" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconViewGrid size={16} /></button>
+              <button className={`${styles['view-btn']} ${viewMode === 'shelf' ? styles.active : ''}`} onClick={() => setViewMode('shelf')} title="책등 뷰" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconViewShelf size={16} /></button>
               <button className={`${styles['view-btn']} ${viewMode === 'small' ? styles.active : ''}`} onClick={() => setViewMode('small')} title="작은 카드 뷰" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconViewSmall size={16} /></button>
               <button className={`${styles['view-btn']} ${viewMode === 'list' ? styles.active : ''}`} onClick={() => setViewMode('list')} title="리스트 뷰" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconViewList size={16} /></button>
             </div>
