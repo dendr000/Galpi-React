@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../Category.module.css';
-import { IconArrowLeft } from '../../../components/common/icons/DomainIcons';
+import { IconArrowLeft, IconArchive } from '../../../components/common/icons/DomainIcons';
 
 const getGroupKey = (title) => {
   if (!title) return '기타';
