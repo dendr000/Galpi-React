@@ -11,7 +11,7 @@ export const useCategoryData = () => {
 
   const [works, setWorks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [hiddenCats, setHiddenCats] = useState(() => JSON.parse(localStorage.getItem('galpi-hidden-categories') || '[]'));
+  const [hiddenCats, setHiddenCats] = useState([]);
   const [isSecretMode, setIsSecretMode] = useState(false);
 
   useEffect(() => {
@@ -26,6 +26,16 @@ export const useCategoryData = () => {
       }
     };
     fetchWorks();
+
+    const fetchHiddenCats = async () => {
+      try {
+        const res = await api.get('/api/hidden-categories');
+        setHiddenCats(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchHiddenCats();
   }, []);
 
   const catMap = useMemo(() => {
@@ -71,16 +81,22 @@ export const useCategoryData = () => {
     return () => window.removeEventListener('galpi-trigger-secret-mode', handleSecretTrigger);
   }, [setSearchParams]);
 
-  const toggleHide = (e, cat) => {
+  const toggleHide = async (e, cat) => {
     e.stopPropagation();
-    let newHidden = [...hiddenCats];
-    if (newHidden.includes(cat)) {
-      newHidden = newHidden.filter(c => c !== cat);
-    } else {
-      newHidden.push(cat);
-    }
+    const isHidden = hiddenCats.includes(cat);
+    const newHidden = isHidden ? hiddenCats.filter(c => c !== cat) : [...hiddenCats, cat];
     setHiddenCats(newHidden);
-    localStorage.setItem('galpi-hidden-categories', JSON.stringify(newHidden));
+
+    try {
+      if (isHidden) {
+        await api.delete('/api/hidden-categories', { params: { categoryName: cat } });
+      } else {
+        await api.post('/api/hidden-categories', { categoryName: cat });
+      }
+    } catch (err) {
+      console.error(err);
+      setHiddenCats(hiddenCats);
+    }
   };
 
   const openCategory = (cat) => {
