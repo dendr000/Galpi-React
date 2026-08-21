@@ -12,14 +12,14 @@ import DictBulkForm from './components/DictBulkForm';
 import DictSearchBar from './components/DictSearchBar';
 import DictTable from './components/DictTable';
 
-const DictModal = ({ currentWorkId, showToast, globalDictList, setGlobalDictList }) => {
+const DictModal = ({ currentWorkId, showToast }) => {
   const { closeModal } = useModalStore();
-  
-  // 데이터 조작 및 API 통신 훅
-  const dataHooks = useDictData({ currentWorkId, showToast, globalDictList, setGlobalDictList });
-  
-  // 검색어 입력 및 필터링 훅
-  const searchHooks = useDictSearch(globalDictList);
+
+  // 검색어 입력 및 서버사이드 검색 훅
+  const searchHooks = useDictSearch(currentWorkId);
+
+  // 데이터 조작 및 API 통신 훅 (저장/수정/삭제 성공 시 현재 검색 결과를 다시 불러옴)
+  const dataHooks = useDictData({ currentWorkId, showToast, onDataChanged: searchHooks.refreshSearch });
 
   return (
     <ModalOverlay 
@@ -51,9 +51,10 @@ const DictModal = ({ currentWorkId, showToast, globalDictList, setGlobalDictList
         submitSearch={searchHooks.submitSearch}
       />
       
-      <DictTable 
+      <DictTable
         filteredList={searchHooks.filteredList}
         submittedSearch={searchHooks.submittedSearch}
+        isSearching={searchHooks.isSearching}
         handleEditClick={dataHooks.handleEditClick}
         handleDelete={dataHooks.handleDelete}
       />

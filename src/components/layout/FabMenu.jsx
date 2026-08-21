@@ -40,28 +40,23 @@ const FabMenu = () => {
     setTimeout(() => setToastMsg(''), 2000);
   };
 
-  // ★ 픽스 2: 차단막을 철거하고, 16,000개가 든 '전역 사전'과 '15번 개별 사전'을 모두 가져와 합침
+  // ★ Alt+H 실시간 순환 치환용으로 "현재 작품에 등록된" 사전만 불러옴.
+  // 예전엔 workId=global 전체(19만 건 이상)를 무조건 통째로 로딩해서 백엔드 OOM/브라우저 크래시의
+  // 실제 원인이었음 — 전역 사전은 이제 DictModal 검색 API(서버사이드, 키워드+결과수 제한)로만 조회한다.
   useEffect(() => {
     const fetchDictionaries = async () => {
+      if (!currentWorkId || currentWorkId === 'global') {
+        setGlobalDictList([]);
+        return;
+      }
       try {
-        const globalRes = await api.get('/api/dicts?workId=global');
-        let combinedList = globalRes.data;
-
-        if (currentWorkId && currentWorkId !== 'global') {
-          const localRes = await api.get(`/api/dicts?workId=${currentWorkId}`);
-          combinedList = [...combinedList, ...localRes.data];
-        }
-        
-        // 전역과 개별에 똑같은 한자가 등록된 경우를 대비한 중복 제거
-        const uniqueList = combinedList.filter((v, i, a) => 
-          a.findIndex(t => (t.word === v.word && t.translation === v.translation)) === i
-        );
-        setGlobalDictList(uniqueList);
+        const localRes = await api.get(`/api/dicts?workId=${currentWorkId}`);
+        setGlobalDictList(localRes.data);
       } catch (e) {
         console.error("사전 데이터 로드 실패", e);
       }
     };
-    
+
     fetchDictionaries();
   }, [currentWorkId]);
 
@@ -198,7 +193,7 @@ const FabMenu = () => {
 
       {/* ★ 변경: activeModal뿐만 아니라 subModal 상태일 때도 렌더링되도록 스마트 허용 로직 적용 */}
       {isModalOpen('clipboard') && <ClipboardModal showToast={showToast} />}
-      {isModalOpen('dict') && <DictModal currentWorkId={currentWorkId} showToast={showToast} globalDictList={globalDictList} setGlobalDictList={setGlobalDictList} />}
+      {isModalOpen('dict') && <DictModal currentWorkId={currentWorkId} showToast={showToast} />}
       {isModalOpen('boilerplate') && <BoilerplateModal showToast={showToast} />}
       {isModalOpen('search') && <SearchModal currentWorkId={currentWorkId} />}
       {isModalOpen('recent') && <RecentModal />}

@@ -71,19 +71,15 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
     const searchParams = new URLSearchParams(window.location.search);
     const currentWorkId = searchParams.get('workId') || searchParams.get('id') || window.location.pathname.match(/\/work\/(\d+)/)?.[1] || 'global';
     
+    // ★ workId=global 전체(19만 건 이상) 통짜 로딩 제거 — 현재 작품 범위만 Alt+H 순환 치환용으로 로드
     const fetchDictionaries = async () => {
+      if (!currentWorkId || currentWorkId === 'global') {
+        setGlobalDictList([]);
+        return;
+      }
       try {
-        const globalRes = await api.get('/api/dicts?workId=global');
-        let combinedList = globalRes.data;
-
-        if (currentWorkId && currentWorkId !== 'global') {
-          const localRes = await api.get(`/api/dicts?workId=${currentWorkId}`);
-          combinedList = [...combinedList, ...localRes.data];
-        }
-        const uniqueList = combinedList.filter((v, i, a) => 
-          a.findIndex(t => (t.word === v.word && t.translation === v.translation)) === i
-        );
-        setGlobalDictList(uniqueList);
+        const localRes = await api.get(`/api/dicts?workId=${currentWorkId}`);
+        setGlobalDictList(localRes.data);
       } catch (e) {
         console.error("사전 데이터 로드 실패", e);
       }

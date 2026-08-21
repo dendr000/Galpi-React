@@ -1,30 +1,52 @@
 // 파일 위치: src/domains/fabTools/dict/hooks/useDictSearch.js
-import { useState, useMemo } from 'react';
+// 서버사이드 검색으로 전면 개편: Enter를 누를 때만 백엔드에 키워드를 보내 일부 결과만 받아온다.
+// (기존에는 globalDictList 전체를 useMemo로 클라이언트 필터링 — 19만 건 이상에서 브라우저/서버 크래시 유발)
+import { useState, useCallback } from 'react';
+import api from '../../../../api/axiosCore';
 
-export const useDictSearch = (globalDictList) => {
+export const useDictSearch = (currentWorkId) => {
   const [dictSearch, setDictSearch] = useState('');
-  const [submittedSearch, setSubmittedSearch] = useState(''); 
+  const [submittedSearch, setSubmittedSearch] = useState('');
+  const [filteredList, setFilteredList] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
-  const filteredList = useMemo(() => {
-    if (submittedSearch.trim() === '') return [];
-    
-    return globalDictList
-      .filter(d => 
-        d.word.includes(submittedSearch) || d.translation.includes(submittedSearch)
-      )
-      // ★ 검색된 결과값을 원문(word) 기준 가나다순으로 정렬
-      .sort((a, b) => a.word.localeCompare(b.word, 'ko-KR'));
-  }, [globalDictList, submittedSearch]);
+  const runSearch = useCallback(async (keyword) => {
+    if (!keyword) {
+      setFilteredList([]);
+      return;
+    }
+    setIsSearching(true);
+    try {
+      const res = await api.get('/api/dicts/search', {
+        params: { workId: currentWorkId, keyword }
+      });
+      setFilteredList(res.data);
+    } catch (e) {
+      console.error('사전 검색 실패', e);
+      setFilteredList([]);
+    } finally {
+      setIsSearching(false);
+    }
+  }, [currentWorkId]);
 
-  const submitSearch = () => {
-    setSubmittedSearch(dictSearch);
-  };
+  const submitSearch = useCallback(() => {
+    const keyword = dictSearch.trim();
+    setSubmittedSearch(keyword);
+    runSearch(keyword);
+  }, [dictSearch, runSearch]);
+
+  // 저장/수정/삭제 후 현재 검색 결과를 최신 상태로 다시 불러올 때 사용 (입력창 값이 아니라 마지막 제출된 검색어 기준)
+  const refreshSearch = useCallback(() => {
+    runSearch(submittedSearch);
+  }, [runSearch, submittedSearch]);
 
   return {
     dictSearch,
     setDictSearch,
     submittedSearch,
     submitSearch,
-    filteredList
+    refreshSearch,
+    filteredList,
+    isSearching
   };
 };

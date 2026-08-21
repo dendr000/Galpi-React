@@ -2,8 +2,11 @@
 import React from 'react';
 import { IconEdit, IconTrash } from '../../components/FabIcons';
 
-const DictTable = ({ filteredList, submittedSearch, handleEditClick, handleDelete }) => {
+const SEARCH_RESULT_LIMIT = 150;
+
+const DictTable = ({ filteredList, submittedSearch, isSearching, handleEditClick, handleDelete }) => {
   return (
+    <div>
     <div style={{ flex: 1, overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: '6px', maxHeight: '300px' }}>
       <table className="bulk-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '13px' }}>
         <thead style={{ background: 'var(--table-bg-alt)', position: 'sticky', top: 0, zIndex: 2 }}>
@@ -18,6 +21,12 @@ const DictTable = ({ filteredList, submittedSearch, handleEditClick, handleDelet
             <tr>
               <td colSpan="3" style={{ padding: '30px', textAlign: 'center', color: 'var(--text-secondary)' }}>
                 검색어를 입력하고 Enter 키를 누르면 결과가 출력됩니다.
+              </td>
+            </tr>
+          ) : isSearching ? (
+            <tr>
+              <td colSpan="3" style={{ padding: '30px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                검색 중...
               </td>
             </tr>
           ) : filteredList.length > 0 ? (
@@ -42,6 +51,12 @@ const DictTable = ({ filteredList, submittedSearch, handleEditClick, handleDelet
           )}
         </tbody>
       </table>
+    </div>
+    {filteredList.length >= SEARCH_RESULT_LIMIT && (
+      <div style={{ padding: '6px 4px', fontSize: '12px', color: 'var(--text-secondary)', textAlign: 'right' }}>
+        결과가 {SEARCH_RESULT_LIMIT}건으로 제한됐습니다. 더 구체적인 검색어를 입력해 주세요.
+      </div>
+    )}
     </div>
   );
 };
