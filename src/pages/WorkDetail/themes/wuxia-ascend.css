@@ -7,7 +7,9 @@
   --wa-ink: #e9f7f0; --wa-ink-soft: #9fc9bb; --wa-jade: #52e0ac; --wa-gold: #dfc06a;
   --wa-font-display: 'Hahmlet', serif;
   --wa-font-body: 'Gowun Dodum', sans-serif;
-  --wa-font-mono: 'IBM Plex Mono', monospace;
+  /* IBM Plex Mono는 한글 글리프가 없어 스탯 라벨 등 한글 텍스트가 조용히 시스템 기본
+     폰트로 대체되던 버그가 있었다 — 한글 지원 폴백을 이어 붙였다. */
+  --wa-font-mono: 'IBM Plex Mono', 'Nanum Gothic Coding', monospace;
 }
 
 [data-genre-theme="wuxia-ascend"] {

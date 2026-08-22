@@ -3,7 +3,9 @@
 
 [data-genre-theme="cyberpunk-graffiti"] {
   --cp-bg: #0a0a0a; --cp-ink: #f5f5f5; --cp-ink-soft: #9a9a9a; --cp-red: #ff1f3d; --cp-cyan: #2be0ff;
-  --cp-font-display: 'Anton', sans-serif;
+  /* Anton은 한글 글리프가 없어 .gt-relation-header/.gt-card h4 등 한글 텍스트가 조용히
+     시스템 기본 폰트로 대체되던 버그가 있었다 — 한글 지원 폴백을 이어 붙였다. */
+  --cp-font-display: 'Anton', 'Black Han Sans', sans-serif;
   --cp-font-display-kr: 'Black Han Sans', sans-serif;
 }
 

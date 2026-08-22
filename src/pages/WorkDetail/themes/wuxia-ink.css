@@ -7,7 +7,9 @@
   --wi-seal: #b3272b; --wi-line: #cabf9c;
   --wi-font-display: 'Nanum Brush Script', cursive;
   --wi-font-body: 'Gowun Batang', serif;
-  --wi-font-mono: 'IBM Plex Mono', monospace;
+  /* IBM Plex Mono는 한글 글리프가 없어 스탯 라벨 등 한글 텍스트가 조용히 시스템 기본
+     폰트로 대체되던 버그가 있었다 — 한글 지원 폴백을 이어 붙였다. */
+  --wi-font-mono: 'IBM Plex Mono', 'Nanum Gothic Coding', monospace;
 }
 [data-theme="dark"] [data-genre-theme="wuxia-ink"] {
   --wi-paper: #17140f; --wi-paper2: #221e17; --wi-ink: #ece5d4; --wi-ink-soft: #a89b7f;

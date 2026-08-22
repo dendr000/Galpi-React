@@ -5,9 +5,13 @@
 [data-genre-theme="apocalypse-camp"] {
   --cm-bg: #141b22; --cm-bg2: #1c252e; --cm-fire: #ff9a44; --cm-fireglow: #ffc470; --cm-tape: #c9a24a;
   --cm-ink: #ece3d4; --cm-ink-soft: #8d95a0; --cm-line: #2c3742;
-  --cm-font-display: 'Bebas Neue', sans-serif;
-  --cm-font-body: 'Special Elite', monospace;
-  --cm-font-mono: 'IBM Plex Mono', monospace;
+  /* Bebas Neue/Special Elite/IBM Plex Mono는 한글 글리프가 없어 한글 텍스트가 조용히
+     시스템 기본 폰트로 대체되던 버그가 있었다 — 같은 font-family 목록 안에 한글 지원
+     폴백을 이어 붙여서, 라틴 문자(예: 스탯 등급 "S+")는 원래 폰트로, 한글은 폴백으로
+     정확히 갈라지게 고쳤다. */
+  --cm-font-display: 'Bebas Neue', 'Stylish', sans-serif;
+  --cm-font-body: 'Special Elite', 'Nanum Gothic Coding', monospace;
+  --cm-font-mono: 'IBM Plex Mono', 'Nanum Gothic Coding', monospace;
 }
 
 [data-genre-theme="apocalypse-camp"] {

@@ -7,7 +7,9 @@
   --wb-red: #e0263f; --wb-redglow: #ff4a63; --wb-line: #3c211d;
   --wb-font-display: 'Gugi', sans-serif;
   --wb-font-body: 'Noto Serif KR', serif;
-  --wb-font-mono: 'IBM Plex Mono', monospace;
+  /* IBM Plex Mono는 한글 글리프가 없어 스탯 라벨 등 한글 텍스트가 조용히 시스템 기본
+     폰트로 대체되던 버그가 있었다 — 한글 지원 폴백을 이어 붙였다. */
+  --wb-font-mono: 'IBM Plex Mono', 'Nanum Gothic Coding', monospace;
 }
 
 [data-genre-theme="wuxia-blood"] {

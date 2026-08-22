@@ -14,7 +14,9 @@
   --wx-scroll-paper: #cabb90; --wx-scroll-ink: #2a2113; --wx-scroll-ink-soft: #5c4f34;
   --wx-font-display: 'Song Myung', serif;
   --wx-font-body: 'Gowun Batang', serif;
-  --wx-font-mono: 'IBM Plex Mono', monospace;
+  /* IBM Plex Mono는 한글 글리프가 없어 스탯 라벨 등 한글 텍스트가 조용히 시스템 기본
+     폰트로 대체되던 버그가 있었다 — 한글 지원 폴백을 이어 붙였다. */
+  --wx-font-mono: 'IBM Plex Mono', 'Nanum Gothic Coding', monospace;
 }
 [data-theme="dark"] [data-genre-theme="wuxia"] {
   --wx-ground: #14100a; --wx-paper: #241f15; --wx-ink: #ece5d4; --wx-ink-soft: #a89b7f;

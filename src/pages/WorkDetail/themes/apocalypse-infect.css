@@ -4,9 +4,11 @@
 [data-genre-theme="apocalypse-infect"] {
   --in-bg: #0a0808; --in-bg2: #181111; --in-spore: #5dffa0; --in-red: #c81c33;
   --in-ink: #eee6e2; --in-ink-soft: #a08c88; --in-line: #3a1e1e;
-  --in-font-display: 'Nosifer', sans-serif;
-  --in-font-body: 'Oswald', sans-serif;
-  --in-font-mono: 'IBM Plex Mono', monospace;
+  /* Nosifer/Oswald/IBM Plex Mono는 한글 글리프가 없어 한글 텍스트가 조용히 시스템 기본
+     폰트로 대체되던 버그가 있었다 — 같은 font-family 목록에 한글 지원 폴백을 이어 붙였다. */
+  --in-font-display: 'Nosifer', 'Black Han Sans', sans-serif;
+  --in-font-body: 'Oswald', 'Gothic A1', sans-serif;
+  --in-font-mono: 'IBM Plex Mono', 'Nanum Gothic Coding', monospace;
 }
 
 [data-genre-theme="apocalypse-infect"] {

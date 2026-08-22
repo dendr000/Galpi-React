@@ -5,9 +5,11 @@
 [data-genre-theme="apocalypse-rad"] {
   --rad-bg: #201d16; --rad-bg2: #2c2818; --rad-toxic: #c4d92e; --rad-rust: #c1611a;
   --rad-ink: #e8e2c9; --rad-ink-soft: #8f8870; --rad-line: #4a4530;
-  --rad-font-display: 'Black Ops One', sans-serif;
-  --rad-font-body: 'Oswald', sans-serif;
-  --rad-font-mono: 'IBM Plex Mono', monospace;
+  /* Black Ops One/Oswald/IBM Plex Mono는 한글 글리프가 없어 한글 텍스트가 조용히 시스템
+     기본 폰트로 대체되던 버그가 있었다 — 같은 font-family 목록에 한글 지원 폴백을 이어 붙였다. */
+  --rad-font-display: 'Black Ops One', 'Do Hyeon', sans-serif;
+  --rad-font-body: 'Oswald', 'Gothic A1', sans-serif;
+  --rad-font-mono: 'IBM Plex Mono', 'Nanum Gothic Coding', monospace;
 }
 
 [data-genre-theme="apocalypse-rad"] {

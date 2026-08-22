@@ -4,7 +4,10 @@
 [data-genre-theme="cyberpunk-terminal"] {
   --cp-bg: #030503; --cp-ink: #57ffa0; --cp-ink-dim: #2fae6d; --cp-ink-bright: #b8ffd6;
   --cp-line: #1f7a4c;
-  --cp-font-mono: 'Share Tech Mono', monospace;
+  /* Share Tech Mono는 한글 글리프가 없어 한글 텍스트(이 테마는 사실상 전체 본문이 여기에
+     의존)가 조용히 시스템 기본 폰트로 대체되던 버그가 있었다 — 코딩용으로 만들어진
+     한글 폰트를 폴백으로 이어 붙여서 "터미널" 무드를 최대한 살렸다. */
+  --cp-font-mono: 'Share Tech Mono', 'Nanum Gothic Coding', monospace;
 }
 
 [data-genre-theme="cyberpunk-terminal"] {
