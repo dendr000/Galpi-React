@@ -3,6 +3,7 @@
 // 버전: v1.2.1
 
 import React from 'react';
+import { IconImage, IconPlus } from '../../components/common/icons/DomainIcons';
 
 const CharacterGrid = ({
   styles = {}, 
@@ -51,9 +52,10 @@ const CharacterGrid = ({
           </h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', color: 'var(--text-secondary)' }}>
             <label style={{ fontWeight: 'bold' }}>분류 기준:</label>
-            <select 
-              value={groupCriteria} 
-              onChange={handleGroupCriteriaChange} 
+            <select
+              value={groupCriteria}
+              onChange={handleGroupCriteriaChange}
+              className="gt-section-select"
               style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border-color)', fontSize: '12px', fontWeight: 'bold', color: 'var(--primary-color)', background: 'var(--surface-color)', outline: 'none', cursor: 'pointer' }}
             >
               <option value="관계">관계별</option>
@@ -65,20 +67,20 @@ const CharacterGrid = ({
           </div>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <button 
-            className="wiki-btn" 
-            title="일괄 이미지 위치 조정" 
-            style={{ padding: '4px 10px', fontSize: '13px', background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} 
+          <button
+            className="wiki-btn gt-btn-edit"
+            title="일괄 이미지 위치 조정"
+            style={{ padding: '4px 10px', fontSize: '13px', background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center' }}
             onClick={handleBatchModalOpen}
           >
-            🖼️
+            <IconImage size={14} />
           </button>
-          <button 
-            className="wiki-btn" 
-            style={{ padding: '4px 10px', fontSize: '13px' }} 
+          <button
+            className="wiki-btn gt-btn-edit"
+            style={{ padding: '4px 10px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px' }}
             onClick={handleNewCharClick}
           >
-            + 새 캐릭터 추가
+            <IconPlus size={13} /> 새 캐릭터 추가
           </button>
         </div>
       </div>

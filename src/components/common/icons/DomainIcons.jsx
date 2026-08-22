@@ -104,6 +104,14 @@ export const IconMoon = ({ size = 20, color = "currentColor", className = "" }) 
   </svg>
 );
 
+export const IconImage = ({ size = 16, color = "currentColor", className = "" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+    <path d="M21 15l-5-5L5 21"></path>
+  </svg>
+);
+
 export const IconPlus = ({ size = 16, color = "currentColor", className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <line x1="12" y1="5" x2="12" y2="19"></line>

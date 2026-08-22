@@ -46,6 +46,7 @@
 
 [data-genre-theme="apocalypse-infect"] .gt-category { background: var(--in-bg2) !important; border-color: var(--in-line) !important; }
 [data-genre-theme="apocalypse-infect"] .gt-category > :first-child { background: var(--in-bg2) !important; color: var(--in-ink) !important; }
+[data-genre-theme="apocalypse-infect"] .gt-section-select { background: var(--in-bg2) !important; border-color: var(--in-line) !important; color: var(--in-ink) !important; }
 [data-genre-theme="apocalypse-infect"] .gt-tag { background: rgba(93,255,160,.06) !important; border: 1px solid var(--in-line); color: var(--in-ink-soft) !important; font-family: var(--in-font-mono); border-radius: 2px !important; }
 
 [data-genre-theme="apocalypse-infect"] .gt-section-header { border-bottom-color: var(--in-line) !important; }

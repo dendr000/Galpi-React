@@ -43,6 +43,7 @@
 
 [data-genre-theme="cyberpunk-graffiti"] .gt-category { background: #131313 !important; border: 2px solid var(--cp-ink) !important; border-radius: 0 !important; }
 [data-genre-theme="cyberpunk-graffiti"] .gt-category > :first-child { background: #131313 !important; color: var(--cp-ink) !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-section-select { background: #131313 !important; border-color: var(--cp-ink-soft) !important; color: var(--cp-ink) !important; }
 [data-genre-theme="cyberpunk-graffiti"] .gt-tag {
   background: var(--cp-ink) !important; color: var(--cp-bg) !important; font-weight: 900 !important;
   border-radius: 0 !important; transform: rotate(-1.5deg); font-family: 'Gothic A1', sans-serif;

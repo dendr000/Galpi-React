@@ -48,6 +48,7 @@
 
 [data-genre-theme="apocalypse-camp"] .gt-category { background: var(--cm-bg2) !important; border-color: var(--cm-line) !important; }
 [data-genre-theme="apocalypse-camp"] .gt-category > :first-child { background: var(--cm-bg2) !important; color: var(--cm-ink) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-section-select { background: var(--cm-bg2) !important; border-color: var(--cm-line) !important; color: var(--cm-ink) !important; }
 [data-genre-theme="apocalypse-camp"] .gt-tag { background: rgba(255,154,68,.06) !important; border: 1px solid var(--cm-line); color: var(--cm-ink-soft) !important; font-family: var(--cm-font-mono); border-radius: 2px !important; }
 
 [data-genre-theme="apocalypse-camp"] .gt-section-header { border-bottom-color: var(--cm-line) !important; }

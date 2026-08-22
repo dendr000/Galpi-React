@@ -50,6 +50,7 @@
 
 [data-genre-theme="wuxia-blood"] .gt-category { background: var(--wb-bg2) !important; border-color: var(--wb-line) !important; }
 [data-genre-theme="wuxia-blood"] .gt-category > :first-child { background: var(--wb-bg2) !important; color: var(--wb-ink) !important; }
+[data-genre-theme="wuxia-blood"] .gt-section-select { background: var(--wb-bg2) !important; border-color: var(--wb-line) !important; color: var(--wb-ink) !important; }
 [data-genre-theme="wuxia-blood"] .gt-tag { background: rgba(224,38,63,.08) !important; border: 1px solid var(--wb-line); color: var(--wb-ink-soft) !important; font-family: var(--wb-font-body); border-radius: 3px !important; }
 
 [data-genre-theme="wuxia-blood"] .gt-section-header { border-bottom-color: var(--wb-line) !important; }

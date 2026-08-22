@@ -57,6 +57,7 @@
 
 [data-genre-theme="wuxia"] .gt-category { background: var(--wx-paper) !important; border-color: var(--wx-line) !important; }
 [data-genre-theme="wuxia"] .gt-category > :first-child { background: var(--wx-paper) !important; }
+[data-genre-theme="wuxia"] .gt-section-select { background: var(--wx-paper) !important; border-color: var(--wx-line) !important; color: var(--wx-ink) !important; }
 [data-genre-theme="wuxia"] .gt-tag { background: transparent !important; border: 1px solid var(--wx-line); color: var(--wx-ink-soft) !important; font-family: var(--wx-font-body); border-radius: 3px !important; }
 
 [data-genre-theme="wuxia"] .gt-section-header { border-bottom-color: var(--wx-line) !important; }

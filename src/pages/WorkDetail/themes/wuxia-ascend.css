@@ -51,6 +51,7 @@
 
 [data-genre-theme="wuxia-ascend"] .gt-category { background: var(--wa-panel) !important; border-color: var(--wa-panel-line) !important; }
 [data-genre-theme="wuxia-ascend"] .gt-category > :first-child { background: var(--wa-panel) !important; color: var(--wa-ink) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-section-select { background: var(--wa-panel) !important; border-color: var(--wa-panel-line) !important; color: var(--wa-ink) !important; }
 [data-genre-theme="wuxia-ascend"] .gt-tag { background: rgba(82,224,172,.08) !important; border: 1px solid var(--wa-panel-line); color: var(--wa-ink-soft) !important; font-family: var(--wa-font-body); border-radius: 14px !important; }
 
 [data-genre-theme="wuxia-ascend"] .gt-section-header { border-bottom-color: var(--wa-panel-line) !important; }

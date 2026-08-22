@@ -70,6 +70,7 @@
 
 [data-genre-theme="cyberpunk-neon"] .gt-category { background: var(--cp-panel) !important; border-color: var(--cp-panel-line) !important; }
 [data-genre-theme="cyberpunk-neon"] .gt-category > :first-child { background: var(--cp-panel) !important; color: var(--cp-ink) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-section-select { background: var(--cp-panel) !important; border-color: var(--cp-panel-line) !important; color: var(--cp-ink) !important; }
 [data-genre-theme="cyberpunk-neon"] .gt-tag {
   background: linear-gradient(90deg, rgba(79,211,236,0.16), rgba(217,79,236,0.10)) !important;
   border: 1px solid var(--cp-cyan) !important; color: var(--cp-ink) !important;

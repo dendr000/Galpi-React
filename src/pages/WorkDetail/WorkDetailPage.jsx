@@ -18,6 +18,7 @@ import { resolveGenreTheme } from '../../domains/work/genreTheme';
 import GenreCursor from '../../components/common/GenreCursor';
 import { extractMeta } from '../../utils/markdownParser';
 import MarkdownRenderer from '../../domains/macro/MarkdownRenderer';
+import { IconPen } from '../../components/common/icons/DomainIcons';
 import FloatingLeftTree from '../../domains/work/FloatingLeftTree';
 import FloatingToc from '../../domains/work/FloatingToc';
 
@@ -180,15 +181,15 @@ const WorkDetailPage = () => {
                 <div className={`${styles.sectionHeader} gt-section-header`}>
                   <h2 className={`${styles.sectionHeaderTitle} gt-section-title`} style={{ color: 'var(--primary-color)' }}>{activePage.title}</h2>
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button className="wiki-btn" style={{ padding: '4px 10px', fontSize: '13px' }} onClick={() => data.navigate(`/edit?type=page&action=edit&workId=${data.workId}&id=${activePage.id}`)}>✏️ 문서 편집</button>
-                    <button className="wiki-btn" style={{ padding: '4px 10px', fontSize: '13px', background: 'transparent', color: '#e53e3e', border: '1px dashed #e53e3e' }} onClick={async () => {
+                    <button className="wiki-btn gt-btn-edit" style={{ padding: '4px 10px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px' }} onClick={() => data.navigate(`/edit?type=page&action=edit&workId=${data.workId}&id=${activePage.id}`)}><IconPen size={13} /> 문서 편집</button>
+                    <button className="wiki-btn gt-btn-del" style={{ padding: '4px 10px', fontSize: '13px', background: 'transparent', color: '#e53e3e', border: '1px dashed #e53e3e' }} onClick={async () => {
                       if (window.confirm("⚠️ 경고: 이 하위 문서를 영구 삭제하시겠습니까?")) {
                         try {
                           await api.delete(`/api/wikipages/${activePage.id}`);
                           data.navigate(`/work/${data.workId}`);
                         } catch(e) { alert("삭제 실패"); }
                       }
-                    }}>🗑️ 삭제</button>
+                    }}>삭제</button>
                   </div>
                 </div>
                 <MarkdownRenderer rawText={activePage.content} />
@@ -208,7 +209,7 @@ const WorkDetailPage = () => {
                 <section id="sec-2" className={styles.wikiSection}>
                   <div className={`${styles.sectionHeader} gt-section-header`}>
                     <h2 id="sec-worldview" className={`${styles.sectionHeaderTitle} gt-section-title auto-toc-target`}>2. 설정</h2>
-                    <button className="wiki-btn" style={{ padding: '4px 10px', fontSize: '13px' }} onClick={() => data.navigate(`/edit?type=work&action=edit&id=${data.work.id}`)}>✏️ 편집</button>
+                    <button className="wiki-btn gt-btn-edit" style={{ padding: '4px 10px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px' }} onClick={() => data.navigate(`/edit?type=work&action=edit&id=${data.work.id}`)}><IconPen size={13} /> 편집</button>
                   </div>
                   <MarkdownRenderer rawText={parsedDesc.clean} startH1={3} />
                 </section>

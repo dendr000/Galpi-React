@@ -48,6 +48,7 @@
 
 [data-genre-theme="apocalypse-rad"] .gt-category { background: var(--rad-bg2) !important; border-color: var(--rad-line) !important; }
 [data-genre-theme="apocalypse-rad"] .gt-category > :first-child { background: var(--rad-bg2) !important; color: var(--rad-ink) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-section-select { background: var(--rad-bg2) !important; border-color: var(--rad-line) !important; color: var(--rad-ink) !important; font-family: var(--rad-font-mono); }
 [data-genre-theme="apocalypse-rad"] .gt-tag { background: transparent !important; border: 1px solid var(--rad-line); color: var(--rad-ink-soft) !important; font-family: var(--rad-font-mono); border-radius: 2px !important; }
 
 [data-genre-theme="apocalypse-rad"] .gt-section-header { border-bottom-color: var(--rad-line) !important; }

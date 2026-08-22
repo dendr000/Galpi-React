@@ -46,6 +46,7 @@
 
 [data-genre-theme="cyberpunk-terminal"] .gt-category { background: var(--cp-bg) !important; border: 1px solid var(--cp-line) !important; }
 [data-genre-theme="cyberpunk-terminal"] .gt-category > :first-child { background: var(--cp-bg) !important; color: var(--cp-ink) !important; font-family: var(--cp-font-mono); }
+[data-genre-theme="cyberpunk-terminal"] .gt-section-select { background: var(--cp-bg) !important; border-color: var(--cp-line) !important; color: var(--cp-ink) !important; font-family: var(--cp-font-mono); }
 [data-genre-theme="cyberpunk-terminal"] .gt-tag {
   background: transparent !important; border: 1px solid var(--cp-line) !important; color: var(--cp-ink) !important;
   font-family: var(--cp-font-mono) !important; border-radius: 0 !important;
