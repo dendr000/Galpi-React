@@ -64,3 +64,51 @@
 .gt-cursor-campfire.gt-cursor-hover { box-shadow: 0 0 18px 6px rgba(255,196,112,.75); }
 .gt-cursor-mote { position: fixed; border-radius: 50%; background: radial-gradient(circle,#d7ffe9,#52e0ac 60%,transparent 75%); box-shadow: 0 0 8px 2px rgba(82,224,172,.55); pointer-events: none; z-index: 999997; animation: gtMoteRise 1s ease-out forwards; }
 @keyframes gtMoteRise { from { transform: translate(-50%,-50%) translateY(0); opacity: .9; } to { transform: translate(-50%,-50%) translateY(-34px); opacity: 0; } }
+
+/* 히어로 · 코믹스 팝아트 — 통통 튀는 스파클 별. hover의 scale은 CSS가 아니라
+   useGenreCursorMotion의 tick()이 JS 트랜스폼 문자열 안에 직접 넣는다 — 안 그러면
+   매 프레임 JS가 덮어써서 .hover{transform:...} 규칙이 애초에 적용될 기회가 없다. */
+.gt-cursor-comicstar { width: 28px; height: 28px; }
+.gt-cursor-comicstar svg { width: 100%; height: 100%; filter: drop-shadow(1px 1px 0 #141110); }
+
+/* 히어로 · 홀로그래픽 파워슈트 — 회전 코너 브래킷 + 숫자 리드아웃.
+   바깥(hud-wrap, gt-cursor-part)은 JS가 left/top으로만 옮기고 transform은 절대 안 건드린다.
+   회전은 안쪽 gt-cursor-hud 하나에만 애니메이션으로 건다 — 같은 요소에서 위치이동(JS)과
+   회전(CSS 애니메이션)이 transform을 두고 충돌하면 CSS 쪽이 이겨서 위치가 깨진다.
+   리드아웃 텍스트는 회전하는 gt-cursor-hud의 형제로 따로 빼서 같이 돌지 않게 한다. */
+.gt-cursor-hud-wrap { width: 44px; height: 44px; margin: -22px 0 0 -22px; }
+.gt-cursor-hud { position: absolute; inset: 0; animation: gtHudSpin 6s linear infinite; }
+.gt-cursor-hud .bracket { position: absolute; width: 12px; height: 12px; border: 2px solid #4ff0ff; }
+.gt-cursor-hud .b1 { top: 0; left: 0; border-right: none; border-bottom: none; }
+.gt-cursor-hud .b2 { top: 0; right: 0; border-left: none; border-bottom: none; }
+.gt-cursor-hud .b3 { bottom: 0; left: 0; border-right: none; border-top: none; }
+.gt-cursor-hud .b4 { bottom: 0; right: 0; border-left: none; border-top: none; }
+@keyframes gtHudSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.gt-cursor-hud-readout { position: absolute; top: 50%; left: 100%; margin-left: 8px; transform: translateY(-50%); font-family: 'Orbitron', sans-serif; font-size: 10px; color: #4ff0ff; white-space: nowrap; text-shadow: 0 0 6px rgba(79,240,255,.8); }
+.gt-cursor-hud-wrap.gt-cursor-hover .bracket { border-color: #ff4fd8; }
+
+/* 히어로 · 도심의 히어로 — 은은히 맥동하는 추적 비콘 + 반복해서 퍼지는 핑 링 */
+.gt-cursor-beacon { width: 20px; height: 20px; }
+.gt-cursor-beacon-ping { position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid rgba(58,141,255,.6); animation: gtPingOut 2.2s ease-out infinite; }
+@keyframes gtPingOut { 0% { transform: scale(0.4); opacity: .9; } 100% { transform: scale(2.4); opacity: 0; } }
+.gt-cursor-beacon-core { position: absolute; inset: 4px; border-radius: 50%; background: radial-gradient(circle,#eaf2ff,#3a8dff 60%,transparent 75%); box-shadow: 0 0 10px 3px rgba(58,141,255,.55); animation: gtBeaconPulse 2.2s ease-in-out infinite; }
+@keyframes gtBeaconPulse { 0%,100% { opacity: .7; } 50% { opacity: 1; } }
+.gt-cursor-beacon.gt-cursor-hover .gt-cursor-beacon-core { background: radial-gradient(circle,#fff3e0,#ffb347 60%,transparent 75%); box-shadow: 0 0 16px 5px rgba(255,179,71,.7); }
+
+/* ===== 클릭 반응(useGenreClickBurst.js) ===== */
+.gt-burst-comic { position: fixed; pointer-events: none; z-index: 999996; transform: translate(-50%,-50%) scale(0) rotate(0deg); animation: gtBurstPop .65s cubic-bezier(.15,.85,.3,1) forwards; }
+.gt-burst-comic svg { display: block; width: 130px; height: 130px; filter: drop-shadow(3px 3px 0 #141110); }
+@keyframes gtBurstPop { 0% { transform: translate(-50%,-50%) scale(0) rotate(-10deg); opacity: 1; } 55% { transform: translate(-50%,-50%) scale(1.15) rotate(6deg); opacity: 1; } 100% { transform: translate(-50%,-50%) scale(1.3) rotate(6deg); opacity: 0; } }
+@keyframes gtZoneShake { 0%,100% { transform: translate(0,0); } 20% { transform: translate(-4px,2px); } 40% { transform: translate(4px,-2px); } 60% { transform: translate(-3px,1px); } 80% { transform: translate(3px,-1px); } }
+.gt-zone-shake { animation: gtZoneShake .32s ease-in-out; }
+
+.gt-surge-hud { position: fixed; left: 0; top: 0; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; border: 2px solid var(--hh-cyan,#4ff0ff); pointer-events: none; z-index: 999996; animation: gtSurgeExpand .8s cubic-bezier(.15,.7,.3,1) forwards; }
+.gt-surge-hud.ring2 { border-color: var(--hh-magenta,#ff4fd8); animation-delay: .1s; }
+@keyframes gtSurgeExpand { 0% { transform: scale(0); opacity: 1; box-shadow: 0 0 16px 2px currentColor; } 100% { transform: scale(9); opacity: 0; box-shadow: 0 0 0 0 currentColor; } }
+
+.gt-flash-urban { position: fixed; inset: 0; background: #fff; pointer-events: none; z-index: 999996; animation: gtFlashFade .35s ease-out forwards; }
+@keyframes gtFlashFade { 0% { opacity: .5; } 100% { opacity: 0; } }
+.gt-ripple-urban { position: fixed; left: 0; top: 0; width: 18px; height: 10px; margin: -5px 0 0 -9px; border-radius: 50%; border: 2px solid rgba(200,225,255,.85); pointer-events: none; z-index: 999996; animation: gtRippleExpand .8s ease-out forwards; }
+@keyframes gtRippleExpand { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(7); opacity: 0; } }
+.gt-drop-urban { position: fixed; left: 0; top: 0; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: rgba(200,225,255,.9); pointer-events: none; z-index: 999996; animation: gtDropFly .5s cubic-bezier(.2,.8,.4,1) forwards; }
+@keyframes gtDropFly { 0% { transform: translate(0,0); opacity: 1; } 100% { transform: translate(var(--tx,0),var(--ty,0)); opacity: 0; } }

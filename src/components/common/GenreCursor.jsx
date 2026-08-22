@@ -7,6 +7,7 @@
 import React, { useRef } from 'react';
 import './GenreCursor.css';
 import { useGenreCursorMotion } from './useGenreCursorMotion';
+import { useGenreClickBurst } from './useGenreClickBurst';
 
 // 테마별 커서 없음(null)이면 아무것도 렌더링하지 않는다
 const CURSOR_KIND = {
@@ -19,6 +20,9 @@ const CURSOR_KIND = {
   'apocalypse-rad': 'geiger',
   'apocalypse-infect': 'crosshair',
   'apocalypse-camp': 'campfire',
+  'hero-comic': 'comicstar',
+  'hero-hud': 'hudbracket',
+  'hero-urban': 'beacon',
 };
 
 const GenreCursor = ({ theme, zoneId }) => {
@@ -32,9 +36,12 @@ const GenreCursor = ({ theme, zoneId }) => {
     geigerPos: useRef(null),
     geigerVisual: useRef(null),
     campfire: useRef(null),
+    hudPos: useRef(null),
+    hudReadout: useRef(null),
   };
 
   useGenreCursorMotion({ kind, zoneId, refs });
+  useGenreClickBurst({ kind, zoneId });
 
   if (!kind) return null;
 
@@ -91,6 +98,30 @@ const GenreCursor = ({ theme, zoneId }) => {
       {kind === 'campfire' && (
         <div ref={refs.cursor} className="gt-cursor">
           <div ref={refs.campfire} className="gt-cursor-part gt-cursor-campfire" />
+        </div>
+      )}
+
+      {kind === 'comicstar' && (
+        <div ref={refs.cursor} className="gt-cursor gt-cursor-comicstar">
+          <svg viewBox="0 0 100 100"><polygon points="50,4 61,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 39,38" fill="#ffd400" stroke="#141110" strokeWidth="5" /></svg>
+        </div>
+      )}
+
+      {kind === 'hudbracket' && (
+        <div ref={refs.cursor} className="gt-cursor">
+          <div ref={refs.hudPos} className="gt-cursor-part gt-cursor-hud-wrap">
+            <div className="gt-cursor-hud">
+              <div className="bracket b1" /><div className="bracket b2" /><div className="bracket b3" /><div className="bracket b4" />
+            </div>
+            <div ref={refs.hudReadout} className="gt-cursor-hud-readout">PWR 100%</div>
+          </div>
+        </div>
+      )}
+
+      {kind === 'beacon' && (
+        <div ref={refs.cursor} className="gt-cursor gt-cursor-beacon">
+          <div className="gt-cursor-beacon-ping" />
+          <div className="gt-cursor-beacon-core" />
         </div>
       )}
     </>
