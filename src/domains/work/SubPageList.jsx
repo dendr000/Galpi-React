@@ -22,25 +22,25 @@ const SubPageList = ({ wikiPages, pageId, workId, navigate, styles }) => {
 
   return (
     <section id="sec-wiki-pages" className={styles.wikiSection}>
-      <div className={styles.sectionHeader}>
+      <div className={`${styles.sectionHeader} gt-section-header`}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <h2 id="sec-subpages" className={`${styles.sectionHeaderTitle} auto-toc-target`}>🗂️ 하위 문서 목록</h2>
-          <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 'bold' }}>{childPages.length}개</span>
+          <h2 id="sec-subpages" className={`${styles.sectionHeaderTitle} gt-section-title auto-toc-target`}>🗂️ 하위 문서 목록</h2>
+          <span className="gt-page-count" style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 'bold' }}>{childPages.length}개</span>
         </div>
-        <button className="wiki-btn" style={{ background: 'transparent', color: 'var(--primary-color)', border: '1px solid var(--primary-color)', padding: '4px 10px', fontSize: '13px' }} onClick={handleNewDocClick}>
+        <button className="wiki-btn gt-btn-edit" style={{ background: 'transparent', color: 'var(--primary-color)', border: '1px solid var(--primary-color)', padding: '4px 10px', fontSize: '13px' }} onClick={handleNewDocClick}>
           + 새 문서 추가
         </button>
       </div>
-      <div className={styles.wikiPageGrid}>
+      <div className={`${styles.wikiPageGrid} gt-page-grid`}>
         {childPages.length > 0 ? childPages.map(page => (
-          <div key={page.id} className={styles.wikiPageCard} onClick={() => handlePageClick(page.id)}>
-            <div className={styles.wikiPageTitle}>📄 {page.title}</div>
-            <div className={styles.wikiPageDesc}>
+          <div key={page.id} className={`${styles.wikiPageCard} gt-page-card`} onClick={() => handlePageClick(page.id)}>
+            <div className={`${styles.wikiPageTitle} gt-page-title`}>📄 {page.title}</div>
+            <div className={`${styles.wikiPageDesc} gt-page-desc`}>
               {page.content ? page.content.replace(/<[^>]*>?/gm, '').substring(0, 100) + '...' : '내용이 없습니다.'}
             </div>
           </div>
         )) : (
-          <div style={{ gridColumn: '1/-1', textAlign: 'center', color: 'var(--text-secondary)', padding: '30px', background: 'var(--table-bg-alt)', borderRadius: '8px', border: '1px dashed var(--border-color)' }}>
+          <div className="gt-page-empty" style={{ gridColumn: '1/-1', textAlign: 'center', color: 'var(--text-secondary)', padding: '30px', background: 'var(--table-bg-alt)', borderRadius: '8px', border: '1px dashed var(--border-color)' }}>
             하위 문서가 없습니다. 우측의 '새 문서 추가' 버튼을 눌러보세요!
           </div>
         )}

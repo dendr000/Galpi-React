@@ -2,8 +2,14 @@
 // 기능 요약: 전용 커스텀 데이터 훅으로부터 컴포넌트 라이프사이클 상태를 주입받아 도메인 단위 서브 모듈들을 조합하여 화면에 표출하는 순수 허브 레이아웃 파일
 // 버전: v3.1.0 (비즈니스 상태 로직 완전 격리 개편본)
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from '../../pages/WorkDetail/WorkDetail.module.css';
+import './themes/wuxia.css';
+import './themes/cyberpunk-neon.css';
+import './themes/cyberpunk-terminal.css';
+import './themes/cyberpunk-graffiti.css';
+import { resolveGenreTheme } from '../../domains/work/genreTheme';
+import GenreCursor from '../../components/common/GenreCursor';
 import { extractMeta } from '../../utils/markdownParser';
 import MarkdownRenderer from '../../domains/macro/MarkdownRenderer';
 import FloatingLeftTree from '../../domains/work/FloatingLeftTree';
@@ -33,6 +39,16 @@ const WorkDetailPage = () => {
   // 커스텀 드래그 인터랙션 제어 훅 바인딩
   const { handleCharDragStart, handleCharDragOver, handleCharDragEnd } = useCharacterDrag(data.characters, data.setCharacters, data.groupCriteria);
 
+  // GNB 팔레트 버튼이 테마를 순환시키면(별도 API 호출) 여기서도 즉시 반영되도록 이벤트를 듣는다
+  useEffect(() => {
+    const handleThemeCycled = (e) => {
+      if (String(e.detail.workId) !== String(data.workId)) return;
+      data.setWork(prev => prev && ({ ...prev, description: e.detail.description }));
+    };
+    window.addEventListener('galpi-theme-cycled', handleThemeCycled);
+    return () => window.removeEventListener('galpi-theme-cycled', handleThemeCycled);
+  }, [data.workId]);
+
   if (data.loading || !data.work) {
     return <div className="fixed-container" style={{ padding: '50px 20px', color: 'var(--text-secondary)', fontWeight:'bold' }}>데이터베이스 스캔 중...</div>;
   }
@@ -47,6 +63,7 @@ const WorkDetailPage = () => {
 
   const activePage = data.pageId ? data.wikiPages.find(p => String(p.id) === String(data.pageId)) : null;
   const activeChar = data.characters.find(c => c.id === data.activeCharId);
+  const genreTheme = resolveGenreTheme(data.work.genre, parsedDesc.meta.themeOverride);
 
   console.log("[WorkDetailPage] 캐릭터 은닉 처리 및 폼 체인지 파싱 시작");
   // 은닉 처리 및 폼 체인지 적용 (이중 파싱 방어 로직 추가)
@@ -116,8 +133,9 @@ const WorkDetailPage = () => {
       {/* 1단계: 플로팅 사이드바 위젯 부착 구역 */}
       <FloatingLeftTree workId={data.workId} pageId={data.pageId} wikiPages={data.wikiPages} />
       <FloatingToc tocList={data.tocList} workId={data.workId} pageId={data.pageId} activePage={activePage} />
+      <GenreCursor theme={genreTheme} zoneId="galpi-genre-zone" />
 
-      <div className={`wiki-container fixed-container ${styles.wikiContainer}`}>
+      <div id="galpi-genre-zone" className={`wiki-container fixed-container ${styles.wikiContainer}`} data-genre-theme={genreTheme || undefined}>
         
         {/* 2단계: 최상단 상향 링크 빵부스러기 경로 바 영역 */}
         {activePage && (
@@ -139,9 +157,11 @@ const WorkDetailPage = () => {
           />
         )}
 
-        {/* 4단계: 장르 및 분류 정보 제어 패널 영역 */}
+        {/* 4단계: 장르/분류 및 테마 선택 제어 패널 영역 */}
         {!activePage && (
-          <WorkCategoryBar work={data.work} workId={data.workId} setWork={data.setWork} styles={styles} />
+          <div id="galpi-theme-row" style={{ borderRadius: '6px' }}>
+            <WorkCategoryBar work={data.work} workId={data.workId} setWork={data.setWork} styles={styles} />
+          </div>
         )}
 
         {/* 5단계: 메인 그리드 및 사이드 이중 레이아웃 구역 */}
@@ -151,8 +171,8 @@ const WorkDetailPage = () => {
             {/* 하위 위키 문서 뷰어 모드 및 메인 개요/세계관 분기 출력 */}
             {activePage ? (
               <section className={styles.wikiSection}>
-                <div className={styles.sectionHeader}>
-                  <h2 className={styles.sectionHeaderTitle} style={{ color: 'var(--primary-color)' }}>{activePage.title}</h2>
+                <div className={`${styles.sectionHeader} gt-section-header`}>
+                  <h2 className={`${styles.sectionHeaderTitle} gt-section-title`} style={{ color: 'var(--primary-color)' }}>{activePage.title}</h2>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button className="wiki-btn" style={{ padding: '4px 10px', fontSize: '13px' }} onClick={() => data.navigate(`/edit?type=page&action=edit&workId=${data.workId}&id=${activePage.id}`)}>✏️ 문서 편집</button>
                     <button className="wiki-btn" style={{ padding: '4px 10px', fontSize: '13px', background: 'transparent', color: '#e53e3e', border: '1px dashed #e53e3e' }} onClick={async () => {
@@ -170,8 +190,8 @@ const WorkDetailPage = () => {
             ) : (
               <>
                 <section id="sec-1" className={styles.wikiSection}>
-                  <div className={styles.sectionHeader}>
-                    <h2 id="sec-overview" className={`${styles.sectionHeaderTitle} auto-toc-target`}>1. 개요</h2>
+                  <div className={`${styles.sectionHeader} gt-section-header`}>
+                    <h2 id="sec-overview" className={`${styles.sectionHeaderTitle} gt-section-title auto-toc-target`}>1. 개요</h2>
                   </div>
                   <div style={{ marginBottom: '20px' }}>
                     <p style={{ margin: '0 0 12px 0', lineHeight: 1.6, color: 'var(--text-secondary)' }}>제작자: <strong>{data.work.creator || '미상'}</strong> | 상태: <strong>[{data.work.status || '진행 중'}]</strong></p>
@@ -180,8 +200,8 @@ const WorkDetailPage = () => {
                 </section>
 
                 <section id="sec-2" className={styles.wikiSection}>
-                  <div className={styles.sectionHeader}>
-                    <h2 id="sec-worldview" className={`${styles.sectionHeaderTitle} auto-toc-target`}>2. 설정</h2>
+                  <div className={`${styles.sectionHeader} gt-section-header`}>
+                    <h2 id="sec-worldview" className={`${styles.sectionHeaderTitle} gt-section-title auto-toc-target`}>2. 설정</h2>
                     <button className="wiki-btn" style={{ padding: '4px 10px', fontSize: '13px' }} onClick={() => data.navigate(`/edit?type=work&action=edit&id=${data.work.id}`)}>✏️ 편집</button>
                   </div>
                   <MarkdownRenderer rawText={parsedDesc.clean} startH1={3} />

@@ -106,7 +106,7 @@ const CustomCursor = () => {
           borderWidth: '1.5px',
           borderRadius: '50%',
           pointerEvents: 'none',
-          zIndex: 9999998,
+          zIndex: 2147483646,
           ...outlineDynamicStyle
         }}
       />
@@ -118,7 +118,7 @@ const CustomCursor = () => {
           top: 0,
           left: 0,
           pointerEvents: 'none',
-          zIndex: 9999999,
+          zIndex: 2147483647,
         }}
       >
         <div

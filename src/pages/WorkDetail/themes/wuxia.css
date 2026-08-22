@@ -1,0 +1,182 @@
+/* 파일 위치: src/pages/WorkDetail/themes/wuxia.css */
+/* 무협/무림/강호 분류 작품에만 켜지는 "묵향" 테마의 팔레트 + 배경 질감.
+   [data-genre-theme="wuxia"]는 클래스가 아니라 속성 선택자라 이 파일을
+   WorkDetail.module.css와 분리해도 CSS Modules 해싱의 영향을 받지 않는다.
+   실제 컴포넌트 클래스(.noteCard 등)에 이 변수를 연결하는 배선은
+   Vite의 CSS Modules 구현상 :global()로 뺀 클래스가 styles.xxx에서
+   undefined가 되어버려서(실제로 겪은 버그), 어쩔 수 없이
+   WorkDetail.module.css 안에 함께 있어야 한다. */
+
+[data-genre-theme="wuxia"] {
+  --wx-ground: #ded4bc; --wx-paper: #f1e9d4; --wx-ink: #221f19; --wx-ink-soft: #746b58;
+  --wx-vermillion: #b3312c; --wx-line: #d6c8a0;
+  --wx-rod: #4a3018; --wx-rod-hi: #8a6438; --wx-finial: #c9a24a; --wx-finial-hi: #f0d98a;
+  --wx-scroll-paper: #cabb90; --wx-scroll-ink: #2a2113; --wx-scroll-ink-soft: #5c4f34;
+  --wx-font-display: 'Song Myung', serif;
+  --wx-font-body: 'Gowun Batang', serif;
+  --wx-font-mono: 'IBM Plex Mono', monospace;
+}
+[data-theme="dark"] [data-genre-theme="wuxia"] {
+  --wx-ground: #14100a; --wx-paper: #241f15; --wx-ink: #ece5d4; --wx-ink-soft: #a89b7f;
+  --wx-vermillion: #d9695f; --wx-line: #3c3527;
+  --wx-rod: #2a1c0e; --wx-rod-hi: #5c4222; --wx-finial: #a9812f; --wx-finial-hi: #d8bd75;
+  --wx-scroll-paper: #4a3d24; --wx-scroll-ink: #ece1c4; --wx-scroll-ink-soft: #b7a880;
+}
+
+/* 페이지 바탕: 한지 섬유 결. 속성 선택자 자체에 배경을 얹으므로 해싱과 무관 */
+[data-genre-theme="wuxia"] {
+  background-color: var(--wx-ground);
+  background-image:
+    repeating-linear-gradient(74deg, rgba(90,70,35,0.05) 0px, transparent 1.5px, transparent 15px, rgba(90,70,35,0.045) 16px, transparent 17.5px, transparent 42px),
+    repeating-linear-gradient(-8deg, rgba(60,45,20,0.035) 0px, transparent 1px, transparent 22px, rgba(60,45,20,0.03) 23px, transparent 24px, transparent 55px),
+    radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1.3px);
+  background-size: auto, auto, 3.2px 3.2px;
+  border-radius: 6px;
+  padding: 24px !important;
+}
+
+/* ============================================================
+   컴포넌트 배선 — 전부 컴포넌트에 붙인 순수 전역 hook 클래스(.gt-*) 타겟.
+   CSS Modules 해싱과 무관해서 이 파일 하나로 완결된다.
+   ============================================================ */
+[data-genre-theme="wuxia"] .gt-hero { border-color: var(--wx-line) !important; box-shadow: 0 6px 18px rgba(0,0,0,0.25) !important; }
+[data-genre-theme="wuxia"] .gt-hero-title { font-family: var(--wx-font-display); letter-spacing: 0.01em; }
+
+/* 커버 이미지가 없을 때의 제목 영역 — 밑줄 하나로 끝내지 않고 편액(현판)처럼 종이 패널로 감싼다 */
+[data-genre-theme="wuxia"] .gt-hero-fallback {
+  background: var(--wx-paper) !important;
+  border: 1px solid var(--wx-line) !important;
+  border-left: 4px solid var(--wx-vermillion) !important;
+  border-radius: 3px;
+  padding: 22px 28px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+[data-genre-theme="wuxia"] .gt-hero-fallback .wiki-btn {
+  border-color: var(--wx-vermillion) !important; color: var(--wx-vermillion) !important; background: transparent !important;
+}
+
+[data-genre-theme="wuxia"] .gt-category { background: var(--wx-paper) !important; border-color: var(--wx-line) !important; }
+[data-genre-theme="wuxia"] .gt-category > :first-child { background: var(--wx-paper) !important; }
+[data-genre-theme="wuxia"] .gt-tag { background: transparent !important; border: 1px solid var(--wx-line); color: var(--wx-ink-soft) !important; font-family: var(--wx-font-body); border-radius: 3px !important; }
+
+[data-genre-theme="wuxia"] .gt-section-header { border-bottom-color: var(--wx-line) !important; }
+[data-genre-theme="wuxia"] .gt-section-title { font-family: var(--wx-font-display) !important; color: var(--wx-ink) !important; }
+
+[data-genre-theme="wuxia"] .gt-relation-group { background: var(--wx-paper) !important; border-color: var(--wx-line) !important; }
+[data-genre-theme="wuxia"] .gt-relation-header { color: var(--wx-vermillion) !important; font-family: var(--wx-font-body); }
+
+/* 인물 카드 = 족자(足子): 위아래 축 사이에 초상+이름+속성이 한 장의 종이로 이어짐 */
+[data-genre-theme="wuxia"] .gt-card {
+  background: var(--wx-scroll-paper) !important;
+  border: none !important;
+  border-radius: 3px !important;
+  padding: 0 !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18) !important;
+  height: auto !important;
+}
+[data-genre-theme="wuxia"] .gt-card::before,
+[data-genre-theme="wuxia"] .gt-card::after {
+  content: "";
+  display: block;
+  flex-shrink: 0;
+  height: 8px;
+  margin: 0 -5px;
+  border-radius: 4px;
+  background-image:
+    radial-gradient(circle at 4px 50%, var(--wx-finial-hi) 0%, var(--wx-finial) 55%, var(--wx-rod) 100%),
+    radial-gradient(circle at 4px 50%, var(--wx-finial-hi) 0%, var(--wx-finial) 55%, var(--wx-rod) 100%),
+    linear-gradient(90deg, var(--wx-rod) 0%, var(--wx-rod-hi) 35%, var(--wx-rod) 65%, var(--wx-rod-hi) 100%);
+  background-repeat: no-repeat;
+  background-position: left center, right center, center;
+  background-size: 13px 13px, 13px 13px, calc(100% - 12px) 100%;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.3);
+}
+[data-genre-theme="wuxia"] .gt-card-img {
+  flex-shrink: 0;
+  height: 150px !important;
+  margin: 16px 16px 0 !important;
+  border-radius: 0 !important;
+  position: relative;
+  box-shadow: 0 0 0 1px var(--wx-line), inset 0 6px 10px -6px rgba(0,0,0,0.28), inset 0 -6px 10px -6px rgba(0,0,0,0.28);
+}
+[data-genre-theme="wuxia"] .gt-card h4 {
+  font-family: var(--wx-font-body) !important;
+  color: var(--wx-scroll-ink) !important;
+  margin: 14px 16px 0 !important;
+  padding-top: 12px;
+  border-top: 1px solid var(--wx-line);
+  flex-shrink: 0;
+}
+[data-genre-theme="wuxia"] .gt-card h4 span { color: var(--wx-scroll-ink-soft) !important; }
+[data-genre-theme="wuxia"] .gt-card > div:last-child { margin: 8px 16px 0 !important; padding-bottom: 14px; flex: 1; }
+[data-genre-theme="wuxia"] .gt-card > div:last-child > div { gap: 10px; }
+[data-genre-theme="wuxia"] .gt-card > div:last-child > div span:first-child {
+  color: var(--wx-scroll-ink-soft) !important; font-family: var(--wx-font-mono); font-size: 10.5px; letter-spacing: 0.03em; flex-shrink: 0;
+}
+[data-genre-theme="wuxia"] .gt-card > div:last-child > div span:last-child {
+  color: var(--wx-scroll-ink) !important; font-family: var(--wx-font-body); font-weight: 700 !important;
+}
+
+/* 우측 인포박스 — 캐릭터별 테마색은 세피아 톤으로 눌러서 한지 위에서도 튀지 않게 */
+[data-genre-theme="wuxia"] .gt-infobox { background: var(--wx-paper) !important; border-color: var(--wx-line) !important; border-top: 4px solid var(--wx-vermillion) !important; }
+[data-genre-theme="wuxia"] .gt-infobox-title { font-family: var(--wx-font-display); filter: sepia(0.35) saturate(0.75) brightness(0.9); }
+[data-genre-theme="wuxia"] .gt-infobox-image { border-bottom-color: var(--wx-line) !important; }
+[data-genre-theme="wuxia"] .gt-infobox-table th { background: var(--wx-scroll-paper) !important; color: var(--wx-scroll-ink-soft) !important; border-color: var(--wx-line) !important; font-family: var(--wx-font-mono); font-weight: 500 !important; }
+[data-genre-theme="wuxia"] .gt-infobox-table td { color: var(--wx-ink) !important; border-color: var(--wx-line) !important; font-family: var(--wx-font-body); }
+[data-genre-theme="wuxia"] .gt-infobox-desc { background: var(--wx-paper) !important; color: var(--wx-ink-soft) !important; border-top-color: var(--wx-line) !important; }
+[data-genre-theme="wuxia"] .gt-btn-edit { border-color: var(--wx-vermillion) !important; color: var(--wx-vermillion) !important; }
+[data-genre-theme="wuxia"] .gt-btn-del { border-color: var(--wx-ink-soft) !important; color: var(--wx-ink-soft) !important; }
+
+/* 본문 마크다운 박스 (개요/설정/캐릭터 상세) */
+[data-genre-theme="wuxia"] .md-box { background: var(--wx-paper) !important; border-color: var(--wx-line) !important; }
+[data-genre-theme="wuxia"] .markdown-body { color: var(--wx-ink); }
+[data-genre-theme="wuxia"] .markdown-body h1,
+[data-genre-theme="wuxia"] .markdown-body h2 {
+  font-family: var(--wx-font-display) !important; color: var(--wx-vermillion) !important; border-color: var(--wx-line) !important;
+}
+[data-genre-theme="wuxia"] .md-h1 { border-color: var(--wx-vermillion) !important; color: var(--wx-vermillion) !important; }
+
+/* 캐릭터 빠른 이동 — border만 갈아끼우고 active 상태(파란 채움)는 유지 */
+[data-genre-theme="wuxia"] .gt-quicknav { background: var(--wx-paper) !important; border-color: var(--wx-line) !important; }
+[data-genre-theme="wuxia"] .gt-quicknav-btn { font-family: var(--wx-font-body); border-color: var(--wx-vermillion) !important; }
+
+/* 하위 문서 목록 — 문서철처럼 종이 카드 */
+[data-genre-theme="wuxia"] .gt-page-count { color: var(--wx-ink-soft) !important; font-family: var(--wx-font-mono); }
+[data-genre-theme="wuxia"] .gt-page-card { background: var(--wx-paper) !important; border-color: var(--wx-line) !important; }
+[data-genre-theme="wuxia"] .gt-page-card:hover { border-color: var(--wx-vermillion) !important; box-shadow: 0 4px 15px rgba(179,49,44,0.12) !important; }
+[data-genre-theme="wuxia"] .gt-page-title { font-family: var(--wx-font-display) !important; color: var(--wx-ink) !important; }
+[data-genre-theme="wuxia"] .gt-page-desc { color: var(--wx-ink-soft) !important; font-family: var(--wx-font-body) !important; }
+[data-genre-theme="wuxia"] .gt-page-empty { background: var(--wx-paper) !important; border-color: var(--wx-line) !important; color: var(--wx-ink-soft) !important; }
+
+/* 마크다운 인용구( | 텍스트 문법 ) — 명대사를 돌비석에 새긴 것처럼.
+   .galpi-ext-quote는 module.css가 아니라 순수 전역 클래스라 여기서 바로 타겟 가능 */
+[data-genre-theme="wuxia"] .galpi-ext-quote {
+  border: none !important;
+  border-top: 1px solid var(--wx-vermillion) !important;
+  border-bottom: 1px solid var(--wx-vermillion) !important;
+  background: var(--wx-paper) !important;
+  color: var(--wx-ink) !important;
+  font-family: var(--wx-font-body) !important;
+  font-style: italic;
+  text-align: center !important;
+  padding: 20px 40px !important;
+  margin: 26px auto !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  width: fit-content;
+  max-width: 78%;
+  font-size: 16px;
+  line-height: 1.85;
+  letter-spacing: 0.01em;
+  position: relative;
+}
+[data-genre-theme="wuxia"] .galpi-ext-quote::before {
+  content: "";
+  position: absolute;
+  top: -4px; left: 50%;
+  transform: translateX(-50%);
+  width: 5px; height: 5px;
+  background: var(--wx-vermillion);
+  border-radius: 50%;
+}
+

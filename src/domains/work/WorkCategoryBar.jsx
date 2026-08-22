@@ -28,10 +28,10 @@ const WorkCategoryBar = ({ work, workId, setWork, styles }) => {
   };
 
   return (
-    <div id="work-category" className={styles.wikiCategory}>
+    <div id="work-category" className={`${styles.wikiCategory} gt-category`}>
       <div style={{ fontWeight: 'bold', marginLeft: '10px', marginRight: '10px', flexShrink: 0 }}>분류: </div>
       {work.genre && work.genre.split(',').filter(g => g.trim()).map((g, index) => (
-        <span key={`${g}-${index}`} className={styles.wikiTagItem}>
+        <span key={`${g}-${index}`} className={`${styles.wikiTagItem} gt-tag`}>
           <a href={`/category?cat=${encodeURIComponent(g.trim())}`} style={{ color: 'inherit', textDecoration: 'none' }} onMouseOver={(e) => e.target.style.textDecoration='underline'} onMouseOut={(e) => e.target.style.textDecoration='none'}>
             {g.trim()}
           </a>

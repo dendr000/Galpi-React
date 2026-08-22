@@ -1,0 +1,136 @@
+/* 파일 위치: src/pages/WorkDetail/themes/cyberpunk-neon.css */
+/* 사이버펑크 방향 A — 네온 메가시티. 블레이드 러너류 HUD, 사이언/마젠타 듀오톤 + 원근 그리드.
+   변수/배경/애니메이션은 [data-genre-theme="cyberpunk-neon"] 속성 선택자만으로 구성해서
+   WorkDetail.module.css 없이도 이 파일 단독으로 동작한다 (해싱 클래스 배선만 그쪽에 최소로 있음). */
+
+[data-genre-theme="cyberpunk-neon"] {
+  --cp-bg1: #241a4a; --cp-bg2: #100c24; --cp-bg3: #08060f;
+  --cp-ink: #f4f6ff; --cp-ink-soft: #9c9fc4;
+  --cp-cyan: #4fd3ec; --cp-magenta: #d94fec;
+  --cp-panel: rgba(36,26,74,0.85); --cp-panel-line: rgba(79,211,236,0.35);
+  --cp-font-display: 'Black Han Sans', sans-serif;
+  --cp-font-label: 'Rajdhani', sans-serif;
+  --cp-font-mono: 'IBM Plex Mono', monospace;
+}
+/* 이 테마는 항상 어두운 세계관 하나로 고정 — 라이트/다크 토글과 무관하게 동일하게 보인다 */
+
+[data-genre-theme="cyberpunk-neon"] {
+  position: relative;
+  background: radial-gradient(ellipse at 50% -10%, var(--cp-bg1) 0%, var(--cp-bg2) 45%, var(--cp-bg3) 100%) !important;
+  border-radius: 6px;
+  padding: 24px !important;
+  overflow: hidden;
+}
+[data-genre-theme="cyberpunk-neon"]::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(79,211,236,0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79,211,236,0.12) 1px, transparent 1px);
+  background-size: 44px 44px;
+  transform: perspective(500px) rotateX(62deg) scale(2.4);
+  transform-origin: 50% 100%;
+  animation: cpGridScroll 4.5s linear infinite;
+  opacity: 0.5;
+  mask-image: linear-gradient(to top, black 0%, transparent 70%);
+}
+@keyframes cpGridScroll { from { background-position: 0 0; } to { background-position: 0 44px; } }
+[data-genre-theme="cyberpunk-neon"]::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: linear-gradient(to bottom, transparent 0%, rgba(79,211,236,0.06) 50%, transparent 100%);
+  background-size: 100% 6px; animation: cpScan 6s linear infinite;
+}
+@keyframes cpScan { from { background-position: 0 0; } to { background-position: 0 400px; } }
+[data-genre-theme="cyberpunk-neon"] > * { position: relative; z-index: 1; }
+
+/* ============================================================
+   컴포넌트 배선 (전부 .gt-* 순수 전역 hook 클래스 타겟)
+   ============================================================ */
+[data-genre-theme="cyberpunk-neon"] .gt-hero { border-color: var(--cp-panel-line) !important; box-shadow: 0 0 30px rgba(79,211,236,0.25) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-hero-title {
+  font-family: var(--cp-font-display) !important; letter-spacing: 0.01em;
+  text-shadow: 0 0 18px rgba(79,211,236,0.5), 0 0 40px rgba(217,79,236,0.25);
+}
+
+/* 커버 이미지가 없을 때의 제목 영역 — 홀로 패널로 감싸 밑줄 하나로 남지 않게 */
+[data-genre-theme="cyberpunk-neon"] .gt-hero-fallback {
+  background: var(--cp-panel) !important;
+  border: 1px solid var(--cp-panel-line) !important;
+  border-left: 3px solid var(--cp-cyan) !important;
+  border-radius: 3px;
+  padding: 22px 28px !important;
+  box-shadow: 0 0 24px rgba(79,211,236,0.15) !important;
+}
+[data-genre-theme="cyberpunk-neon"] .gt-hero-fallback .wiki-btn {
+  border-color: var(--cp-cyan) !important; color: var(--cp-cyan) !important; background: transparent !important;
+}
+
+[data-genre-theme="cyberpunk-neon"] .gt-category { background: var(--cp-panel) !important; border-color: var(--cp-panel-line) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-category > :first-child { background: var(--cp-panel) !important; color: var(--cp-ink) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-tag {
+  background: linear-gradient(90deg, rgba(79,211,236,0.16), rgba(217,79,236,0.10)) !important;
+  border: 1px solid var(--cp-cyan) !important; color: var(--cp-ink) !important;
+  font-family: var(--cp-font-label) !important; font-weight: 700; letter-spacing: 0.03em;
+  border-radius: 2px !important;
+}
+
+[data-genre-theme="cyberpunk-neon"] .gt-section-header { border-bottom-color: var(--cp-panel-line) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-section-title { font-family: var(--cp-font-display) !important; color: var(--cp-ink) !important; }
+
+[data-genre-theme="cyberpunk-neon"] .gt-relation-group { background: var(--cp-panel) !important; border-color: var(--cp-panel-line) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-relation-header { color: var(--cp-cyan) !important; font-family: var(--cp-font-label); text-shadow: 0 0 8px rgba(79,211,236,0.5); }
+
+/* 인물 카드 — 홀로그램 ID 칩. 호버 시 대각선 광택이 훑고 지나간다 */
+[data-genre-theme="cyberpunk-neon"] .gt-card {
+  background: linear-gradient(160deg, rgba(36,26,74,0.85), rgba(10,8,22,0.9)) !important;
+  border: 1px solid var(--cp-panel-line) !important;
+  border-radius: 3px !important;
+  box-shadow: none !important;
+  height: auto !important;
+  position: relative;
+  overflow: hidden;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+[data-genre-theme="cyberpunk-neon"] .gt-card::before {
+  content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: linear-gradient(120deg, transparent 40%, rgba(79,211,236,0.18) 50%, transparent 60%);
+  background-size: 220% 220%; background-position: -120% -120%; transition: background-position .6s ease;
+}
+[data-genre-theme="cyberpunk-neon"] .gt-card:hover { transform: translateY(-4px); box-shadow: 0 10px 26px rgba(79,211,236,0.18) !important; border-color: var(--cp-cyan) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-card:hover::before { background-position: 120% 120%; }
+[data-genre-theme="cyberpunk-neon"] .gt-card-img { border-radius: 2px !important; box-shadow: 0 0 0 1px var(--cp-panel-line) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-card h4 { font-family: var(--cp-font-display) !important; color: var(--cp-ink) !important; font-size: 14px !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-card h4 span { color: var(--cp-ink-soft) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-card > div:last-child > div span:first-child { color: var(--cp-ink-soft) !important; font-family: var(--cp-font-mono); font-size: 10.5px; }
+[data-genre-theme="cyberpunk-neon"] .gt-card > div:last-child > div span:last-child { color: var(--cp-cyan) !important; font-family: var(--cp-font-label); font-weight: 700 !important; }
+
+[data-genre-theme="cyberpunk-neon"] .gt-infobox { background: var(--cp-panel) !important; border-color: var(--cp-panel-line) !important; box-shadow: 0 0 24px rgba(79,211,236,0.15) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-infobox-title { font-family: var(--cp-font-display) !important; filter: saturate(1.3) brightness(1.05); }
+[data-genre-theme="cyberpunk-neon"] .gt-infobox-image { border-bottom-color: var(--cp-panel-line) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-infobox-table th { background: rgba(79,211,236,0.08) !important; color: var(--cp-ink-soft) !important; border-color: var(--cp-panel-line) !important; font-family: var(--cp-font-mono); font-weight: 500 !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-infobox-table td { color: var(--cp-ink) !important; border-color: var(--cp-panel-line) !important; font-family: var(--cp-font-label); }
+[data-genre-theme="cyberpunk-neon"] .gt-infobox-desc { background: var(--cp-panel) !important; color: var(--cp-ink-soft) !important; border-top-color: var(--cp-panel-line) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-btn-edit { border-color: var(--cp-cyan) !important; color: var(--cp-cyan) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-btn-del { border-color: var(--cp-magenta) !important; color: var(--cp-magenta) !important; }
+
+[data-genre-theme="cyberpunk-neon"] .md-box { background: var(--cp-panel) !important; border-color: var(--cp-panel-line) !important; }
+[data-genre-theme="cyberpunk-neon"] .markdown-body { color: var(--cp-ink); }
+[data-genre-theme="cyberpunk-neon"] .markdown-body h1,
+[data-genre-theme="cyberpunk-neon"] .markdown-body h2 { font-family: var(--cp-font-display) !important; color: var(--cp-cyan) !important; border-color: var(--cp-panel-line) !important; }
+[data-genre-theme="cyberpunk-neon"] .md-h1 { border-color: var(--cp-cyan) !important; color: var(--cp-cyan) !important; }
+
+[data-genre-theme="cyberpunk-neon"] .gt-quicknav { background: var(--cp-panel) !important; border-color: var(--cp-panel-line) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-quicknav-btn { font-family: var(--cp-font-label); border-color: var(--cp-cyan) !important; }
+
+/* 하위 문서 목록 — 홀로그램 ID 칩과 같은 계열의 패널 카드 */
+[data-genre-theme="cyberpunk-neon"] .gt-page-count { color: var(--cp-ink-soft) !important; font-family: var(--cp-font-mono); }
+[data-genre-theme="cyberpunk-neon"] .gt-page-card { background: linear-gradient(160deg, rgba(36,26,74,0.85), rgba(10,8,22,0.9)) !important; border-color: var(--cp-panel-line) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-page-card:hover { border-color: var(--cp-cyan) !important; box-shadow: 0 10px 26px rgba(79,211,236,0.18) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-page-title { font-family: var(--cp-font-display) !important; color: var(--cp-ink) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-page-desc { color: var(--cp-ink-soft) !important; font-family: var(--cp-font-label) !important; }
+[data-genre-theme="cyberpunk-neon"] .gt-page-empty { background: var(--cp-panel) !important; border-color: var(--cp-panel-line) !important; color: var(--cp-ink-soft) !important; }
+
+[data-genre-theme="cyberpunk-neon"] .galpi-ext-quote {
+  border: none !important; border-top: 1px solid var(--cp-cyan) !important; border-bottom: 1px solid var(--cp-cyan) !important;
+  background: var(--cp-panel) !important; color: var(--cp-ink) !important; font-family: var(--cp-font-label) !important;
+  text-align: center !important; box-shadow: none !important; text-shadow: 0 0 10px rgba(79,211,236,0.4);
+}

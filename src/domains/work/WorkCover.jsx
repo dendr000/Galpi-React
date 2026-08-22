@@ -43,13 +43,13 @@ const WorkCover = ({ work, workId, coverExt, coverUrl, coverY, setCoverY, isCove
     <div id="work-header-container" style={{ marginBottom: '20px' }}>
       {coverExt ? (
         <div 
-          className={`${styles.workHeroBanner} ${isCoverDragging ? styles.isDragging : ''}`} 
+          className={`${styles.workHeroBanner} gt-hero ${isCoverDragging ? styles.isDragging : ''}`}
           style={{ display: 'block', backgroundImage: `url('${coverUrl}')`, backgroundPosition: `50% ${coverY}%`, cursor: isCoverEdit ? (isCoverDragging ? 'ns-resize' : 'grab') : 'default' }}
           onMouseDown={handleCoverMouseDown} onMouseMove={handleCoverMouseMove} onMouseUp={handleCoverMouseUp} onMouseLeave={handleCoverMouseUp}
         >
           <div className={styles.heroOverlay}></div>
           <div className={styles.heroTitleContainer}>
-            <h1 className={styles.heroTitle}>{work.title}</h1>
+            <h1 className={`${styles.heroTitle} gt-hero-title`}>{work.title}</h1>
           </div>
           <div className={`${styles.coverControls} ${isCoverEdit ? styles.activeDrag : ''}`}>
             {!isCoverEdit ? (
@@ -64,8 +64,8 @@ const WorkCover = ({ work, workId, coverExt, coverUrl, coverY, setCoverY, isCove
           </div>
         </div>
       ) : (
-        <div className={styles.wikiTitleArea}>
-          <h1 className={styles.wikiTitle}>{work.title}</h1>
+        <div className={`${styles.wikiTitleArea} gt-hero gt-hero-fallback`}>
+          <h1 className={`${styles.wikiTitle} gt-hero-title`}>{work.title}</h1>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button className="wiki-btn" style={{ background: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }} onClick={() => navigate(`/edit?type=work&action=edit&id=${workId}`)}>⚙️ 작품 설정</button>
           </div>

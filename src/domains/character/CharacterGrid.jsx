@@ -44,9 +44,9 @@ const CharacterGrid = ({
 
   return (
     <section id="sec-3" className={styles.wikiSection}>
-      <div className={styles.sectionHeader}>
+      <div className={`${styles.sectionHeader} gt-section-header`}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <h2 id="sec-characters" className={`${styles.sectionHeaderTitle} auto-toc-target`}>
+          <h2 id="sec-characters" className={`${styles.sectionHeaderTitle} gt-section-title auto-toc-target`}>
             {charSectionNum}. 등장인물 목록
           </h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', color: 'var(--text-secondary)' }}>
@@ -88,8 +88,8 @@ const CharacterGrid = ({
           const charList = groupedChars[gName] || []; // ★ 해당 그룹에 캐릭터 배열이 없을 경우 빈 배열로 대체하여 크래시 방지
           console.log(`[CharacterGrid] 그룹 섹션 빌드 ➔ 그룹명: ${gName}, 인원 수: ${charList.length}`);
           return (
-            <div key={gName} className={styles.relationGroup}>
-              <h3 className={styles.relationHeader}>
+            <div key={gName} className={`${styles.relationGroup} gt-relation-group`}>
+              <h3 className={`${styles.relationHeader} gt-relation-header`}>
                 {gName} <span style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 'normal' }}>({charList.length})</span>
               </h3>
               
@@ -144,7 +144,7 @@ const CharacterGrid = ({
                     <div 
                       key={c._baseCharId || c.id} 
                       id={`char-card-${c._baseCharId || c.id}`}
-                      className={styles.noteCard} 
+                      className={`${styles.noteCard} gt-card`}
                       style={{ 
                         borderTop: `4px solid ${themeColor}`, 
                         backgroundColor: activeCharId === c.id ? 'var(--table-bg-alt)' : 'var(--surface-color)',
@@ -166,7 +166,7 @@ const CharacterGrid = ({
                       onDragEnd={(e) => { handleCharDragEnd(e, gName); }}
                     >
                       {/* 상단 이미지 영역 (원래의 패딩 규격 내에서 렌더링되도록 원상복구) */}
-                      <div className={styles.cardImgWrap}>
+                      <div className={`${styles.cardImgWrap} gt-card-img`}>
                         <img 
                           src={cardImgSrc} 
                           style={{ 

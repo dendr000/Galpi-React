@@ -5,7 +5,7 @@ import { IconGear, IconX, IconEye, IconKeyboard, IconLock } from './icons/Settin
 
 const SettingModal = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('appearance');
-  const { fontSize, lineHeight, fontFamily, layoutWidth, isCustomCursor, cursorColor, autoSaveInterval, bossKey, blindTheme, bootLock, hiddenCmd, updateSetting } = useSettingStore();
+  const { fontSize, lineHeight, fontFamily, layoutWidth, isCustomCursor, cursorColor, isStarryBackground, autoSaveInterval, bossKey, blindTheme, bootLock, hiddenCmd, updateSetting } = useSettingStore();
 
   if (!isOpen) return null;
 
@@ -129,6 +129,22 @@ const SettingModal = ({ isOpen, onClose }) => {
 
                   <div style={{ fontSize: '12.5px', color: 'var(--text-secondary)', marginTop: '10px', marginLeft: '26px', lineHeight: '1.5' }}>
                     버튼이나 링크에 올리면 원이 커지고 클릭 시 색이 채워집니다.<br/>화면 전환이 잦을 경우 성능을 위해 꺼두는 것을 권장합니다.
+                  </div>
+                </div>
+
+                {/* 전역 밤하늘 배경 토글 — 작품 분류와 무관하게 항상 동일하게 적용 */}
+                <div style={{ padding: '18px', background: 'var(--bg-color)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 'bold', fontSize: '14px', color: 'var(--text-primary)', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={isStarryBackground}
+                      onChange={e => updateSetting('isStarryBackground', e.target.checked)}
+                      style={{ accentColor: 'var(--primary-color)', width: '16px', height: '16px', cursor: 'pointer', margin: 0 }}
+                    />
+                    밤하늘 배경 (떠오르는 잔별)
+                  </label>
+                  <div style={{ fontSize: '12.5px', color: 'var(--text-secondary)', marginTop: '10px', marginLeft: '26px', lineHeight: '1.5' }}>
+                    작품 분류와 상관없이 사이트 전체 배경에 별이 위로 떠오르며 반짝입니다.
                   </div>
                 </div>
               </div>

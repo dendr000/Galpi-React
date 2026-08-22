@@ -15,6 +15,7 @@ import FabMenu from './components/layout/FabMenu';
 import GlobalContextMenu from './components/layout/GlobalContextMenu';
 import Footer from './components/layout/footer/Footer';
 import CustomCursor from './components/common/CustomCursor';
+import StarryBackground from './components/common/StarryBackground';
 
 import Home from './pages/Home/HomePage';
 import CategoryPage from './pages/Category/CategoryPage';
@@ -45,7 +46,7 @@ function App() {
   }, []);
 
   const [isSettingOpen, setIsSettingOpen] = useState(false);
-  const { fontSize, layoutWidth, fontFamily } = useSettingStore();
+  const { fontSize, layoutWidth, fontFamily, isStarryBackground } = useSettingStore();
   
   useBossKey();
   useHorizontalScroll();
@@ -66,6 +67,7 @@ function App() {
       }}
     >
       <CustomCursor /> {/* ★ 앱 전역 커스텀 커서 마운트 */}
+      {isStarryBackground && <StarryBackground />}
       <SettingModal isOpen={isSettingOpen} onClose={() => setIsSettingOpen(false)} />
       <SafeDeleteModal />
       <BossBlindLayer />

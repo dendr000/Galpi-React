@@ -1,0 +1,102 @@
+/* 파일 위치: src/pages/WorkDetail/themes/cyberpunk-terminal.css */
+/* 사이버펑크 방향 B — 터미널 해커. 그린 포스포 CRT, 스캔라인 + 미세 플리커. */
+
+[data-genre-theme="cyberpunk-terminal"] {
+  --cp-bg: #030503; --cp-ink: #57ffa0; --cp-ink-dim: #2fae6d; --cp-ink-bright: #b8ffd6;
+  --cp-line: #1f7a4c;
+  --cp-font-mono: 'Share Tech Mono', monospace;
+}
+
+[data-genre-theme="cyberpunk-terminal"] {
+  position: relative;
+  background: var(--cp-bg) !important;
+  border-radius: 6px;
+  padding: 24px !important;
+  overflow: hidden;
+}
+[data-genre-theme="cyberpunk-terminal"]::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(80,255,140,0.05) 0px, transparent 1px, transparent 3px);
+}
+[data-genre-theme="cyberpunk-terminal"]::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: rgba(80,255,140,0.03); animation: cpFlicker 4s infinite;
+}
+@keyframes cpFlicker { 0%,100%{opacity:0;} 92%{opacity:0;} 93%{opacity:1;} 94%{opacity:0;} 96%{opacity:0.6;} 97%{opacity:0;} }
+[data-genre-theme="cyberpunk-terminal"] > * { position: relative; z-index: 1; }
+
+/* ============================================================
+   컴포넌트 배선 — 순정 그린 텍스트, 대괄호 태그, HUD 코너 브래킷 카드
+   ============================================================ */
+[data-genre-theme="cyberpunk-terminal"] .gt-hero { border-color: var(--cp-line) !important; box-shadow: none !important; filter: grayscale(0.3) contrast(1.05); }
+[data-genre-theme="cyberpunk-terminal"] .gt-hero-title { font-family: var(--cp-font-mono) !important; color: var(--cp-ink) !important; text-shadow: 0 0 6px rgba(87,255,160,0.6); }
+
+/* 커버 이미지가 없을 때의 제목 영역 — 터미널 윈도우 프레임처럼 감싼다 */
+[data-genre-theme="cyberpunk-terminal"] .gt-hero-fallback {
+  background: #050705 !important;
+  border: 1px solid var(--cp-line) !important;
+  border-radius: 0 !important;
+  padding: 20px 26px !important;
+}
+[data-genre-theme="cyberpunk-terminal"] .gt-hero-fallback .wiki-btn {
+  border-color: var(--cp-ink) !important; color: var(--cp-ink) !important; background: transparent !important; font-family: var(--cp-font-mono); border-radius: 0 !important;
+}
+
+[data-genre-theme="cyberpunk-terminal"] .gt-category { background: var(--cp-bg) !important; border: 1px solid var(--cp-line) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-category > :first-child { background: var(--cp-bg) !important; color: var(--cp-ink) !important; font-family: var(--cp-font-mono); }
+[data-genre-theme="cyberpunk-terminal"] .gt-tag {
+  background: transparent !important; border: 1px solid var(--cp-line) !important; color: var(--cp-ink) !important;
+  font-family: var(--cp-font-mono) !important; border-radius: 0 !important;
+}
+[data-genre-theme="cyberpunk-terminal"] .gt-tag::before { content: "["; color: var(--cp-ink-dim); }
+[data-genre-theme="cyberpunk-terminal"] .gt-tag::after { content: "]"; color: var(--cp-ink-dim); }
+
+[data-genre-theme="cyberpunk-terminal"] .gt-section-header { border-bottom-color: var(--cp-line) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-section-title { font-family: var(--cp-font-mono) !important; color: var(--cp-ink) !important; }
+
+[data-genre-theme="cyberpunk-terminal"] .gt-relation-group { background: var(--cp-bg) !important; border: 1px solid var(--cp-line) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-relation-header { color: var(--cp-ink) !important; font-family: var(--cp-font-mono); }
+
+/* 인물 카드 — 터미널 윈도우처럼 모서리 브래킷만 남기고 배경은 검게 */
+[data-genre-theme="cyberpunk-terminal"] .gt-card {
+  background: #050705 !important; border: 1px solid var(--cp-line) !important; border-radius: 0 !important;
+  box-shadow: none !important; height: auto !important; position: relative;
+}
+[data-genre-theme="cyberpunk-terminal"] .gt-card:hover { border-color: var(--cp-ink) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-card-img { border-radius: 0 !important; filter: grayscale(0.5) sepia(0.3) hue-rotate(60deg) saturate(2); }
+[data-genre-theme="cyberpunk-terminal"] .gt-card h4 { font-family: var(--cp-font-mono) !important; color: var(--cp-ink) !important; font-size: 13px !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-card h4 span { color: var(--cp-ink-dim) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-card > div:last-child > div span:first-child { color: var(--cp-ink-dim) !important; font-family: var(--cp-font-mono); font-size: 11px; }
+[data-genre-theme="cyberpunk-terminal"] .gt-card > div:last-child > div span:last-child { color: var(--cp-ink-bright) !important; font-family: var(--cp-font-mono); font-weight: 400 !important; }
+
+[data-genre-theme="cyberpunk-terminal"] .gt-infobox { background: var(--cp-bg) !important; border: 1px solid var(--cp-line) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-infobox-title { font-family: var(--cp-font-mono) !important; background: #0a1a10 !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-infobox-image { border-bottom-color: var(--cp-line) !important; filter: grayscale(0.5) sepia(0.3) hue-rotate(60deg) saturate(2); }
+[data-genre-theme="cyberpunk-terminal"] .gt-infobox-table th { background: #0a1a10 !important; color: var(--cp-ink-dim) !important; border-color: var(--cp-line) !important; font-family: var(--cp-font-mono); font-weight: 500 !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-infobox-table td { color: var(--cp-ink) !important; border-color: var(--cp-line) !important; font-family: var(--cp-font-mono); }
+[data-genre-theme="cyberpunk-terminal"] .gt-infobox-desc { background: var(--cp-bg) !important; color: var(--cp-ink-dim) !important; border-top-color: var(--cp-line) !important; font-family: var(--cp-font-mono); }
+[data-genre-theme="cyberpunk-terminal"] .gt-btn-edit { border-color: var(--cp-ink) !important; color: var(--cp-ink) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-btn-del { border-color: #ff5a5a !important; color: #ff5a5a !important; }
+
+[data-genre-theme="cyberpunk-terminal"] .md-box { background: var(--cp-bg) !important; border: 1px solid var(--cp-line) !important; }
+[data-genre-theme="cyberpunk-terminal"] .markdown-body { color: var(--cp-ink); font-family: var(--cp-font-mono); }
+[data-genre-theme="cyberpunk-terminal"] .markdown-body h1,
+[data-genre-theme="cyberpunk-terminal"] .markdown-body h2 { font-family: var(--cp-font-mono) !important; color: var(--cp-ink) !important; border-color: var(--cp-line) !important; }
+[data-genre-theme="cyberpunk-terminal"] .md-h1 { border-color: var(--cp-ink) !important; color: var(--cp-ink) !important; }
+
+[data-genre-theme="cyberpunk-terminal"] .gt-quicknav { background: var(--cp-bg) !important; border: 1px solid var(--cp-line) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-quicknav-btn { font-family: var(--cp-font-mono); border-color: var(--cp-ink) !important; border-radius: 0 !important; }
+
+/* 하위 문서 목록 — 검은 터미널 카드 */
+[data-genre-theme="cyberpunk-terminal"] .gt-page-count { color: var(--cp-ink-dim) !important; font-family: var(--cp-font-mono); }
+[data-genre-theme="cyberpunk-terminal"] .gt-page-card { background: #050705 !important; border-color: var(--cp-line) !important; border-radius: 0 !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-page-card:hover { border-color: var(--cp-ink) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-page-title { font-family: var(--cp-font-mono) !important; color: var(--cp-ink) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-page-desc { color: var(--cp-ink-dim) !important; font-family: var(--cp-font-mono) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-page-empty { background: var(--cp-bg) !important; border-color: var(--cp-line) !important; color: var(--cp-ink-dim) !important; font-family: var(--cp-font-mono); }
+
+[data-genre-theme="cyberpunk-terminal"] .galpi-ext-quote {
+  border: 1px solid var(--cp-line) !important; background: var(--cp-bg) !important; color: var(--cp-ink) !important;
+  font-family: var(--cp-font-mono) !important; text-align: left !important; box-shadow: none !important;
+}
+[data-genre-theme="cyberpunk-terminal"] .galpi-ext-quote::before { content: "> "; color: var(--cp-ink-dim); }

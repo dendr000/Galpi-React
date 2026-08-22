@@ -1,0 +1,100 @@
+/* 파일 위치: src/pages/WorkDetail/themes/cyberpunk-graffiti.css */
+/* 사이버펑크 방향 C — 크롬 그래피티. 아키라풍 폭동 포스터, 흑백+경고레드, 경고 테이프 마퀴. */
+
+[data-genre-theme="cyberpunk-graffiti"] {
+  --cp-bg: #0a0a0a; --cp-ink: #f5f5f5; --cp-ink-soft: #9a9a9a; --cp-red: #ff1f3d; --cp-cyan: #2be0ff;
+  --cp-font-display: 'Anton', sans-serif;
+  --cp-font-display-kr: 'Black Han Sans', sans-serif;
+}
+
+[data-genre-theme="cyberpunk-graffiti"] {
+  position: relative;
+  background: var(--cp-bg) !important;
+  border-radius: 6px;
+  padding: 24px !important;
+  overflow: hidden;
+}
+[data-genre-theme="cyberpunk-graffiti"]::before {
+  content: "";
+  display: block; position: relative; z-index: 1; height: 22px;
+  background: repeating-linear-gradient(135deg, var(--cp-red) 0 20px, var(--cp-bg) 20px 40px);
+  margin: -24px -24px 20px;
+}
+[data-genre-theme="cyberpunk-graffiti"] > * { position: relative; z-index: 1; }
+
+/* ============================================================
+   컴포넌트 배선 — 흑백 고대비 + 경고레드, 거친 각진 카드
+   ============================================================ */
+[data-genre-theme="cyberpunk-graffiti"] .gt-hero { border: none !important; box-shadow: none !important; filter: grayscale(0.6) contrast(1.15); }
+[data-genre-theme="cyberpunk-graffiti"] .gt-hero-title { font-family: var(--cp-font-display-kr) !important; color: var(--cp-ink) !important; letter-spacing: -0.01em; }
+
+/* 커버 이미지가 없을 때의 제목 영역 — 경고 스탬프 블록처럼 감싼다 */
+[data-genre-theme="cyberpunk-graffiti"] .gt-hero-fallback {
+  background: #131313 !important;
+  border: 2px solid var(--cp-ink) !important;
+  border-radius: 0 !important;
+  padding: 20px 26px !important;
+}
+[data-genre-theme="cyberpunk-graffiti"] .gt-hero-fallback .wiki-btn {
+  border-color: var(--cp-red) !important; color: var(--cp-red) !important; background: transparent !important; border-radius: 0 !important;
+}
+
+[data-genre-theme="cyberpunk-graffiti"] .gt-category { background: #131313 !important; border: 2px solid var(--cp-ink) !important; border-radius: 0 !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-category > :first-child { background: #131313 !important; color: var(--cp-ink) !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-tag {
+  background: var(--cp-ink) !important; color: var(--cp-bg) !important; font-weight: 900 !important;
+  border-radius: 0 !important; transform: rotate(-1.5deg); font-family: 'Gothic A1', sans-serif;
+}
+[data-genre-theme="cyberpunk-graffiti"] .gt-tag:nth-child(even) { background: var(--cp-red) !important; color: var(--cp-ink) !important; transform: rotate(1.2deg); }
+
+[data-genre-theme="cyberpunk-graffiti"] .gt-section-header { border-bottom: 3px solid var(--cp-red) !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-section-title { font-family: var(--cp-font-display-kr) !important; color: var(--cp-ink) !important; }
+
+[data-genre-theme="cyberpunk-graffiti"] .gt-relation-group { background: #131313 !important; border: 2px solid var(--cp-ink) !important; border-radius: 0 !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-relation-header { color: var(--cp-red) !important; font-family: var(--cp-font-display); letter-spacing: 0.03em; }
+
+/* 인물 카드 — 잘려나간 모서리 + 거친 테두리 */
+[data-genre-theme="cyberpunk-graffiti"] .gt-card {
+  background: #131313 !important; border: 2px solid var(--cp-ink) !important; border-radius: 0 !important;
+  box-shadow: none !important; height: auto !important;
+  clip-path: polygon(0 0, 100% 0, 100% 92%, 92% 100%, 0 100%);
+  transition: transform .2s ease, border-color .2s ease;
+}
+[data-genre-theme="cyberpunk-graffiti"] .gt-card:hover { transform: translateY(-3px) rotate(-0.5deg); border-color: var(--cp-red) !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-card-img { border-radius: 0 !important; filter: grayscale(0.7) contrast(1.2); }
+[data-genre-theme="cyberpunk-graffiti"] .gt-card h4 { font-family: var(--cp-font-display) !important; color: var(--cp-ink) !important; font-size: 15px !important; letter-spacing: 0.02em; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-card h4 span { color: var(--cp-ink-soft) !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-card > div:last-child > div span:first-child { color: var(--cp-ink-soft) !important; font-family: 'Gothic A1', sans-serif; font-weight: 700; font-size: 11px; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-card > div:last-child > div span:last-child { color: var(--cp-red) !important; font-family: 'Gothic A1', sans-serif; font-weight: 900 !important; }
+
+[data-genre-theme="cyberpunk-graffiti"] .gt-infobox { background: #131313 !important; border: 2px solid var(--cp-ink) !important; border-radius: 0 !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-infobox-title { font-family: var(--cp-font-display-kr) !important; filter: grayscale(0.4) contrast(1.1); }
+[data-genre-theme="cyberpunk-graffiti"] .gt-infobox-image { border-bottom: 2px solid var(--cp-ink) !important; filter: grayscale(0.7) contrast(1.2); }
+[data-genre-theme="cyberpunk-graffiti"] .gt-infobox-table th { background: #1c1c1c !important; color: var(--cp-ink-soft) !important; border-color: #2a2a2a !important; font-family: 'Gothic A1', sans-serif; font-weight: 900 !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-infobox-table td { color: var(--cp-ink) !important; border-color: #2a2a2a !important; font-family: 'Gothic A1', sans-serif; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-infobox-desc { background: #131313 !important; color: var(--cp-ink-soft) !important; border-top-color: #2a2a2a !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-btn-edit { border-color: var(--cp-red) !important; color: var(--cp-red) !important; border-radius: 0 !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-btn-del { border-color: var(--cp-ink-soft) !important; color: var(--cp-ink-soft) !important; border-radius: 0 !important; }
+
+[data-genre-theme="cyberpunk-graffiti"] .md-box { background: #131313 !important; border: 2px solid var(--cp-ink) !important; border-radius: 0 !important; }
+[data-genre-theme="cyberpunk-graffiti"] .markdown-body { color: var(--cp-ink); }
+[data-genre-theme="cyberpunk-graffiti"] .markdown-body h1,
+[data-genre-theme="cyberpunk-graffiti"] .markdown-body h2 { font-family: var(--cp-font-display-kr) !important; color: var(--cp-red) !important; border-color: var(--cp-ink) !important; }
+[data-genre-theme="cyberpunk-graffiti"] .md-h1 { border-color: var(--cp-red) !important; color: var(--cp-red) !important; }
+
+[data-genre-theme="cyberpunk-graffiti"] .gt-quicknav { background: #131313 !important; border: 2px solid var(--cp-ink) !important; border-radius: 0 !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-quicknav-btn { font-family: 'Gothic A1', sans-serif; font-weight: 900; border-color: var(--cp-red) !important; border-radius: 0 !important; }
+
+/* 하위 문서 목록 — 흑백 스탬프 카드 */
+[data-genre-theme="cyberpunk-graffiti"] .gt-page-count { color: var(--cp-ink-soft) !important; font-family: 'Gothic A1', sans-serif; font-weight: 700; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-page-card { background: #131313 !important; border-color: var(--cp-ink) !important; border-radius: 0 !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-page-card:hover { border-color: var(--cp-red) !important; transform: translateY(-3px) rotate(-0.5deg); }
+[data-genre-theme="cyberpunk-graffiti"] .gt-page-title { font-family: var(--cp-font-display-kr) !important; color: var(--cp-ink) !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-page-desc { color: var(--cp-ink-soft) !important; font-family: 'Gothic A1', sans-serif; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-page-empty { background: #131313 !important; border-color: var(--cp-ink-soft) !important; color: var(--cp-ink-soft) !important; }
+
+[data-genre-theme="cyberpunk-graffiti"] .galpi-ext-quote {
+  border: none !important; background: var(--cp-ink) !important; color: var(--cp-bg) !important;
+  font-family: var(--cp-font-display-kr) !important; font-style: normal !important; text-align: center !important;
+  box-shadow: none !important; transform: rotate(-0.8deg);
+}

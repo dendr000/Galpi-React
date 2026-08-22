@@ -7,8 +7,9 @@ const useSettingStore = create(
     (set) => ({
       // --- 화면 (Appearance) ---
       fontSize: '14', lineHeight: '1.6', fontFamily: 'default', layoutWidth: 'center',
-      isCustomCursor: false, 
+      isCustomCursor: false,
       cursorColor: '#3b5bdb', // ★ 커스텀 커서 색상 (기본값: 메인 파랑)
+      isStarryBackground: false, // 분류(장르)와 무관하게 헤더 설정에서 켜는 전역 밤하늘 배경
       
       // --- 에디터 (Editor) ---
       autoSaveInterval: '0', bossKey: 'Alt+X', blindTheme: 'aurora',

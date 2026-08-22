@@ -18,8 +18,8 @@ const CharacterDetailSection = ({ activeChar, charSectionNum, styles }) => {
 
   return (
     <section id="character-detail-section" className={styles.wikiSection}>
-      <div className={styles.sectionHeader}>
-        <h2 id="sec-chardetail" className={`${styles.sectionHeaderTitle} auto-toc-target`}>
+      <div className={`${styles.sectionHeader} gt-section-header`}>
+        <h2 id="sec-chardetail" className={`${styles.sectionHeaderTitle} gt-section-title auto-toc-target`}>
           {charSectionNum + 1}. [{activeChar.name}] 상세 정보
         </h2>
       </div>

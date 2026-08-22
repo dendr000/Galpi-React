@@ -21,7 +21,7 @@
 /* 레이아웃 골격 */
 .wikiContentWrapper { display: flex; gap: 30px; align-items: flex-start; position: relative; min-width: 0; max-width: 100%; }
 .wikiMain { flex: 1; min-width: 0; max-width: 100%; box-sizing: border-box; }
-.wikiAside { width: 340px; flex-shrink: 0; position: sticky; top: 90px; align-self: flex-start; max-height: calc(100vh - 100px); overflow-y: auto; overflow-x: hidden; box-sizing: border-box; }
+.wikiAside { width: 340px; flex-shrink: 0; position: sticky; top: 90px; align-self: flex-start; box-sizing: border-box; }
 
 .wikiSection { margin-bottom: 40px; min-width: 0; flex: 1; max-width: 100%; box-sizing: border-box; }
 .sectionTitle { font-size: 22px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-end; }
@@ -152,5 +152,11 @@
 }
 
 :global(.markdown-body h1), :global(.markdown-body h2), :global(.markdown-body h3) {
-    scroll-margin-top: 80px; 
+    scroll-margin-top: 80px;
 }
+
+/* 무협/사이버펑크 등 장르 테마 배선은 이제 이 파일이 아니라
+   각 컴포넌트에 붙인 순수 전역 hook 클래스(.gt-*)를 통해
+   src/pages/WorkDetail/themes/*.css 쪽에서 전부 처리한다.
+   (CSS Modules 해싱 때문에 예전엔 여기 있어야 했지만, hook 클래스
+   도입으로 더 이상 이 파일을 건드릴 필요가 없어졌다.) */
