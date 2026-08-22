@@ -38,28 +38,28 @@ export const createRadarChartHtml = (dataStr) => {
         let angle = (Math.PI * 2 * i / numSides) - (Math.PI / 2);
         pts += `${center + r * Math.cos(angle)},${center + r * Math.sin(angle)} `;
       }
-      bgPolygons += `<polygon points="${pts.trim()}" fill="none" stroke="var(--border-color)" stroke-width="1"/>`;
+      bgPolygons += `<polygon class="gt-macro-line" points="${pts.trim()}" fill="none" stroke="var(--border-color)" stroke-width="1"/>`;
     }
     for(let i=0; i<numSides; i++) {
       let angle = (Math.PI * 2 * i / numSides) - (Math.PI / 2);
       let bgX = center + radius * Math.cos(angle); let bgY = center + radius * Math.sin(angle);
-      bgPolygons += `<line x1="${center}" y1="${center}" x2="${bgX}" y2="${bgY}" stroke="var(--border-color)" stroke-width="1"/>`;
+      bgPolygons += `<line class="gt-macro-line" x1="${center}" y1="${center}" x2="${bgX}" y2="${bgY}" stroke="var(--border-color)" stroke-width="1"/>`;
       let r = radius * (values[i] / maxVal);
       let dx = center + r * Math.cos(angle); let dy = center + r * Math.sin(angle);
       polygonPoints += `${dx},${dy} `;
-      pointsHtml += `<circle cx="${dx}" cy="${dy}" r="4" fill="var(--primary-color)" stroke="#fff" stroke-width="1.5"/>`;
+      pointsHtml += `<circle class="gt-macro-accent-dot" cx="${dx}" cy="${dy}" r="4" fill="var(--primary-color)" stroke="#fff" stroke-width="1.5"/>`;
       let lx = center + (radius + 28) * Math.cos(angle); let ly = center + (radius + 20) * Math.sin(angle);
       let anchor = "middle";
       if(Math.cos(angle) > 0.1) anchor = "start"; else if(Math.cos(angle) < -0.1) anchor = "end";
-      labelHtml += `<text x="${lx}" y="${ly-6}" fill="var(--text-primary)" font-size="12" font-weight="900" text-anchor="${anchor}" dominant-baseline="middle">${labels[i]}</text>`;
-      labelHtml += `<text x="${lx}" y="${ly+8}" fill="var(--text-secondary)" font-size="11" font-weight="bold" text-anchor="${anchor}" dominant-baseline="middle">${originalValues[i]}</text>`;
+      labelHtml += `<text class="gt-macro-ink" x="${lx}" y="${ly-6}" fill="var(--text-primary)" font-size="12" font-weight="900" text-anchor="${anchor}" dominant-baseline="middle">${labels[i]}</text>`;
+      labelHtml += `<text class="gt-macro-ink-soft" x="${lx}" y="${ly+8}" fill="var(--text-secondary)" font-size="11" font-weight="bold" text-anchor="${anchor}" dominant-baseline="middle">${originalValues[i]}</text>`;
     }
-    return `<div style="display:flex; flex-direction:column; align-items:center; margin: 25px 0; background: var(--surface-color); padding: 25px 15px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);"><div style="font-weight:900; font-size:14px; margin-bottom:15px; color:var(--text-primary); letter-spacing: 1px;">📊 스탯 분석 차트</div><svg width="100%" height="100%" viewBox="0 0 ${size} ${size}" style="max-width: 320px; overflow:visible; font-family:inherit;">${bgPolygons}<polygon points="${polygonPoints.trim()}" fill="var(--primary-color)" fill-opacity="0.3" stroke="var(--primary-color)" stroke-width="2" stroke-linejoin="round"/>${pointsHtml}${labelHtml}</svg></div>`;
+    return `<div class="galpi-ext-radar gt-macro-box" style="display:flex; flex-direction:column; align-items:center; margin: 25px 0; background: var(--surface-color); padding: 25px 15px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);"><div class="gt-macro-ink" style="font-weight:900; font-size:14px; margin-bottom:15px; color:var(--text-primary); letter-spacing: 1px;">📊 스탯 분석 차트</div><svg width="100%" height="100%" viewBox="0 0 ${size} ${size}" style="max-width: 320px; overflow:visible; font-family:inherit;">${bgPolygons}<polygon class="gt-macro-accent" points="${polygonPoints.trim()}" fill="var(--primary-color)" fill-opacity="0.3" stroke="var(--primary-color)" stroke-width="2" stroke-linejoin="round"/>${pointsHtml}${labelHtml}</svg></div>`;
   } catch(e) { return `<div style="color:#e53e3e; font-size:12px;">[레이더 차트 오류]</div>`; }
 };
 
 export const createRadarCompareHtml = (dataStr) => {
-  return `<div style="padding:15px; background:var(--surface-color); border:1px solid var(--primary-color); border-radius:8px; color:var(--primary-color); font-weight:bold; font-size:13px; text-align:center; margin:15px 0;">📊 다중 스탯 비교 위젯은 React Viewer 전용 모드에서 렌더링됩니다.</div>`;
+  return `<div class="galpi-ext-placeholder gt-macro-box gt-macro-accent" style="padding:15px; background:var(--surface-color); border:1px solid var(--primary-color); border-radius:8px; color:var(--primary-color); font-weight:bold; font-size:13px; text-align:center; margin:15px 0;">📊 다중 스탯 비교 위젯은 React Viewer 전용 모드에서 렌더링됩니다.</div>`;
 };
 
 export const createAlignmentChartHtml = (dataStr) => {
@@ -72,22 +72,22 @@ export const createAlignmentChartHtml = (dataStr) => {
     const size = 260; const center = size / 2;
     const px = (xVal / 100) * size; const py = size - ((yVal / 100) * size);
     
-    return `<div style="display:flex; flex-direction:column; align-items:center; margin: 25px 0; background: var(--surface-color); padding: 25px 15px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);"><div style="font-weight:900; font-size:14px; margin-bottom:15px; color:var(--text-primary); letter-spacing: 1px;">🧭 2D 성향 매트릭스</div><svg width="100%" height="100%" viewBox="-30 -30 ${size+60} ${size+60}" style="max-width:300px; overflow:visible; font-family:inherit;"><rect x="0" y="0" width="${size}" height="${size}" fill="var(--bg-color)" stroke="var(--border-color)" stroke-width="1"/><line x1="${center}" y1="0" x2="${center}" y2="${size}" stroke="var(--text-secondary)" stroke-width="2" stroke-dasharray="4,4"/><line x1="0" y1="${center}" x2="${size}" y2="${center}" stroke="var(--text-secondary)" stroke-width="2" stroke-dasharray="4,4"/><circle cx="${px}" cy="${py}" r="6" fill="var(--primary-color)" stroke="#fff" stroke-width="2"/><text x="${center}" y="-10" fill="var(--text-primary)" font-size="12" font-weight="bold" text-anchor="middle">${yLabel}</text><text x="${size+10}" y="${center+4}" fill="var(--text-primary)" font-size="12" font-weight="bold" text-anchor="start">${xLabel}</text><text x="${px}" y="${py - 12}" fill="var(--primary-color)" font-size="12" font-weight="900" text-anchor="middle">현재 위치</text></svg></div>`;
+    return `<div class="galpi-ext-alignment gt-macro-box" style="display:flex; flex-direction:column; align-items:center; margin: 25px 0; background: var(--surface-color); padding: 25px 15px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);"><div class="gt-macro-ink" style="font-weight:900; font-size:14px; margin-bottom:15px; color:var(--text-primary); letter-spacing: 1px;">🧭 2D 성향 매트릭스</div><svg width="100%" height="100%" viewBox="-30 -30 ${size+60} ${size+60}" style="max-width:300px; overflow:visible; font-family:inherit;"><rect class="gt-macro-box gt-macro-line" x="0" y="0" width="${size}" height="${size}" fill="var(--bg-color)" stroke="var(--border-color)" stroke-width="1"/><line class="gt-macro-line" x1="${center}" y1="0" x2="${center}" y2="${size}" stroke="var(--text-secondary)" stroke-width="2" stroke-dasharray="4,4"/><line class="gt-macro-line" x1="0" y1="${center}" x2="${size}" y2="${center}" stroke="var(--text-secondary)" stroke-width="2" stroke-dasharray="4,4"/><circle class="gt-macro-accent-dot" cx="${px}" cy="${py}" r="6" fill="var(--primary-color)" stroke="#fff" stroke-width="2"/><text class="gt-macro-ink" x="${center}" y="-10" fill="var(--text-primary)" font-size="12" font-weight="bold" text-anchor="middle">${yLabel}</text><text class="gt-macro-ink" x="${size+10}" y="${center+4}" fill="var(--text-primary)" font-size="12" font-weight="bold" text-anchor="start">${xLabel}</text><text class="gt-macro-accent" x="${px}" y="${py - 12}" fill="var(--primary-color)" font-size="12" font-weight="900" text-anchor="middle">현재 위치</text></svg></div>`;
   } catch(e) { return `<div style="color:#e53e3e; font-size:12px;">[성향 매트릭스 렌더링 오류]</div>`; }
 };
 
 export const createBarGraphHtml = (dataStr) => {
   try {
     const pairs = dataStr.split(',').map(s => s.trim().split('='));
-    let html = `<div class="galpi-ext-bar-wrap" style="display:flex; flex-direction:column; gap:10px; padding:15px; background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; margin:15px 0;">`;
+    let html = `<div class="galpi-ext-bar-wrap gt-macro-box" style="display:flex; flex-direction:column; gap:10px; padding:15px; background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; margin:15px 0;">`;
     pairs.forEach(p => {
       if (p.length === 2) {
         const label = p[0].trim(); const valStr = p[1].trim(); const valParts = valStr.split('/');
         const current = parseRankValue(valParts[0]); const max = valParts.length > 1 ? parseRankValue(valParts[1]) : 100;
         const percent = max > 0 ? Math.min(100, Math.max(0, (current / max) * 100)) : 0;
-        let barColor = "var(--primary-color)";
-        if (percent <= 30) barColor = "#e53e3e"; else if (percent >= 80) barColor = "#10b981"; 
-        html += `<div style="display:flex; align-items:center; gap:15px;"><div style="width:80px; font-weight:900; font-size:13px; color:var(--text-primary); text-align:right;">${label}</div><div style="flex:1; height:14px; background:var(--table-bg-alt); border-radius:8px; overflow:hidden;"><div style="width: ${percent}%; height:100%; background: ${barColor}; border-radius:8px;"></div></div><div style="width:65px; font-size:12px; font-weight:bold; color:var(--text-secondary);">${valStr}</div></div>`;
+        let barColor = "var(--primary-color)"; let barClass = "gt-macro-accent-bg";
+        if (percent <= 30) { barColor = "#e53e3e"; barClass = ""; } else if (percent >= 80) { barColor = "#10b981"; barClass = ""; }
+        html += `<div style="display:flex; align-items:center; gap:15px;"><div class="gt-macro-ink" style="width:80px; font-weight:900; font-size:13px; color:var(--text-primary); text-align:right;">${label}</div><div class="gt-macro-track" style="flex:1; height:14px; background:var(--table-bg-alt); border-radius:8px; overflow:hidden;"><div class="${barClass}" style="width: ${percent}%; height:100%; background: ${barColor}; border-radius:8px;"></div></div><div class="gt-macro-ink-soft" style="width:65px; font-size:12px; font-weight:bold; color:var(--text-secondary);">${valStr}</div></div>`;
       }
     });
     return html + `</div>`;
@@ -104,11 +104,12 @@ export const createChatHtml = (type, name, expr, msg) => {
   const imgName = expr ? `${workTitle}_${name.trim()}_${expr.trim()}.png` : `${workTitle}_${name.trim()}.png`;
   const avatarHtml = `<div style="width:42px; height:42px; border-radius:50%; background-color:var(--table-bg-alt); background-image:url('/img/character/${imgName}'); background-size:cover; background-position:center; border:2px solid var(--border-color); flex-shrink:0; box-shadow:0 2px 5px rgba(0,0,0,0.1);"></div>`;
 
+  const bubbleClass = isRight ? 'gt-macro-accent-bg' : 'gt-macro-box';
   return `<div class="galpi-ext-chat-room" style="display:flex; gap:12px; align-items:flex-start; margin:15px 0; flex-direction:${isRight ? 'row-reverse' : 'row'};">
     ${avatarHtml}
     <div style="display:flex; flex-direction:column; align-items:${alignClass}; max-width:80%;">
-      <div style="font-size:12px; font-weight:900; color:var(--text-secondary); margin-bottom:4px;">${name.trim()}${expr ? ` <span style="font-weight:normal; opacity:0.7;">(${expr.trim()})</span>` : ''}</div>
-      <div style="background:${bgColor}; color:${color}; padding:10px 14px; border-radius:12px; border:1px solid var(--border-color); font-size:14px; line-height:1.6; word-break:break-all;">${msg.trim().replace(/\n/g, '<br>')}</div>
+      <div class="gt-macro-ink-soft" style="font-size:12px; font-weight:900; color:var(--text-secondary); margin-bottom:4px;">${name.trim()}${expr ? ` <span style="font-weight:normal; opacity:0.7;">(${expr.trim()})</span>` : ''}</div>
+      <div class="${bubbleClass}" style="background:${bgColor}; color:${color}; padding:10px 14px; border-radius:12px; border:1px solid var(--border-color); font-size:14px; line-height:1.6; word-break:break-all;">${msg.trim().replace(/\n/g, '<br>')}</div>
     </div>
   </div>`;
 };
@@ -118,12 +119,12 @@ export const createSpoilerHtml = (content) => {
 };
 
 export const createTabHtml = (innerText) => {
-  return `<div style="padding:15px; background:var(--surface-color); border:1px solid var(--primary-color); border-radius:8px; color:var(--primary-color); font-weight:bold; font-size:13px; text-align:center; margin:15px 0;">📑 인라인 탭 컨테이너는 React Viewer 전용 모드에서 렌더링됩니다.</div>`;
+  return `<div class="galpi-ext-placeholder gt-macro-box gt-macro-accent" style="padding:15px; background:var(--surface-color); border:1px solid var(--primary-color); border-radius:8px; color:var(--primary-color); font-weight:bold; font-size:13px; text-align:center; margin:15px 0;">📑 인라인 탭 컨테이너는 React Viewer 전용 모드에서 렌더링됩니다.</div>`;
 };
 
 export const createTimelineHtml = (innerText) => {
   let lines = innerText.trim().split('\n');
-  let html = `<div class="galpi-timeline" style="border-left: 3px solid var(--primary-color); margin-left: 10px; padding-left: 15px; display: flex; flex-direction: column; gap: 15px; margin-top: 20px; margin-bottom: 20px;">\n`;
+  let html = `<div class="galpi-timeline gt-macro-accent" style="border-left: 3px solid var(--primary-color); margin-left: 10px; padding-left: 15px; display: flex; flex-direction: column; gap: 15px; margin-top: 20px; margin-bottom: 20px;">\n`;
   let validCount = 0;
   lines.forEach(line => {
     let parts = line.split('::::');
@@ -134,10 +135,10 @@ export const createTimelineHtml = (innerText) => {
       if (dateVal || titleVal || descVal) {
         validCount++;
         html += `  <div class="tl-item" style="position: relative;">\n`;
-        html += `    <div style="position: absolute; left: -22px; top: 2px; width: 11px; height: 11px; border-radius: 50%; background: var(--primary-color); border: 2px solid var(--bg-color); box-sizing: content-box;"></div>\n`;
-        if (dateVal) html += `    <div class="tl-date" style="font-weight: 900; color: var(--primary-color); font-size: 13px;">${dateVal}</div>\n`;
-        if (titleVal) html += `    <div class="tl-title" style="font-weight: bold; font-size: 16px; margin-top: 2px; color: var(--text-primary);">${titleVal}</div>\n`;
-        if (descVal) html += `    <div class="tl-desc" style="font-size: 14px; color: var(--text-secondary); margin-top: 6px; line-height: 1.6;">${descVal}</div>\n`;
+        html += `    <div class="tl-dot gt-macro-accent-bg" style="position: absolute; left: -22px; top: 2px; width: 11px; height: 11px; border-radius: 50%; background: var(--primary-color); border: 2px solid var(--bg-color); box-sizing: content-box;"></div>\n`;
+        if (dateVal) html += `    <div class="tl-date gt-macro-accent" style="font-weight: 900; color: var(--primary-color); font-size: 13px;">${dateVal}</div>\n`;
+        if (titleVal) html += `    <div class="tl-title gt-macro-ink" style="font-weight: bold; font-size: 16px; margin-top: 2px; color: var(--text-primary);">${titleVal}</div>\n`;
+        if (descVal) html += `    <div class="tl-desc gt-macro-ink-soft" style="font-size: 14px; color: var(--text-secondary); margin-top: 6px; line-height: 1.6;">${descVal}</div>\n`;
         html += `  </div>\n`;
       }
     }
@@ -158,13 +159,13 @@ export const createRelationGraphHtml = (innerText) => {
   let width = graphData.width || 800;
   let height = graphData.height || 450;
   
-  let html = `<div style="margin:20px 0; background:var(--bg-color); border:1px solid var(--border-color); border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.03); overflow:hidden; display:flex; flex-direction:column;">`;
-  html += '<div style="padding:12px 20px; background:var(--surface-color); border-bottom:1px solid var(--border-color); font-weight:900; color:var(--primary-color); font-size:15px;">📊 인물 관계도</div>';
+  let html = `<div class="galpi-ext-relation gt-macro-box" style="margin:20px 0; background:var(--bg-color); border:1px solid var(--border-color); border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.03); overflow:hidden; display:flex; flex-direction:column;">`;
+  html += '<div class="gt-macro-subheader gt-macro-accent" style="padding:12px 20px; background:var(--surface-color); border-bottom:1px solid var(--border-color); font-weight:900; color:var(--primary-color); font-size:15px;">📊 인물 관계도</div>';
   html += `<div style="width:100%; overflow-x:auto; overflow-y:hidden; padding:20px 0;"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" style="min-width:${width}px; display:block; margin:0 auto; user-select:none; overflow:visible; font-family:inherit;">`;
-  
+
   html += '<defs>';
-  html += '<marker id="diag-arr-normal" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-secondary)"/></marker>';
-  html += '<marker id="diag-arr-active" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--primary-color)"/></marker>';
+  html += '<marker id="diag-arr-normal" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse"><path class="gt-macro-ink-soft" d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-secondary)"/></marker>';
+  html += '<marker id="diag-arr-active" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse"><path class="gt-macro-accent" d="M 0 0 L 10 5 L 0 10 z" fill="var(--primary-color)"/></marker>';
   html += '<filter id="diag-shadow"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/></filter>';
   html += '</defs>';
 
@@ -184,6 +185,8 @@ export const createRelationGraphHtml = (innerText) => {
     let x2 = n2.x - (dx * r2 / dist); let y2 = n2.y - (dy * r2 / dist);
 
     let strokeCol = e.type === '<->' ? 'var(--primary-color)' : 'var(--text-secondary)';
+    let lineClass = e.type === '<->' ? 'gt-macro-accent' : 'gt-macro-ink-soft';
+    let lineStrokeClass = e.type === '<->' ? 'gt-macro-accent-stroke' : 'gt-macro-inksoft-stroke';
     let strokeW = e.type === '<->' ? '2.5' : '1.5';
     let isDashed = e.type === '--' ? 'stroke-dasharray="5,5"' : '';
     let mEndNorm = 'url(#diag-arr-normal)';
@@ -198,8 +201,8 @@ export const createRelationGraphHtml = (innerText) => {
       if (angle > 90 || angle < -90) angle += 180;
 
       html += `<g transform="rotate(${angle}, ${cx}, ${cy})">`;
-      html += `<rect x="${cx - (textW/2)}" y="${cy - 11}" width="${textW}" height="22" fill="var(--bg-color)" rx="4" ry="4" stroke="${strokeCol}" stroke-width="1"/>`;
-      html += `<text x="${cx}" y="${cy + 4}" fill="${strokeCol}" font-size="11" font-weight="900" text-anchor="middle">${txt}</text>`;
+      html += `<rect class="gt-macro-box ${lineStrokeClass}" x="${cx - (textW/2)}" y="${cy - 11}" width="${textW}" height="22" fill="var(--bg-color)" rx="4" ry="4" stroke="${strokeCol}" stroke-width="1"/>`;
+      html += `<text class="${lineClass}" x="${cx}" y="${cy + 4}" fill="${strokeCol}" font-size="11" font-weight="900" text-anchor="middle">${txt}</text>`;
       html += `</g>`;
     };
 
@@ -211,13 +214,13 @@ export const createRelationGraphHtml = (innerText) => {
       let l2x1 = x2 - nx * gap; let l2y1 = y2 - ny * gap;
       let l2x2 = x1 - nx * gap; let l2y2 = y1 - ny * gap;
 
-      html += `<line x1="${l1x1}" y1="${l1y1}" x2="${l1x2}" y2="${l1y2}" stroke="${strokeCol}" stroke-width="${strokeW}" marker-end="url(#diag-arr-active)" opacity="0.85"/>`;
-      html += `<line x1="${l2x1}" y1="${l2y1}" x2="${l2x2}" y2="${l2y2}" stroke="${strokeCol}" stroke-width="${strokeW}" marker-end="url(#diag-arr-active)" opacity="0.85"/>`;
+      html += `<line class="${lineClass}" x1="${l1x1}" y1="${l1y1}" x2="${l1x2}" y2="${l1y2}" stroke="${strokeCol}" stroke-width="${strokeW}" marker-end="url(#diag-arr-active)" opacity="0.85"/>`;
+      html += `<line class="${lineClass}" x1="${l2x1}" y1="${l2y1}" x2="${l2x2}" y2="${l2y2}" stroke="${strokeCol}" stroke-width="${strokeW}" marker-end="url(#diag-arr-active)" opacity="0.85"/>`;
       drawLabel(e.desc, l1x1, l1y1, l1x2, l1y2);
       drawLabel(e.descRev, l2x1, l2y1, l2x2, l2y2);
     } else {
       let mEnd = e.type === '->' ? mEndNorm : '';
-      html += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${strokeCol}" stroke-width="${strokeW}" ${isDashed} marker-end="${mEnd}" opacity="0.85"/>`;
+      html += `<line class="${lineClass}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${strokeCol}" stroke-width="${strokeW}" ${isDashed} marker-end="${mEnd}" opacity="0.85"/>`;
       drawLabel(e.desc, x1, y1, x2, y2);
     }
     html += `</g>`;
@@ -228,11 +231,11 @@ export const createRelationGraphHtml = (innerText) => {
     let dispLabel = label.length > 6 ? label.substring(0, 5) + '..' : label;
     html += `<g transform="translate(${n.x}, ${n.y})">`;
     if (n.shape === 'rect') {
-        html += `<rect x="-45" y="-22" width="90" height="44" fill="var(--surface-color)" stroke="var(--text-secondary)" stroke-width="2" rx="6" ry="6" filter="url(#diag-shadow)"/>`;
+        html += `<rect class="gt-macro-box gt-macro-inksoft-stroke" x="-45" y="-22" width="90" height="44" fill="var(--surface-color)" stroke="var(--text-secondary)" stroke-width="2" rx="6" ry="6" filter="url(#diag-shadow)"/>`;
     } else {
-        html += `<circle cx="0" cy="0" r="42" fill="var(--surface-color)" stroke="var(--primary-color)" stroke-width="2" filter="url(#diag-shadow)"/>`;
+        html += `<circle class="gt-macro-box gt-macro-accent-stroke" cx="0" cy="0" r="42" fill="var(--surface-color)" stroke="var(--primary-color)" stroke-width="2" filter="url(#diag-shadow)"/>`;
     }
-    html += `<text x="0" y="5" fill="var(--text-primary)" font-size="13" font-weight="900" text-anchor="middle">${dispLabel}</text>`;
+    html += `<text class="gt-macro-ink" x="0" y="5" fill="var(--text-primary)" font-size="13" font-weight="900" text-anchor="middle">${dispLabel}</text>`;
     html += `</g>`;
   });
 

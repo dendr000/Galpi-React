@@ -95,6 +95,21 @@
 [data-genre-theme="cyberpunk-terminal"] .gt-page-desc { color: var(--cp-ink-dim) !important; font-family: var(--cp-font-mono) !important; }
 [data-genre-theme="cyberpunk-terminal"] .gt-page-empty { background: var(--cp-bg) !important; border-color: var(--cp-line) !important; color: var(--cp-ink-dim) !important; font-family: var(--cp-font-mono); }
 
+/* 매크로 위젯(스탯/게이지/타임라인/관계도 등) — 문자열로 즉시 조립되는 위젯이라
+   인라인 style="var(--...)"가 이미 박혀 있다. plain 전역 클래스(.gt-macro-*)로 !important 덮어쓴다 */
+[data-genre-theme="cyberpunk-terminal"] .gt-macro-box { background: #050705 !important; border-color: var(--cp-line) !important; fill: #050705 !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-macro-line { stroke: var(--cp-line) !important; border-color: var(--cp-line) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-macro-ink { color: var(--cp-ink) !important; fill: var(--cp-ink) !important; font-family: var(--cp-font-mono); }
+[data-genre-theme="cyberpunk-terminal"] .gt-macro-ink-soft { color: var(--cp-ink-dim) !important; fill: var(--cp-ink-dim) !important; stroke: var(--cp-ink-dim) !important; font-family: var(--cp-font-mono); }
+[data-genre-theme="cyberpunk-terminal"] .gt-macro-accent { color: var(--cp-ink-bright) !important; fill: var(--cp-ink-bright) !important; stroke: var(--cp-ink-bright) !important; border-color: var(--cp-ink-bright) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-macro-accent-bg { background: var(--cp-ink-bright) !important; color: var(--cp-bg) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-macro-accent-dot { fill: var(--cp-ink-bright) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-macro-accent-stroke { stroke: var(--cp-ink-bright) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-macro-inksoft-stroke { stroke: var(--cp-ink-dim) !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-macro-subheader { background: #0a1a10 !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-macro-track { background: #0a1a10 !important; }
+[data-genre-theme="cyberpunk-terminal"] .tl-dot { border-color: var(--cp-bg) !important; }
+
 [data-genre-theme="cyberpunk-terminal"] .galpi-ext-quote {
   border: 1px solid var(--cp-line) !important; background: var(--cp-bg) !important; color: var(--cp-ink) !important;
   font-family: var(--cp-font-mono) !important; text-align: left !important; box-shadow: none !important;

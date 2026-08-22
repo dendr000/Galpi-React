@@ -170,6 +170,21 @@
   letter-spacing: 0.01em;
   position: relative;
 }
+/* 매크로 위젯(스탯/게이지/타임라인/관계도 등) — 마크다운에서 문자열로 바로 조립되는 위젯이라
+   인라인 style="var(--...)"가 이미 박혀 있다. plain 전역 클래스(.gt-macro-*)로 !important 덮어쓴다 */
+[data-genre-theme="wuxia"] .gt-macro-box { background: var(--wx-paper) !important; border-color: var(--wx-line) !important; fill: var(--wx-paper) !important; }
+[data-genre-theme="wuxia"] .gt-macro-line { stroke: var(--wx-line) !important; border-color: var(--wx-line) !important; }
+[data-genre-theme="wuxia"] .gt-macro-ink { color: var(--wx-ink) !important; fill: var(--wx-ink) !important; font-family: var(--wx-font-body); }
+[data-genre-theme="wuxia"] .gt-macro-ink-soft { color: var(--wx-ink-soft) !important; fill: var(--wx-ink-soft) !important; stroke: var(--wx-ink-soft) !important; font-family: var(--wx-font-mono); }
+[data-genre-theme="wuxia"] .gt-macro-accent { color: var(--wx-vermillion) !important; fill: var(--wx-vermillion) !important; stroke: var(--wx-vermillion) !important; border-color: var(--wx-vermillion) !important; }
+[data-genre-theme="wuxia"] .gt-macro-accent-bg { background: var(--wx-vermillion) !important; color: #fdf6e3 !important; }
+[data-genre-theme="wuxia"] .gt-macro-accent-dot { fill: var(--wx-vermillion) !important; }
+[data-genre-theme="wuxia"] .gt-macro-accent-stroke { stroke: var(--wx-vermillion) !important; }
+[data-genre-theme="wuxia"] .gt-macro-inksoft-stroke { stroke: var(--wx-ink-soft) !important; }
+[data-genre-theme="wuxia"] .gt-macro-subheader { background: var(--wx-scroll-paper) !important; }
+[data-genre-theme="wuxia"] .gt-macro-track { background: var(--wx-line) !important; }
+[data-genre-theme="wuxia"] .tl-dot { border-color: var(--wx-paper) !important; }
+
 [data-genre-theme="wuxia"] .galpi-ext-quote::before {
   content: "";
   position: absolute;

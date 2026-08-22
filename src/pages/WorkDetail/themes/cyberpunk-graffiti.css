@@ -93,6 +93,21 @@
 [data-genre-theme="cyberpunk-graffiti"] .gt-page-desc { color: var(--cp-ink-soft) !important; font-family: 'Gothic A1', sans-serif; }
 [data-genre-theme="cyberpunk-graffiti"] .gt-page-empty { background: #131313 !important; border-color: var(--cp-ink-soft) !important; color: var(--cp-ink-soft) !important; }
 
+/* 매크로 위젯(스탯/게이지/타임라인/관계도 등) — 문자열로 즉시 조립되는 위젯이라
+   인라인 style="var(--...)"가 이미 박혀 있다. plain 전역 클래스(.gt-macro-*)로 !important 덮어쓴다 */
+[data-genre-theme="cyberpunk-graffiti"] .gt-macro-box { background: #131313 !important; border-color: var(--cp-ink) !important; fill: #131313 !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-macro-line { stroke: var(--cp-ink-soft) !important; border-color: var(--cp-ink-soft) !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-macro-ink { color: var(--cp-ink) !important; fill: var(--cp-ink) !important; font-family: 'Gothic A1', sans-serif; font-weight: 700; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-macro-ink-soft { color: var(--cp-ink-soft) !important; fill: var(--cp-ink-soft) !important; stroke: var(--cp-ink-soft) !important; font-family: 'Gothic A1', sans-serif; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-macro-accent { color: var(--cp-red) !important; fill: var(--cp-red) !important; stroke: var(--cp-red) !important; border-color: var(--cp-red) !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-macro-accent-bg { background: var(--cp-red) !important; color: var(--cp-ink) !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-macro-accent-dot { fill: var(--cp-red) !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-macro-accent-stroke { stroke: var(--cp-red) !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-macro-inksoft-stroke { stroke: var(--cp-ink-soft) !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-macro-subheader { background: #1c1c1c !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-macro-track { background: #1c1c1c !important; }
+[data-genre-theme="cyberpunk-graffiti"] .tl-dot { border-color: #131313 !important; }
+
 [data-genre-theme="cyberpunk-graffiti"] .galpi-ext-quote {
   border: none !important; background: var(--cp-ink) !important; color: var(--cp-bg) !important;
   font-family: var(--cp-font-display-kr) !important; font-style: normal !important; text-align: center !important;

@@ -50,7 +50,7 @@ export const processMarkdownHtml = (rawHtml, startH1 = 1) => {
     }
 
     if (numStr) {
-      heading.innerHTML = `<span style="color:var(--text-secondary); margin-right:8px;">${numStr}</span>${heading.innerHTML}`;
+      heading.innerHTML = `<span class="gt-macro-ink-soft" style="color:var(--text-secondary); margin-right:8px;">${numStr}</span>${heading.innerHTML}`;
     }
     heading.id = `galpi-toc-target-${globalIndex}`;
   });
