@@ -19,7 +19,10 @@
   background: radial-gradient(ellipse at 50% -10%, var(--cp-bg1) 0%, var(--cp-bg2) 45%, var(--cp-bg3) 100%) !important;
   border-radius: 6px;
   padding: 24px !important;
-  overflow: hidden;
+  /* overflow:hidden 대신 clip-path를 쓴다 — overflow는 이 요소를 sticky 자손(우측 인포박스)의
+     스크롤 컨테이닝 블록으로 만들어버려서 스크롤해도 인포박스가 따라 내려오지 않게 만든다.
+     clip-path는 시각적으로만 잘라내고 스크롤 컨테이닝 블록을 만들지 않아 sticky를 방해하지 않는다. */
+  clip-path: inset(0 round 6px);
 }
 [data-genre-theme="cyberpunk-neon"]::before {
   content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
@@ -48,14 +51,9 @@
 [data-genre-theme="cyberpunk-neon"] .gt-hero { border-color: var(--cp-panel-line) !important; box-shadow: 0 0 30px rgba(79,211,236,0.25) !important; }
 [data-genre-theme="cyberpunk-neon"] .gt-hero-title {
   font-family: var(--cp-font-display) !important; letter-spacing: 0.01em;
-  color: var(--cp-ink) !important; /* 그라디언트 미지원 브라우저를 위한 대체 색상 */
+  color: var(--cp-ink) !important;
   text-shadow: 0 0 18px rgba(79,211,236,0.5), 0 0 40px rgba(217,79,236,0.25);
-  background: linear-gradient(90deg, var(--cp-cyan) 0%, var(--cp-ink) 30%, var(--cp-magenta) 50%, var(--cp-ink) 70%, var(--cp-cyan) 100%);
-  background-size: 250% auto;
-  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  animation: cpTitleShimmer 5s linear infinite;
 }
-@keyframes cpTitleShimmer { to { background-position: -250% center; } }
 
 /* 커버 이미지가 없을 때의 제목 영역 — 홀로 패널로 감싸 밑줄 하나로 남지 않게 */
 [data-genre-theme="cyberpunk-neon"] .gt-hero-fallback {

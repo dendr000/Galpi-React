@@ -13,7 +13,9 @@
 [data-genre-theme="wuxia-ascend"] {
   position: relative;
   background: linear-gradient(180deg, var(--wa-bg1) 0%, var(--wa-bg2) 55%, #051a15 100%) !important;
-  border-radius: 6px; padding: 24px !important; overflow: hidden;
+  /* overflow:hidden 대신 clip-path — sticky 자손(우측 인포박스)의 스크롤 컨테이닝 블록이
+     되어버리는 걸 막는다. 시각적 클리핑 효과는 동일하다. */
+  border-radius: 6px; padding: 24px !important; clip-path: inset(0 round 6px);
 }
 [data-genre-theme="wuxia-ascend"]::before {
   content: ""; position: absolute; z-index: 0; pointer-events: none;
