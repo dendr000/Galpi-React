@@ -41,5 +41,26 @@
 /* 무협 · 등선 — 잔상을 남기는 영기 구슬 */
 .gt-cursor-orb { width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle,#eafff3 0%,#52e0ac 45%,rgba(82,224,172,0) 75%); box-shadow: 0 0 14px 4px rgba(82,224,172,.55); transform: translate(-50%,-50%); transition: width .2s, height .2s; }
 .gt-cursor-orb.gt-cursor-hover { width: 22px; height: 22px; box-shadow: 0 0 20px 6px rgba(223,192,106,.6); }
+
+/* 아포칼립스 · 핵진 — 회전하는 방사능 계기 조준경. 위치이동(JS, geigerPos)과
+   회전(CSS 애니메이션, 이 요소 자신)이 같은 transform 프로퍼티를 두고 충돌하므로
+   반드시 다른 요소에 나눠 걸어야 한다. */
+.gt-cursor-geiger { position: absolute; top: -15px; left: -15px; width: 30px; height: 30px; border: 1.5px solid #c4d92e; border-radius: 50%; box-shadow: 0 0 10px rgba(196,217,46,.5); animation: gtGeigerSpin 3s linear infinite; }
+.gt-cursor-geiger::before, .gt-cursor-geiger::after { content: ""; position: absolute; background: #c4d92e; }
+.gt-cursor-geiger::before { left: 50%; top: -6px; width: 1px; height: 5px; transform: translateX(-50%); }
+.gt-cursor-geiger::after { left: -6px; top: 50%; width: 5px; height: 1px; transform: translateY(-50%); }
+.gt-cursor-geiger.gt-cursor-hover { box-shadow: 0 0 18px rgba(196,217,46,.9); border-color: #e8f26a; }
+@keyframes gtGeigerSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* 아포칼립스 · 역병 — 조준 크로스헤어 */
+.gt-cursor-crosshair { width: 26px; height: 26px; }
+.gt-cursor-crosshair::before, .gt-cursor-crosshair::after { content: ""; position: absolute; background: #eee6e2; transition: background .15s; }
+.gt-cursor-crosshair::before { left: 50%; top: 0; width: 1.5px; height: 100%; transform: translateX(-50%); }
+.gt-cursor-crosshair::after { top: 50%; left: 0; height: 1.5px; width: 100%; transform: translateY(-50%); }
+.gt-cursor-crosshair.gt-cursor-hover::before, .gt-cursor-crosshair.gt-cursor-hover::after { background: #ff3b52; }
+
+/* 아포칼립스 · 잔불 — 흔들리는 불씨 글로우 (깜빡임은 JS가 opacity/scale로 매 프레임 갱신) */
+.gt-cursor-campfire { width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle,#ffe2b0,#ff9a44 55%,transparent 75%); box-shadow: 0 0 12px 4px rgba(255,154,68,.55); transform: translate(-50%,-50%); }
+.gt-cursor-campfire.gt-cursor-hover { box-shadow: 0 0 18px 6px rgba(255,196,112,.75); }
 .gt-cursor-mote { position: fixed; border-radius: 50%; background: radial-gradient(circle,#d7ffe9,#52e0ac 60%,transparent 75%); box-shadow: 0 0 8px 2px rgba(82,224,172,.55); pointer-events: none; z-index: 999997; animation: gtMoteRise 1s ease-out forwards; }
 @keyframes gtMoteRise { from { transform: translate(-50%,-50%) translateY(0); opacity: .9; } to { transform: translate(-50%,-50%) translateY(-34px); opacity: 0; } }

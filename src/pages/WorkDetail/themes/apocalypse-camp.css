@@ -1,0 +1,122 @@
+/* 파일 위치: src/pages/WorkDetail/themes/apocalypse-camp.css */
+/* 아포칼립스 방향 C — 잔불(殘火). 최후의 생존 캠프, 폐허 속 온기. 항상 어두운 세계관으로
+   고정된다. */
+
+[data-genre-theme="apocalypse-camp"] {
+  --cm-bg: #141b22; --cm-bg2: #1c252e; --cm-fire: #ff9a44; --cm-fireglow: #ffc470; --cm-tape: #c9a24a;
+  --cm-ink: #ece3d4; --cm-ink-soft: #8d95a0; --cm-line: #2c3742;
+  --cm-font-display: 'Bebas Neue', sans-serif;
+  --cm-font-body: 'Special Elite', monospace;
+  --cm-font-mono: 'IBM Plex Mono', monospace;
+}
+
+[data-genre-theme="apocalypse-camp"] {
+  position: relative;
+  background: linear-gradient(160deg, var(--cm-bg) 0%, #0d1217 100%) !important;
+  border-radius: 6px; padding: 24px !important; overflow: hidden;
+  font-family: var(--cm-font-body); color: var(--cm-ink);
+}
+[data-genre-theme="apocalypse-camp"]::before {
+  content: ""; position: absolute; z-index: 0; pointer-events: none;
+  left: -10%; bottom: -20%; width: 60%; height: 80%; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,154,68,.22), transparent 65%);
+  animation: campFlicker 3.4s ease-in-out infinite;
+}
+@keyframes campFlicker { 0%,100% { opacity: .75; transform: scale(1); } 19% { opacity: .55; transform: scale(.97); } 38% { opacity: .9; transform: scale(1.03); } 55% { opacity: .6; transform: scale(.99); } 77% { opacity: .85; transform: scale(1.02); } }
+[data-genre-theme="apocalypse-camp"]::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .05;
+  background-image: radial-gradient(#fff 1px, transparent 1.3px); background-size: 3px 3px;
+}
+[data-genre-theme="apocalypse-camp"] > * { position: relative; z-index: 1; }
+
+/* ============================================================
+   컴포넌트 배선
+   ============================================================ */
+[data-genre-theme="apocalypse-camp"] .gt-hero { border-color: var(--cm-line) !important; box-shadow: none !important; filter: contrast(1.02); }
+[data-genre-theme="apocalypse-camp"] .gt-hero-title {
+  font-family: var(--cm-font-display) !important; letter-spacing: 0.02em; color: var(--cm-ink) !important;
+  font-size: 52px !important; text-shadow: 0 0 20px rgba(255,154,68,.3);
+}
+
+[data-genre-theme="apocalypse-camp"] .gt-hero-fallback {
+  background: var(--cm-bg2) !important; border: 1px solid var(--cm-line) !important;
+  border-left: 3px solid var(--cm-tape) !important; border-radius: 3px; padding: 22px 28px !important;
+}
+[data-genre-theme="apocalypse-camp"] .gt-hero-fallback .wiki-btn { border-color: var(--cm-fireglow) !important; color: var(--cm-fireglow) !important; background: transparent !important; }
+
+[data-genre-theme="apocalypse-camp"] .gt-category { background: var(--cm-bg2) !important; border-color: var(--cm-line) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-category > :first-child { background: var(--cm-bg2) !important; color: var(--cm-ink) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-tag { background: rgba(255,154,68,.06) !important; border: 1px solid var(--cm-line); color: var(--cm-ink-soft) !important; font-family: var(--cm-font-mono); border-radius: 2px !important; }
+
+[data-genre-theme="apocalypse-camp"] .gt-section-header { border-bottom-color: var(--cm-line) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-section-title { font-family: var(--cm-font-display) !important; font-size: 18px !important; letter-spacing: 0.02em; color: var(--cm-ink) !important; }
+
+[data-genre-theme="apocalypse-camp"] .gt-relation-group { background: var(--cm-bg2) !important; border-color: var(--cm-line) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-relation-header { color: var(--cm-fireglow) !important; font-family: var(--cm-font-body); }
+
+/* 인물 카드 — 사진에 테이프를 덧댄 듯 모서리가 붙어 있다 */
+[data-genre-theme="apocalypse-camp"] .gt-card {
+  background: var(--cm-bg2) !important; border: 1px solid var(--cm-line) !important; border-radius: 3px !important;
+  box-shadow: none !important; height: auto !important; position: relative; overflow: visible;
+  transition: transform .25s ease;
+}
+[data-genre-theme="apocalypse-camp"] .gt-card::before,
+[data-genre-theme="apocalypse-camp"] .gt-card::after {
+  content: ""; position: absolute; width: 26px; height: 12px; background: var(--cm-tape); opacity: .85; z-index: 3;
+  box-shadow: 0 1px 3px rgba(0,0,0,.4);
+}
+[data-genre-theme="apocalypse-camp"] .gt-card::before { top: -4px; left: 10px; transform: rotate(-8deg); }
+[data-genre-theme="apocalypse-camp"] .gt-card::after { top: -4px; right: 10px; transform: rotate(7deg); }
+[data-genre-theme="apocalypse-camp"] .gt-card:hover { transform: translateY(-5px); }
+[data-genre-theme="apocalypse-camp"] .gt-card-img { border-radius: 2px !important; filter: contrast(1.05) brightness(.95); position: relative; }
+[data-genre-theme="apocalypse-camp"] .gt-card h4 { font-family: var(--cm-font-display) !important; letter-spacing: 0.02em; font-size: 16px !important; color: var(--cm-ink) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-card h4 span { color: var(--cm-ink-soft) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-card > div:last-child > div span:first-child { color: var(--cm-ink-soft) !important; font-family: var(--cm-font-mono); font-size: 10.5px; }
+[data-genre-theme="apocalypse-camp"] .gt-card > div:last-child > div span:last-child { color: var(--cm-fireglow) !important; font-family: var(--cm-font-mono); font-weight: 700 !important; }
+
+[data-genre-theme="apocalypse-camp"] .gt-infobox { background: var(--cm-bg2) !important; border-color: var(--cm-line) !important; border-top: 3px solid var(--cm-tape) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-infobox-title { font-family: var(--cm-font-display); letter-spacing: 0.02em; filter: contrast(1.02); }
+[data-genre-theme="apocalypse-camp"] .gt-infobox-image { border-bottom-color: var(--cm-line) !important; filter: contrast(1.05) brightness(.95); }
+[data-genre-theme="apocalypse-camp"] .gt-infobox-table th { background: #10161c !important; color: var(--cm-ink-soft) !important; border-color: var(--cm-line) !important; font-family: var(--cm-font-mono); font-weight: 500 !important; }
+[data-genre-theme="apocalypse-camp"] .gt-infobox-table td { color: var(--cm-ink) !important; border-color: var(--cm-line) !important; font-family: var(--cm-font-body); }
+[data-genre-theme="apocalypse-camp"] .gt-infobox-desc { background: var(--cm-bg2) !important; color: var(--cm-ink-soft) !important; border-top-color: var(--cm-line) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-btn-edit { border-color: var(--cm-fireglow) !important; color: var(--cm-fireglow) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-btn-del { border-color: var(--cm-ink-soft) !important; color: var(--cm-ink-soft) !important; }
+
+[data-genre-theme="apocalypse-camp"] .md-box { background: var(--cm-bg2) !important; border-color: var(--cm-line) !important; }
+[data-genre-theme="apocalypse-camp"] .markdown-body { color: var(--cm-ink); }
+[data-genre-theme="apocalypse-camp"] .markdown-body h1,
+[data-genre-theme="apocalypse-camp"] .markdown-body h2 { font-family: var(--cm-font-display) !important; letter-spacing: 0.02em; color: var(--cm-fireglow) !important; border-color: var(--cm-line) !important; }
+[data-genre-theme="apocalypse-camp"] .md-h1 { border-color: var(--cm-tape) !important; color: var(--cm-fireglow) !important; }
+
+[data-genre-theme="apocalypse-camp"] .gt-quicknav { background: var(--cm-bg2) !important; border-color: var(--cm-line) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-quicknav-btn { font-family: var(--cm-font-body); border-color: var(--cm-fireglow) !important; }
+
+/* 하위 문서 목록 */
+[data-genre-theme="apocalypse-camp"] .gt-page-count { color: var(--cm-ink-soft) !important; font-family: var(--cm-font-mono); }
+[data-genre-theme="apocalypse-camp"] .gt-page-card { background: var(--cm-bg2) !important; border-color: var(--cm-line) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-page-card:hover { border-color: var(--cm-tape) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-page-title { font-family: var(--cm-font-display) !important; letter-spacing: 0.02em; color: var(--cm-ink) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-page-desc { color: var(--cm-ink-soft) !important; font-family: var(--cm-font-body) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-page-empty { background: var(--cm-bg2) !important; border-color: var(--cm-line) !important; color: var(--cm-ink-soft) !important; }
+
+/* 마크다운 인용구 — 낡은 타자기로 남긴 일지 한 줄 */
+[data-genre-theme="apocalypse-camp"] .galpi-ext-quote {
+  border: none !important; border-top: 1px solid var(--cm-line) !important; border-bottom: 1px solid var(--cm-line) !important;
+  background: var(--cm-bg2) !important; color: var(--cm-ink) !important; font-family: var(--cm-font-body) !important;
+  font-style: italic; text-align: center !important; box-shadow: none !important;
+}
+
+/* 매크로 위젯(스탯/게이지/타임라인/관계도 등) */
+[data-genre-theme="apocalypse-camp"] .gt-macro-box { background: var(--cm-bg2) !important; border-color: var(--cm-line) !important; fill: var(--cm-bg2) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-macro-line { stroke: var(--cm-line) !important; border-color: var(--cm-line) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-macro-ink { color: var(--cm-ink) !important; fill: var(--cm-ink) !important; font-family: var(--cm-font-body); }
+[data-genre-theme="apocalypse-camp"] .gt-macro-ink-soft { color: var(--cm-ink-soft) !important; fill: var(--cm-ink-soft) !important; stroke: var(--cm-ink-soft) !important; font-family: var(--cm-font-mono); }
+[data-genre-theme="apocalypse-camp"] .gt-macro-accent { color: var(--cm-fireglow) !important; fill: var(--cm-fireglow) !important; stroke: var(--cm-fireglow) !important; border-color: var(--cm-tape) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-macro-accent-bg { background: var(--cm-fire) !important; color: #1c1206 !important; }
+[data-genre-theme="apocalypse-camp"] .gt-macro-accent-dot { fill: var(--cm-fireglow) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-macro-accent-stroke { stroke: var(--cm-fireglow) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-macro-inksoft-stroke { stroke: var(--cm-ink-soft) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-macro-subheader { background: #10161c !important; }
+[data-genre-theme="apocalypse-camp"] .gt-macro-track { background: #10161c !important; }
+[data-genre-theme="apocalypse-camp"] .tl-dot { border-color: var(--cm-bg2) !important; }

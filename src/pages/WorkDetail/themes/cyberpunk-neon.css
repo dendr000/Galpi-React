@@ -48,9 +48,14 @@
 [data-genre-theme="cyberpunk-neon"] .gt-hero { border-color: var(--cp-panel-line) !important; box-shadow: 0 0 30px rgba(79,211,236,0.25) !important; }
 [data-genre-theme="cyberpunk-neon"] .gt-hero-title {
   font-family: var(--cp-font-display) !important; letter-spacing: 0.01em;
-  color: var(--cp-ink) !important;
+  color: var(--cp-ink) !important; /* 그라디언트 미지원 브라우저를 위한 대체 색상 */
   text-shadow: 0 0 18px rgba(79,211,236,0.5), 0 0 40px rgba(217,79,236,0.25);
+  background: linear-gradient(90deg, var(--cp-cyan) 0%, var(--cp-ink) 30%, var(--cp-magenta) 50%, var(--cp-ink) 70%, var(--cp-cyan) 100%);
+  background-size: 250% auto;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  animation: cpTitleShimmer 5s linear infinite;
 }
+@keyframes cpTitleShimmer { to { background-position: -250% center; } }
 
 /* 커버 이미지가 없을 때의 제목 영역 — 홀로 패널로 감싸 밑줄 하나로 남지 않게 */
 [data-genre-theme="cyberpunk-neon"] .gt-hero-fallback {

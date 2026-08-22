@@ -10,6 +10,7 @@ import { extractMeta, buildMetaStr } from '../../utils/markdownParser';
 const GENRE_THEME_GROUPS = [
   { keywords: ['무협', '무림', '강호'], themes: ['wuxia', 'wuxia-ink', 'wuxia-blood', 'wuxia-ascend'] },
   { keywords: ['사이버펑크', '사펑', 'SF'], themes: ['cyberpunk-neon', 'cyberpunk-terminal', 'cyberpunk-graffiti'] },
+  { keywords: ['아포칼립스', '포스트아포칼립스', '좀비'], themes: ['apocalypse-rad', 'apocalypse-infect', 'apocalypse-camp'] },
 ];
 
 export const THEME_LABELS = {
@@ -21,6 +22,9 @@ export const THEME_LABELS = {
   'cyberpunk-neon': '사이버펑크 · 네온 메가시티',
   'cyberpunk-terminal': '사이버펑크 · 터미널 해커',
   'cyberpunk-graffiti': '사이버펑크 · 크롬 그래피티',
+  'apocalypse-rad': '아포칼립스 · 핵진',
+  'apocalypse-infect': '아포칼립스 · 역병',
+  'apocalypse-camp': '아포칼립스 · 잔불',
 };
 
 // 이 작품 분류에서 순환 가능한 테마 값 목록 ('auto' 포함, 매칭 없으면 빈 배열)

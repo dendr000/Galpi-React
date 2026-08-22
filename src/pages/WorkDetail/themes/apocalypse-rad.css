@@ -1,0 +1,123 @@
+/* 파일 위치: src/pages/WorkDetail/themes/apocalypse-rad.css */
+/* 아포칼립스 방향 A — 핵진(核塵). 방사능 폐허, 낙진과 계기판. 사이버펑크/무협 후기작처럼
+   라이트/다크 토글과 무관하게 항상 어두운 세계관으로 고정된다. */
+
+[data-genre-theme="apocalypse-rad"] {
+  --rad-bg: #201d16; --rad-bg2: #2c2818; --rad-toxic: #c4d92e; --rad-rust: #c1611a;
+  --rad-ink: #e8e2c9; --rad-ink-soft: #8f8870; --rad-line: #4a4530;
+  --rad-font-display: 'Black Ops One', sans-serif;
+  --rad-font-body: 'Oswald', sans-serif;
+  --rad-font-mono: 'IBM Plex Mono', monospace;
+}
+
+[data-genre-theme="apocalypse-rad"] {
+  position: relative;
+  background: radial-gradient(ellipse at 50% 110%, rgba(196,217,46,0.07), transparent 60%), var(--rad-bg) !important;
+  border-radius: 6px; padding: 24px !important; overflow: hidden;
+  font-family: var(--rad-font-body); color: var(--rad-ink);
+}
+[data-genre-theme="apocalypse-rad"]::before {
+  content: "☢"; position: absolute; z-index: 0; pointer-events: none; right: -40px; bottom: -60px;
+  font-size: 280px; line-height: 1; color: var(--rad-toxic); opacity: .05;
+  animation: radSpin 90s linear infinite;
+}
+@keyframes radSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+[data-genre-theme="apocalypse-rad"]::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: rgba(196,217,46,0.09); animation: radGeiger 6s steps(1) infinite;
+}
+@keyframes radGeiger { 0%,91% { opacity: 0; } 92% { opacity: 1; } 93% { opacity: 0; } 94% { opacity: .7; } 95%,100% { opacity: 0; } }
+[data-genre-theme="apocalypse-rad"] > * { position: relative; z-index: 1; }
+
+/* ============================================================
+   컴포넌트 배선 — 전부 .gt-* 순수 전역 hook 클래스 타겟
+   ============================================================ */
+[data-genre-theme="apocalypse-rad"] .gt-hero { border-color: var(--rad-line) !important; box-shadow: none !important; filter: contrast(1.05) saturate(.85); }
+[data-genre-theme="apocalypse-rad"] .gt-hero-title {
+  font-family: var(--rad-font-display) !important; letter-spacing: 0.01em; color: var(--rad-ink) !important;
+  text-shadow: 0 0 14px rgba(196,217,46,.25);
+}
+
+[data-genre-theme="apocalypse-rad"] .gt-hero-fallback {
+  background: var(--rad-bg2) !important; border: 1px solid var(--rad-line) !important;
+  border-left: 4px solid var(--rad-toxic) !important; border-radius: 3px; padding: 22px 28px !important;
+}
+[data-genre-theme="apocalypse-rad"] .gt-hero-fallback .wiki-btn { border-color: var(--rad-toxic) !important; color: var(--rad-toxic) !important; background: transparent !important; }
+
+[data-genre-theme="apocalypse-rad"] .gt-category { background: var(--rad-bg2) !important; border-color: var(--rad-line) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-category > :first-child { background: var(--rad-bg2) !important; color: var(--rad-ink) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-tag { background: transparent !important; border: 1px solid var(--rad-line); color: var(--rad-ink-soft) !important; font-family: var(--rad-font-mono); border-radius: 2px !important; }
+
+[data-genre-theme="apocalypse-rad"] .gt-section-header { border-bottom-color: var(--rad-line) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-section-title { font-family: var(--rad-font-display) !important; font-size: 15px !important; color: var(--rad-ink) !important; }
+
+[data-genre-theme="apocalypse-rad"] .gt-relation-group { background: var(--rad-bg2) !important; border-color: var(--rad-line) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-relation-header { color: var(--rad-toxic) !important; font-family: var(--rad-font-body); letter-spacing: 0.02em; }
+
+/* 인물 카드 — 녹슨 금속판. 상단에 경고 줄무늬, 우측 상단에 리벳 못 세 개 */
+[data-genre-theme="apocalypse-rad"] .gt-card {
+  background: var(--rad-bg2) !important; border: 1px solid var(--rad-line) !important; border-radius: 2px !important;
+  box-shadow: none !important; height: auto !important; position: relative; overflow: hidden;
+  transition: transform .25s ease;
+}
+[data-genre-theme="apocalypse-rad"] .gt-card::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; z-index: 3;
+  background: repeating-linear-gradient(-45deg, var(--rad-toxic) 0 10px, #141210 10px 20px); opacity: .85;
+}
+[data-genre-theme="apocalypse-rad"] .gt-card::after {
+  content: ""; position: absolute; top: 12px; right: 10px; width: 6px; height: 6px; border-radius: 50%; z-index: 3;
+  background: var(--rad-rust); box-shadow: -24px 0 0 var(--rad-rust), -48px 0 0 var(--rad-rust); opacity: .5;
+}
+[data-genre-theme="apocalypse-rad"] .gt-card:hover { transform: translateY(-5px); }
+[data-genre-theme="apocalypse-rad"] .gt-card-img { border-radius: 0 !important; filter: contrast(1.15) brightness(.88) saturate(.7); }
+[data-genre-theme="apocalypse-rad"] .gt-card h4 { font-family: var(--rad-font-body) !important; font-weight: 700 !important; color: var(--rad-ink) !important; font-size: 14px !important; }
+[data-genre-theme="apocalypse-rad"] .gt-card h4 span { color: var(--rad-ink-soft) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-card > div:last-child > div span:first-child { color: var(--rad-ink-soft) !important; font-family: var(--rad-font-mono); font-size: 10.5px; }
+[data-genre-theme="apocalypse-rad"] .gt-card > div:last-child > div span:last-child { color: var(--rad-toxic) !important; font-family: var(--rad-font-mono); font-weight: 700 !important; }
+
+[data-genre-theme="apocalypse-rad"] .gt-infobox { background: var(--rad-bg2) !important; border-color: var(--rad-line) !important; border-top: 4px solid var(--rad-toxic) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-infobox-title { font-family: var(--rad-font-display); filter: contrast(1.1) saturate(.85); }
+[data-genre-theme="apocalypse-rad"] .gt-infobox-image { border-bottom-color: var(--rad-line) !important; filter: contrast(1.15) brightness(.88) saturate(.7); }
+[data-genre-theme="apocalypse-rad"] .gt-infobox-table th { background: #17140e !important; color: var(--rad-ink-soft) !important; border-color: var(--rad-line) !important; font-family: var(--rad-font-mono); font-weight: 500 !important; }
+[data-genre-theme="apocalypse-rad"] .gt-infobox-table td { color: var(--rad-ink) !important; border-color: var(--rad-line) !important; font-family: var(--rad-font-body); }
+[data-genre-theme="apocalypse-rad"] .gt-infobox-desc { background: var(--rad-bg2) !important; color: var(--rad-ink-soft) !important; border-top-color: var(--rad-line) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-btn-edit { border-color: var(--rad-toxic) !important; color: var(--rad-toxic) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-btn-del { border-color: var(--rad-rust) !important; color: var(--rad-rust) !important; }
+
+[data-genre-theme="apocalypse-rad"] .md-box { background: var(--rad-bg2) !important; border-color: var(--rad-line) !important; }
+[data-genre-theme="apocalypse-rad"] .markdown-body { color: var(--rad-ink); }
+[data-genre-theme="apocalypse-rad"] .markdown-body h1,
+[data-genre-theme="apocalypse-rad"] .markdown-body h2 { font-family: var(--rad-font-display) !important; color: var(--rad-toxic) !important; border-color: var(--rad-line) !important; }
+[data-genre-theme="apocalypse-rad"] .md-h1 { border-color: var(--rad-toxic) !important; color: var(--rad-toxic) !important; }
+
+[data-genre-theme="apocalypse-rad"] .gt-quicknav { background: var(--rad-bg2) !important; border-color: var(--rad-line) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-quicknav-btn { font-family: var(--rad-font-mono); border-color: var(--rad-toxic) !important; border-radius: 2px !important; }
+
+/* 하위 문서 목록 */
+[data-genre-theme="apocalypse-rad"] .gt-page-count { color: var(--rad-ink-soft) !important; font-family: var(--rad-font-mono); }
+[data-genre-theme="apocalypse-rad"] .gt-page-card { background: var(--rad-bg2) !important; border-color: var(--rad-line) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-page-card:hover { border-color: var(--rad-toxic) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-page-title { font-family: var(--rad-font-body) !important; font-weight: 700 !important; color: var(--rad-ink) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-page-desc { color: var(--rad-ink-soft) !important; font-family: var(--rad-font-body) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-page-empty { background: var(--rad-bg2) !important; border-color: var(--rad-line) !important; color: var(--rad-ink-soft) !important; }
+
+/* 마크다운 인용구 — 계기판 로그 한 줄처럼 */
+[data-genre-theme="apocalypse-rad"] .galpi-ext-quote {
+  border: none !important; border-top: 1px dashed var(--rad-line) !important; border-bottom: 1px dashed var(--rad-line) !important;
+  background: var(--rad-bg2) !important; color: var(--rad-ink) !important; font-family: var(--rad-font-mono) !important;
+  text-align: center !important; box-shadow: none !important;
+}
+
+/* 매크로 위젯(스탯/게이지/타임라인/관계도 등) */
+[data-genre-theme="apocalypse-rad"] .gt-macro-box { background: var(--rad-bg2) !important; border-color: var(--rad-line) !important; fill: var(--rad-bg2) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-macro-line { stroke: var(--rad-line) !important; border-color: var(--rad-line) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-macro-ink { color: var(--rad-ink) !important; fill: var(--rad-ink) !important; font-family: var(--rad-font-body); }
+[data-genre-theme="apocalypse-rad"] .gt-macro-ink-soft { color: var(--rad-ink-soft) !important; fill: var(--rad-ink-soft) !important; stroke: var(--rad-ink-soft) !important; font-family: var(--rad-font-mono); }
+[data-genre-theme="apocalypse-rad"] .gt-macro-accent { color: var(--rad-toxic) !important; fill: var(--rad-toxic) !important; stroke: var(--rad-toxic) !important; border-color: var(--rad-toxic) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-macro-accent-bg { background: var(--rad-toxic) !important; color: #201d16 !important; }
+[data-genre-theme="apocalypse-rad"] .gt-macro-accent-dot { fill: var(--rad-toxic) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-macro-accent-stroke { stroke: var(--rad-toxic) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-macro-inksoft-stroke { stroke: var(--rad-ink-soft) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-macro-subheader { background: #17140e !important; }
+[data-genre-theme="apocalypse-rad"] .gt-macro-track { background: #17140e !important; }
+[data-genre-theme="apocalypse-rad"] .tl-dot { border-color: var(--rad-bg2) !important; }
