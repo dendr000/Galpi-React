@@ -1,0 +1,45 @@
+/* 파일 위치: src/components/common/GenreCursor.css */
+/* GenreCursor.jsx가 그리는 장르별 전용 마우스 커서 각 종류의 생김새.
+   순수 전역 클래스(.gt-cursor-*)라 CSS Modules 해싱과 무관하게 그대로 동작한다. */
+
+.gt-cursor { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 999999; opacity: 0; transition: opacity .15s; }
+.gt-cursor-show { opacity: 1; }
+/* .gt-cursor(오파시티 게이트) 내부에서 각자 따로 transform을 받아야 하는 파츠 —
+   형제 요소 쌓임에 영향받지 않도록 전부 뷰포트 (0,0) 기준 고정으로 시작한다. */
+.gt-cursor-part { position: fixed; top: 0; left: 0; pointer-events: none; }
+
+/* 사이버펑크 · 네온 메가시티 — 조준 리티클 */
+.gt-cursor-reticle { width: 26px; height: 26px; border: 1.5px solid #4fd3ec; border-radius: 50%; box-shadow: 0 0 14px rgba(79,211,236,0.7); transition: width .15s, height .15s, opacity .15s; }
+.gt-cursor-reticle::before, .gt-cursor-reticle::after { content: ""; position: absolute; background: #4fd3ec; }
+.gt-cursor-reticle::before { left: 50%; top: -7px; width: 1px; height: 6px; transform: translateX(-50%); }
+.gt-cursor-reticle::after { left: -7px; top: 50%; width: 6px; height: 1px; transform: translateY(-50%); }
+.gt-cursor-reticle.gt-cursor-hover { width: 40px; height: 40px; }
+
+/* 사이버펑크 · 터미널 해커 — 깜빡이는 블록 */
+.gt-cursor-block { width: 11px; height: 18px; background: #57ffa0; box-shadow: 0 0 8px rgba(87,255,160,0.8); animation: gtBlockBlink 1s step-end infinite; }
+.gt-cursor-block.gt-cursor-hover { background: #b8ffd6; width: 16px; }
+@keyframes gtBlockBlink { 50% { opacity: 0.25; } }
+
+/* 사이버펑크 · 크롬 그래피티 — 색수차(크로마) 번짐 */
+.gt-cursor-chroma { width: 22px; height: 22px; }
+.gt-cursor-chroma-core { position: absolute; inset: 0; border: 2px solid #f5f5f5; }
+.gt-cursor-chroma-ghost { position: absolute; inset: 0; mix-blend-mode: screen; transition: transform .05s linear; }
+.gt-cursor-chroma-red { border: 2px solid #ff1f3d; }
+.gt-cursor-chroma-cyan { border: 2px solid #2be0ff; }
+.gt-cursor-chroma.gt-cursor-hover .gt-cursor-chroma-core { border-color: #ff1f3d; }
+
+/* 무협 · 묵화 — 잔상을 끄는 붓끝 */
+.gt-cursor-brush-dot { width: 20px; height: 20px; border-radius: 50%; background: radial-gradient(circle,#141210 0%,rgba(20,18,16,.7) 55%,transparent 75%); filter: blur(1px); transform: translate(-50%,-50%); transition: width .15s, height .15s; }
+.gt-cursor-brush-dot.gt-cursor-hover { width: 30px; height: 30px; }
+.gt-cursor-brush-ghost { border-radius: 50%; background: #141210; transform: translate(-50%,-50%); }
+
+/* 무협 · 혈로 — 움직임을 따라 도는 칼끝 */
+.gt-cursor-blade { width: 26px; height: 7px; background: linear-gradient(90deg,transparent,#e7e7ee 40%,#fff 50%,#e7e7ee 60%,transparent); clip-path: polygon(0% 50%,85% 15%,100% 50%,85% 85%); transition: filter .15s; }
+.gt-cursor-blade.gt-cursor-hover { filter: drop-shadow(0 0 6px #ff2d4d); }
+.gt-cursor-slash { position: fixed; width: 46px; height: 2px; background: linear-gradient(90deg, transparent, #fff, #ff4a63, transparent); pointer-events: none; z-index: 999998; opacity: .9; transition: opacity .35s ease, transform .35s ease; }
+
+/* 무협 · 등선 — 잔상을 남기는 영기 구슬 */
+.gt-cursor-orb { width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle,#eafff3 0%,#52e0ac 45%,rgba(82,224,172,0) 75%); box-shadow: 0 0 14px 4px rgba(82,224,172,.55); transform: translate(-50%,-50%); transition: width .2s, height .2s; }
+.gt-cursor-orb.gt-cursor-hover { width: 22px; height: 22px; box-shadow: 0 0 20px 6px rgba(223,192,106,.6); }
+.gt-cursor-mote { position: fixed; border-radius: 50%; background: radial-gradient(circle,#d7ffe9,#52e0ac 60%,transparent 75%); box-shadow: 0 0 8px 2px rgba(82,224,172,.55); pointer-events: none; z-index: 999997; animation: gtMoteRise 1s ease-out forwards; }
+@keyframes gtMoteRise { from { transform: translate(-50%,-50%) translateY(0); opacity: .9; } to { transform: translate(-50%,-50%) translateY(-34px); opacity: 0; } }

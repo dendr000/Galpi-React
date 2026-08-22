@@ -5,6 +5,9 @@
 import React, { useEffect } from 'react';
 import styles from '../../pages/WorkDetail/WorkDetail.module.css';
 import './themes/wuxia.css';
+import './themes/wuxia-ink.css';
+import './themes/wuxia-blood.css';
+import './themes/wuxia-ascend.css';
 import './themes/cyberpunk-neon.css';
 import './themes/cyberpunk-terminal.css';
 import './themes/cyberpunk-graffiti.css';

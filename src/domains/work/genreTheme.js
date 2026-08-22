@@ -8,13 +8,16 @@ import { extractMeta, buildMetaStr } from '../../utils/markdownParser';
 // 분류 키워드 그룹 → 그 키워드가 하나라도 있으면 순환 후보에 들어가는 테마 값 목록.
 // 새 테마를 실제로 구현하면 여기 themes 배열에 한 줄만 추가하면 팔레트 순환에 자동으로 들어간다.
 const GENRE_THEME_GROUPS = [
-  { keywords: ['무협', '무림', '강호'], themes: ['wuxia'] },
+  { keywords: ['무협', '무림', '강호'], themes: ['wuxia', 'wuxia-ink', 'wuxia-blood', 'wuxia-ascend'] },
   { keywords: ['사이버펑크', '사펑', 'SF'], themes: ['cyberpunk-neon', 'cyberpunk-terminal', 'cyberpunk-graffiti'] },
 ];
 
 export const THEME_LABELS = {
   auto: '자동(분류 추천)',
   wuxia: '무협 · 묵향',
+  'wuxia-ink': '무협 · 묵화',
+  'wuxia-blood': '무협 · 혈로',
+  'wuxia-ascend': '무협 · 등선',
   'cyberpunk-neon': '사이버펑크 · 네온 메가시티',
   'cyberpunk-terminal': '사이버펑크 · 터미널 해커',
   'cyberpunk-graffiti': '사이버펑크 · 크롬 그래피티',

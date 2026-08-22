@@ -1,0 +1,117 @@
+/* 파일 위치: src/pages/WorkDetail/themes/wuxia-ascend.css */
+/* 무협 방향 C — 등선(登仙). 구름 위 선경, 옥빛과 금. 사이버펑크 계열처럼 라이트/다크 토글과
+   무관하게 항상 어두운 세계관으로 고정된 시안(committed dark world). */
+
+[data-genre-theme="wuxia-ascend"] {
+  --wa-bg1: #0a2b23; --wa-bg2: #06211c; --wa-panel: rgba(28,74,63,.5); --wa-panel-line: rgba(223,192,106,.4);
+  --wa-ink: #e9f7f0; --wa-ink-soft: #9fc9bb; --wa-jade: #52e0ac; --wa-gold: #dfc06a;
+  --wa-font-display: 'Hahmlet', serif;
+  --wa-font-body: 'Gowun Dodum', sans-serif;
+  --wa-font-mono: 'IBM Plex Mono', monospace;
+}
+
+[data-genre-theme="wuxia-ascend"] {
+  position: relative;
+  background: linear-gradient(180deg, var(--wa-bg1) 0%, var(--wa-bg2) 55%, #051a15 100%) !important;
+  border-radius: 6px; padding: 24px !important; overflow: hidden;
+}
+[data-genre-theme="wuxia-ascend"]::before {
+  content: ""; position: absolute; z-index: 0; pointer-events: none;
+  width: 380px; height: 110px; top: 6%; left: -12%; border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,.10), transparent 70%);
+  filter: blur(6px); animation: waCloudR 27s ease-in-out infinite alternate;
+}
+[data-genre-theme="wuxia-ascend"]::after {
+  content: ""; position: absolute; z-index: 0; pointer-events: none;
+  left: 0; right: 0; bottom: -2px; height: 90px;
+  background: #04140f; opacity: .8;
+  clip-path: polygon(0% 100%,0% 55%,12% 40%,22% 58%,34% 30%,46% 52%,58% 22%,70% 48%,82% 34%,92% 50%,100% 38%,100% 100%);
+}
+@keyframes waCloudR { from { transform: translateX(0); } to { transform: translateX(80px); } }
+[data-genre-theme="wuxia-ascend"] > * { position: relative; z-index: 1; }
+
+/* ============================================================
+   컴포넌트 배선
+   ============================================================ */
+[data-genre-theme="wuxia-ascend"] .gt-hero { border-color: var(--wa-panel-line) !important; box-shadow: 0 0 26px rgba(82,224,172,.12) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-hero-title {
+  font-family: var(--wa-font-display) !important; font-weight: 600; letter-spacing: 0.01em;
+  text-shadow: 0 0 22px rgba(82,224,172,.4);
+}
+
+[data-genre-theme="wuxia-ascend"] .gt-hero-fallback {
+  background: var(--wa-panel) !important; backdrop-filter: blur(6px); border: 1px solid var(--wa-panel-line) !important;
+  border-left: 3px solid var(--wa-gold) !important; border-radius: 3px; padding: 22px 28px !important;
+  box-shadow: 0 0 22px rgba(82,224,172,.12) !important;
+}
+[data-genre-theme="wuxia-ascend"] .gt-hero-fallback .wiki-btn { border-color: var(--wa-gold) !important; color: var(--wa-gold) !important; background: transparent !important; }
+
+[data-genre-theme="wuxia-ascend"] .gt-category { background: var(--wa-panel) !important; border-color: var(--wa-panel-line) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-category > :first-child { background: var(--wa-panel) !important; color: var(--wa-ink) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-tag { background: rgba(82,224,172,.08) !important; border: 1px solid var(--wa-panel-line); color: var(--wa-ink-soft) !important; font-family: var(--wa-font-body); border-radius: 14px !important; }
+
+[data-genre-theme="wuxia-ascend"] .gt-section-header { border-bottom-color: var(--wa-panel-line) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-section-title { font-family: var(--wa-font-display) !important; font-weight: 600 !important; color: var(--wa-ink) !important; }
+
+[data-genre-theme="wuxia-ascend"] .gt-relation-group { background: var(--wa-panel) !important; border-color: var(--wa-panel-line) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-relation-header { color: var(--wa-jade) !important; font-family: var(--wa-font-body); text-shadow: 0 0 8px rgba(82,224,172,.4); }
+
+/* 인물 카드 — 유리처럼 반투명한 옥빛 패널, 호버 시 살짝 떠오르며 빛난다 */
+[data-genre-theme="wuxia-ascend"] .gt-card {
+  background: var(--wa-panel) !important; backdrop-filter: blur(6px); border: 1px solid var(--wa-panel-line) !important;
+  border-radius: 4px !important; box-shadow: 0 0 0 1px rgba(82,224,172,.06), 0 10px 22px rgba(0,0,0,.3) !important;
+  height: auto !important; transition: transform .35s ease, box-shadow .35s ease;
+}
+[data-genre-theme="wuxia-ascend"] .gt-card:hover { transform: translateY(-7px); box-shadow: 0 0 24px rgba(82,224,172,.26), 0 14px 26px rgba(0,0,0,.35) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-card-img { border-radius: 3px !important; filter: grayscale(.3) sepia(.25) hue-rotate(100deg) saturate(1.6) brightness(.92); }
+[data-genre-theme="wuxia-ascend"] .gt-card h4 { font-family: var(--wa-font-display) !important; color: var(--wa-ink) !important; font-size: 14px !important; }
+[data-genre-theme="wuxia-ascend"] .gt-card h4 span { color: var(--wa-ink-soft) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-card > div:last-child > div span:first-child { color: var(--wa-ink-soft) !important; font-family: var(--wa-font-mono); font-size: 10.5px; }
+[data-genre-theme="wuxia-ascend"] .gt-card > div:last-child > div span:last-child { color: var(--wa-jade) !important; font-family: var(--wa-font-body); font-weight: 700 !important; }
+
+[data-genre-theme="wuxia-ascend"] .gt-infobox { background: var(--wa-panel) !important; backdrop-filter: blur(6px); border-color: var(--wa-panel-line) !important; border-top: 3px solid var(--wa-gold) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-infobox-title { font-family: var(--wa-font-display); filter: saturate(1.15) brightness(1.02); }
+[data-genre-theme="wuxia-ascend"] .gt-infobox-image { border-bottom-color: var(--wa-panel-line) !important; filter: grayscale(.3) sepia(.25) hue-rotate(100deg) saturate(1.6) brightness(.92); }
+[data-genre-theme="wuxia-ascend"] .gt-infobox-table th { background: rgba(82,224,172,.08) !important; color: var(--wa-ink-soft) !important; border-color: var(--wa-panel-line) !important; font-family: var(--wa-font-mono); font-weight: 500 !important; }
+[data-genre-theme="wuxia-ascend"] .gt-infobox-table td { color: var(--wa-ink) !important; border-color: var(--wa-panel-line) !important; font-family: var(--wa-font-body); }
+[data-genre-theme="wuxia-ascend"] .gt-infobox-desc { background: var(--wa-panel) !important; color: var(--wa-ink-soft) !important; border-top-color: var(--wa-panel-line) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-btn-edit { border-color: var(--wa-jade) !important; color: var(--wa-jade) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-btn-del { border-color: var(--wa-ink-soft) !important; color: var(--wa-ink-soft) !important; }
+
+[data-genre-theme="wuxia-ascend"] .md-box { background: var(--wa-panel) !important; backdrop-filter: blur(6px); border-color: var(--wa-panel-line) !important; }
+[data-genre-theme="wuxia-ascend"] .markdown-body { color: var(--wa-ink); }
+[data-genre-theme="wuxia-ascend"] .markdown-body h1,
+[data-genre-theme="wuxia-ascend"] .markdown-body h2 { font-family: var(--wa-font-display) !important; color: var(--wa-jade) !important; border-color: var(--wa-panel-line) !important; }
+[data-genre-theme="wuxia-ascend"] .md-h1 { border-color: var(--wa-gold) !important; color: var(--wa-jade) !important; }
+
+[data-genre-theme="wuxia-ascend"] .gt-quicknav { background: var(--wa-panel) !important; backdrop-filter: blur(6px); border-color: var(--wa-panel-line) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-quicknav-btn { font-family: var(--wa-font-body); border-color: var(--wa-jade) !important; }
+
+/* 하위 문서 목록 */
+[data-genre-theme="wuxia-ascend"] .gt-page-count { color: var(--wa-ink-soft) !important; font-family: var(--wa-font-mono); }
+[data-genre-theme="wuxia-ascend"] .gt-page-card { background: var(--wa-panel) !important; backdrop-filter: blur(6px); border-color: var(--wa-panel-line) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-page-card:hover { border-color: var(--wa-gold) !important; box-shadow: 0 0 20px rgba(82,224,172,.2) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-page-title { font-family: var(--wa-font-display) !important; color: var(--wa-ink) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-page-desc { color: var(--wa-ink-soft) !important; font-family: var(--wa-font-body) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-page-empty { background: var(--wa-panel) !important; border-color: var(--wa-panel-line) !important; color: var(--wa-ink-soft) !important; }
+
+/* 마크다운 인용구 — 금빛 선 사이, 옅게 빛나는 잠언 */
+[data-genre-theme="wuxia-ascend"] .galpi-ext-quote {
+  border: none !important; border-top: 1px solid var(--wa-panel-line) !important; border-bottom: 1px solid var(--wa-panel-line) !important;
+  background: var(--wa-panel) !important; color: var(--wa-ink) !important; font-family: var(--wa-font-display) !important;
+  text-align: center !important; box-shadow: none !important; text-shadow: 0 0 10px rgba(82,224,172,.3);
+}
+
+/* 매크로 위젯(스탯/게이지/타임라인/관계도 등) */
+[data-genre-theme="wuxia-ascend"] .gt-macro-box { background: var(--wa-panel) !important; border-color: var(--wa-panel-line) !important; fill: var(--wa-panel) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-macro-line { stroke: var(--wa-panel-line) !important; border-color: var(--wa-panel-line) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-macro-ink { color: var(--wa-ink) !important; fill: var(--wa-ink) !important; font-family: var(--wa-font-body); }
+[data-genre-theme="wuxia-ascend"] .gt-macro-ink-soft { color: var(--wa-ink-soft) !important; fill: var(--wa-ink-soft) !important; stroke: var(--wa-ink-soft) !important; font-family: var(--wa-font-mono); }
+[data-genre-theme="wuxia-ascend"] .gt-macro-accent { color: var(--wa-jade) !important; fill: var(--wa-jade) !important; stroke: var(--wa-jade) !important; border-color: var(--wa-gold) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-macro-accent-bg { background: var(--wa-jade) !important; color: #062017 !important; }
+[data-genre-theme="wuxia-ascend"] .gt-macro-accent-dot { fill: var(--wa-jade) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-macro-accent-stroke { stroke: var(--wa-jade) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-macro-inksoft-stroke { stroke: var(--wa-ink-soft) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-macro-subheader { background: rgba(82,224,172,.08) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-macro-track { background: rgba(82,224,172,.12) !important; }
+[data-genre-theme="wuxia-ascend"] .tl-dot { border-color: var(--wa-bg2) !important; }
