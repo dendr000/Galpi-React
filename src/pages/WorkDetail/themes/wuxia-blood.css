@@ -36,6 +36,7 @@
 [data-genre-theme="wuxia-blood"] .gt-hero { border-color: var(--wb-line) !important; box-shadow: none !important; filter: grayscale(.15) contrast(1.05); }
 [data-genre-theme="wuxia-blood"] .gt-hero-title {
   font-family: var(--wb-font-display) !important; letter-spacing: -0.01em;
+  color: var(--wb-ink) !important;
   text-shadow: 0 0 22px rgba(224,38,63,.45), 0 0 4px rgba(0,0,0,.6);
 }
 
@@ -73,7 +74,7 @@
   animation: wbDripGrow 3.4s ease-in-out infinite;
 }
 @keyframes wbDripGrow { 0%, 100% { height: 6px; opacity: .6; } 50% { height: 15px; opacity: 1; } }
-[data-genre-theme="wuxia-blood"] .gt-card-img { border-radius: 0 !important; filter: grayscale(1) sepia(1) hue-rotate(-58deg) saturate(4) brightness(.6) contrast(1.1); }
+[data-genre-theme="wuxia-blood"] .gt-card-img { border-radius: 0 !important; }
 [data-genre-theme="wuxia-blood"] .gt-card h4 { font-family: var(--wb-font-display) !important; color: var(--wb-ink) !important; font-size: 14px !important; }
 [data-genre-theme="wuxia-blood"] .gt-card h4 span { color: var(--wb-ink-soft) !important; }
 [data-genre-theme="wuxia-blood"] .gt-card > div:last-child > div span:first-child { color: var(--wb-ink-soft) !important; font-family: var(--wb-font-mono); font-size: 10.5px; }
@@ -81,7 +82,7 @@
 
 [data-genre-theme="wuxia-blood"] .gt-infobox { background: var(--wb-bg2) !important; border-color: var(--wb-line) !important; border-top: 4px solid var(--wb-red) !important; }
 [data-genre-theme="wuxia-blood"] .gt-infobox-title { font-family: var(--wb-font-display); filter: saturate(1.1) brightness(.95); }
-[data-genre-theme="wuxia-blood"] .gt-infobox-image { border-bottom-color: var(--wb-line) !important; filter: grayscale(1) sepia(1) hue-rotate(-58deg) saturate(4) brightness(.6) contrast(1.1); }
+[data-genre-theme="wuxia-blood"] .gt-infobox-image { border-bottom-color: var(--wb-line) !important; }
 [data-genre-theme="wuxia-blood"] .gt-infobox-table th { background: #140d0b !important; color: var(--wb-ink-soft) !important; border-color: var(--wb-line) !important; font-family: var(--wb-font-mono); font-weight: 500 !important; }
 [data-genre-theme="wuxia-blood"] .gt-infobox-table td { color: var(--wb-ink) !important; border-color: var(--wb-line) !important; font-family: var(--wb-font-body); }
 [data-genre-theme="wuxia-blood"] .gt-infobox-desc { background: var(--wb-bg2) !important; color: var(--wb-ink-soft) !important; border-top-color: var(--wb-line) !important; }

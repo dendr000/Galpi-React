@@ -36,6 +36,7 @@
 [data-genre-theme="wuxia-ascend"] .gt-hero { border-color: var(--wa-panel-line) !important; box-shadow: 0 0 26px rgba(82,224,172,.12) !important; }
 [data-genre-theme="wuxia-ascend"] .gt-hero-title {
   font-family: var(--wa-font-display) !important; font-weight: 600; letter-spacing: 0.01em;
+  color: var(--wa-ink) !important;
   text-shadow: 0 0 22px rgba(82,224,172,.4);
 }
 
@@ -63,7 +64,7 @@
   height: auto !important; transition: transform .35s ease, box-shadow .35s ease;
 }
 [data-genre-theme="wuxia-ascend"] .gt-card:hover { transform: translateY(-7px); box-shadow: 0 0 24px rgba(82,224,172,.26), 0 14px 26px rgba(0,0,0,.35) !important; }
-[data-genre-theme="wuxia-ascend"] .gt-card-img { border-radius: 3px !important; filter: grayscale(.3) sepia(.25) hue-rotate(100deg) saturate(1.6) brightness(.92); }
+[data-genre-theme="wuxia-ascend"] .gt-card-img { border-radius: 3px !important; }
 [data-genre-theme="wuxia-ascend"] .gt-card h4 { font-family: var(--wa-font-display) !important; color: var(--wa-ink) !important; font-size: 14px !important; }
 [data-genre-theme="wuxia-ascend"] .gt-card h4 span { color: var(--wa-ink-soft) !important; }
 [data-genre-theme="wuxia-ascend"] .gt-card > div:last-child > div span:first-child { color: var(--wa-ink-soft) !important; font-family: var(--wa-font-mono); font-size: 10.5px; }
@@ -71,7 +72,7 @@
 
 [data-genre-theme="wuxia-ascend"] .gt-infobox { background: var(--wa-panel) !important; backdrop-filter: blur(6px); border-color: var(--wa-panel-line) !important; border-top: 3px solid var(--wa-gold) !important; }
 [data-genre-theme="wuxia-ascend"] .gt-infobox-title { font-family: var(--wa-font-display); filter: saturate(1.15) brightness(1.02); }
-[data-genre-theme="wuxia-ascend"] .gt-infobox-image { border-bottom-color: var(--wa-panel-line) !important; filter: grayscale(.3) sepia(.25) hue-rotate(100deg) saturate(1.6) brightness(.92); }
+[data-genre-theme="wuxia-ascend"] .gt-infobox-image { border-bottom-color: var(--wa-panel-line) !important; }
 [data-genre-theme="wuxia-ascend"] .gt-infobox-table th { background: rgba(82,224,172,.08) !important; color: var(--wa-ink-soft) !important; border-color: var(--wa-panel-line) !important; font-family: var(--wa-font-mono); font-weight: 500 !important; }
 [data-genre-theme="wuxia-ascend"] .gt-infobox-table td { color: var(--wa-ink) !important; border-color: var(--wa-panel-line) !important; font-family: var(--wa-font-body); }
 [data-genre-theme="wuxia-ascend"] .gt-infobox-desc { background: var(--wa-panel) !important; color: var(--wa-ink-soft) !important; border-top-color: var(--wa-panel-line) !important; }

@@ -47,7 +47,7 @@
    ============================================================ */
 [data-genre-theme="wuxia-ink"] .gt-hero { border-color: var(--wi-line) !important; box-shadow: 0 6px 18px rgba(0,0,0,0.2) !important; }
 [data-genre-theme="wuxia-ink"] .gt-hero-title {
-  font-family: var(--wi-font-display); font-weight: 400; font-size: 1.25em; letter-spacing: 0.01em;
+  font-family: var(--wi-font-display) !important; font-weight: 400; font-size: 58px !important; letter-spacing: 0.01em;
   clip-path: inset(0 100% 0 0); animation: wiTitleReveal 1.2s cubic-bezier(.2,.7,.3,1) .15s forwards;
 }
 @keyframes wiTitleReveal { to { clip-path: inset(0 0% 0 0); } }

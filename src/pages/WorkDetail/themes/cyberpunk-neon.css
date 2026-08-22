@@ -48,6 +48,7 @@
 [data-genre-theme="cyberpunk-neon"] .gt-hero { border-color: var(--cp-panel-line) !important; box-shadow: 0 0 30px rgba(79,211,236,0.25) !important; }
 [data-genre-theme="cyberpunk-neon"] .gt-hero-title {
   font-family: var(--cp-font-display) !important; letter-spacing: 0.01em;
+  color: var(--cp-ink) !important;
   text-shadow: 0 0 18px rgba(79,211,236,0.5), 0 0 40px rgba(217,79,236,0.25);
 }
 
