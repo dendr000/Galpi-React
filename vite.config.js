@@ -12,6 +12,13 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    build: {
+      // exe(Electron) 패키징용 — 빌드 산출물을 Galpi-Backend가 바로 서빙할 수 있게
+      // 정적 리소스 폴더로 직접 낸다. baseURL이 '/'라 백엔드가 서빙만 하면 코드 변경 없음.
+      outDir: '../Galpi-Backend/src/main/resources/static',
+      // outDir 안의 static/sql/Talbles.sql(빌드 산출물 아님)이 지워지지 않도록 false 유지
+      emptyOutDir: false,
+    },
     server: {
       port: 9691, // 로컬 개발 서버 포트를 9691로 강제 할당
       strictPort: true, // 9691 포트가 이미 사용 중일 경우 다른 포트로 넘어가지 않고 서버 실행 중단
