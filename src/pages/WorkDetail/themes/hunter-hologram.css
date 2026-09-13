@@ -1,0 +1,151 @@
+/* 파일 위치: src/pages/WorkDetail/themes/hunter-hologram.css */
+/* 헌터/이능력물 방향 B — 라이트 홀로그램. 대낮에 유리판 너머로 보는 AR 인터페이스 느낌.
+   hunter-gate.css(방향 A, 항상 어두움)와 짝을 이루는 "항상 밝은" 변형이다.
+   [data-genre-theme="hunter-hologram"] 속성 선택자만으로 단독 동작한다. */
+
+[data-genre-theme="hunter-hologram"], [data-footer-theme="hunter-hologram"] {
+  --hh2-bg1: #eef1fb; --hh2-bg2: #f7f8fd; --hh2-bg3: #ffffff;
+  --hh2-ink: #141b3d; --hh2-ink-soft: #6672a0;
+  --hh2-blue: #5b7fff; --hh2-amber: #b8791f; --hh2-mint: #22c3a6;
+  --hh2-panel: rgba(255,255,255,0.62); --hh2-panel-line: rgba(91,127,255,0.25);
+  --hh2-font-display: 'Gowun Dodum', sans-serif;
+  --hh2-font-label: 'Rajdhani', 'Gothic A1', sans-serif;
+  --hh2-font-mono: 'IBM Plex Mono', 'Nanum Gothic Coding', monospace;
+}
+/* 이 테마는 항상 밝은 세계관 하나로 고정 — 라이트/다크 토글과 무관하게 동일하게 보인다
+   (hunter-gate.css가 항상 어두운 것과 대칭) */
+
+[data-genre-theme="hunter-hologram"] {
+  position: relative;
+  background: linear-gradient(180deg, var(--hh2-bg1) 0%, var(--hh2-bg2) 55%, var(--hh2-bg3) 100%) !important;
+  border-radius: 6px;
+  padding: 24px !important;
+  clip-path: inset(0 round 6px);
+}
+[data-genre-theme="hunter-hologram"]::before {
+  content: ""; position: absolute; z-index: 0; pointer-events: none;
+  top: -160px; left: 50%; width: 720px; height: 520px; margin-left: -360px;
+  background: radial-gradient(ellipse, rgba(91,127,255,0.2) 0%, transparent 70%);
+}
+[data-genre-theme="hunter-hologram"]::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .55;
+  background-image: linear-gradient(rgba(91,127,255,0.09) 1px, transparent 1px), linear-gradient(90deg, rgba(91,127,255,0.09) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(ellipse at 50% 18%, black 0%, transparent 65%);
+}
+[data-genre-theme="hunter-hologram"] > * { position: relative; z-index: 1; }
+
+/* ============================================================
+   컴포넌트 배선 (전부 .gt-* 순수 전역 hook 클래스 타겟)
+   ============================================================ */
+[data-genre-theme="hunter-hologram"] .gt-hero { border-color: var(--hh2-panel-line) !important; box-shadow: 0 20px 50px -22px rgba(60,80,180,.3) !important; }
+/* 커버 이미지 위 제목은 손대지 않는다 — 사진 아래 어두운 그라디언트(.heroOverlay) 위에
+   얹히는 흰 글자라 여기서 남색으로 덮어쓰면 안 보이게 된다. 폰트와 스캔라인 연출만 얹는다. */
+[data-genre-theme="hunter-hologram"] .gt-hero-title {
+  font-family: var(--hh2-font-display) !important; font-weight: 400; letter-spacing: -0.01em;
+  position: relative; display: inline-block; overflow: hidden;
+}
+[data-genre-theme="hunter-hologram"] .gt-hero-title::after {
+  content: ""; position: absolute; top: 0; left: -120%; width: 60%; height: 100%; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(91,127,255,.55), rgba(255,255,255,.9), rgba(91,127,255,.55), transparent);
+  animation: hh2ScanSweep 1.4s ease .2s both;
+}
+@keyframes hh2ScanSweep { to { left: 130%; } }
+
+/* 커버 이미지가 없을 때의 제목 영역 — 여긴 사진이 없어 유리 패널 배경이라 진한 남색으로
+   덮어써야 읽힌다 */
+[data-genre-theme="hunter-hologram"] .gt-hero-fallback {
+  background: var(--hh2-panel) !important;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--hh2-panel-line) !important;
+  border-radius: 12px;
+  padding: 22px 28px !important;
+  box-shadow: 0 20px 50px -20px rgba(60,80,180,.25) !important;
+}
+[data-genre-theme="hunter-hologram"] .gt-hero-fallback .gt-hero-title { color: var(--hh2-ink) !important; }
+[data-genre-theme="hunter-hologram"] .gt-hero-fallback .wiki-btn {
+  border-color: var(--hh2-blue) !important; color: var(--hh2-blue) !important; background: transparent !important;
+}
+
+[data-genre-theme="hunter-hologram"] .gt-category { background: var(--hh2-panel) !important; border-color: var(--hh2-panel-line) !important; backdrop-filter: blur(10px); }
+[data-genre-theme="hunter-hologram"] .gt-category > :first-child { background: transparent !important; color: var(--hh2-ink) !important; }
+[data-genre-theme="hunter-hologram"] .gt-section-select { background: var(--hh2-panel) !important; border-color: var(--hh2-panel-line) !important; color: var(--hh2-ink) !important; }
+[data-genre-theme="hunter-hologram"] .gt-tag {
+  background: rgba(91,127,255,0.1) !important; border: 1px solid rgba(91,127,255,0.35) !important; color: #3b4a8f !important;
+  font-family: var(--hh2-font-label) !important; font-weight: 700; letter-spacing: 0.03em;
+  border-radius: 999px !important;
+}
+
+[data-genre-theme="hunter-hologram"] .gt-section-header { border-bottom-color: var(--hh2-panel-line) !important; }
+[data-genre-theme="hunter-hologram"] .gt-section-title { font-family: var(--hh2-font-display) !important; color: var(--hh2-ink) !important; }
+
+[data-genre-theme="hunter-hologram"] .gt-relation-group { background: var(--hh2-panel) !important; border-color: var(--hh2-panel-line) !important; backdrop-filter: blur(10px); }
+[data-genre-theme="hunter-hologram"] .gt-relation-header { color: var(--hh2-blue) !important; font-family: var(--hh2-font-label); letter-spacing: 0.02em; }
+
+/* 인물 카드 — 반투명 유리 카드 */
+[data-genre-theme="hunter-hologram"] .gt-card {
+  background: var(--hh2-panel) !important;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--hh2-panel-line) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 10px 24px -14px rgba(60,80,180,.3) !important;
+  height: auto !important;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+[data-genre-theme="hunter-hologram"] .gt-card:hover { transform: translateY(-3px); border-color: var(--hh2-blue) !important; box-shadow: 0 14px 30px -12px rgba(60,80,180,.4) !important; }
+[data-genre-theme="hunter-hologram"] .gt-card-img { border-radius: 6px !important; }
+[data-genre-theme="hunter-hologram"] .gt-card h4 { font-family: var(--hh2-font-display) !important; color: var(--hh2-ink) !important; font-size: 14px !important; }
+[data-genre-theme="hunter-hologram"] .gt-card h4 span { color: var(--hh2-ink-soft) !important; }
+[data-genre-theme="hunter-hologram"] .gt-card > div:last-child > div span:first-child { color: var(--hh2-ink-soft) !important; font-family: var(--hh2-font-mono); font-size: 10.5px; }
+[data-genre-theme="hunter-hologram"] .gt-card > div:last-child > div span:last-child { color: var(--hh2-amber) !important; font-family: var(--hh2-font-label); font-weight: 700 !important; }
+
+[data-genre-theme="hunter-hologram"] .gt-infobox { background: var(--hh2-panel) !important; border-color: var(--hh2-panel-line) !important; backdrop-filter: blur(10px); box-shadow: 0 20px 50px -22px rgba(60,80,180,.25) !important; }
+[data-genre-theme="hunter-hologram"] .gt-infobox-title { font-family: var(--hh2-font-display) !important; background: var(--hh2-blue) !important; }
+[data-footer-theme="hunter-hologram"] .gt-footer { background: var(--hh2-panel) !important; border-top: 1px solid var(--hh2-blue) !important; }
+[data-footer-theme="hunter-hologram"] .gt-footer-btn:hover { color: var(--hh2-blue) !important; }
+[data-genre-theme="hunter-hologram"] .gt-infobox-image { border-bottom-color: var(--hh2-panel-line) !important; }
+[data-genre-theme="hunter-hologram"] .gt-infobox-table th, [data-genre-theme="hunter-hologram"] .gt-table th { background: rgba(91,127,255,0.07) !important; color: var(--hh2-ink-soft) !important; border-color: var(--hh2-panel-line) !important; font-family: var(--hh2-font-mono); font-weight: 500 !important; }
+[data-genre-theme="hunter-hologram"] .gt-infobox-table td, [data-genre-theme="hunter-hologram"] .gt-table td { color: var(--hh2-ink) !important; border-color: var(--hh2-panel-line) !important; font-family: var(--hh2-font-label); }
+[data-genre-theme="hunter-hologram"] .gt-infobox-desc { background: var(--hh2-panel) !important; color: var(--hh2-ink-soft) !important; border-top-color: var(--hh2-panel-line) !important; }
+[data-genre-theme="hunter-hologram"] .gt-btn-edit { border-color: var(--hh2-blue) !important; color: var(--hh2-blue) !important; background: transparent !important; }
+[data-genre-theme="hunter-hologram"] .gt-btn-del { border-color: #e0577a !important; color: #e0577a !important; background: transparent !important; }
+
+[data-genre-theme="hunter-hologram"] .md-box { background: var(--hh2-panel) !important; border-color: var(--hh2-panel-line) !important; backdrop-filter: blur(10px); }
+[data-genre-theme="hunter-hologram"] .markdown-body { color: var(--hh2-ink); }
+[data-genre-theme="hunter-hologram"] .markdown-body h1,
+[data-genre-theme="hunter-hologram"] .markdown-body h2 { font-family: var(--hh2-font-display) !important; color: var(--hh2-blue) !important; border-color: var(--hh2-panel-line) !important; }
+[data-genre-theme="hunter-hologram"] .md-h1 { border-color: var(--hh2-blue) !important; color: var(--hh2-blue) !important; }
+
+[data-genre-theme="hunter-hologram"] .gt-quicknav { background: var(--hh2-panel) !important; border-color: var(--hh2-panel-line) !important; backdrop-filter: blur(10px); }
+[data-genre-theme="hunter-hologram"] .gt-quicknav-btn { font-family: var(--hh2-font-label); border-color: var(--hh2-blue) !important; }
+
+/* 하위 문서 목록 — 인물 카드와 같은 계열의 유리 카드 */
+[data-genre-theme="hunter-hologram"] .gt-page-count { color: var(--hh2-ink-soft) !important; font-family: var(--hh2-font-mono); }
+[data-genre-theme="hunter-hologram"] .gt-page-card { background: var(--hh2-panel) !important; border-color: var(--hh2-panel-line) !important; backdrop-filter: blur(8px); }
+[data-genre-theme="hunter-hologram"] .gt-page-card:hover { border-color: var(--hh2-blue) !important; box-shadow: 0 14px 30px -12px rgba(60,80,180,.35) !important; }
+[data-genre-theme="hunter-hologram"] .gt-page-title { font-family: var(--hh2-font-display) !important; color: var(--hh2-ink) !important; }
+[data-genre-theme="hunter-hologram"] .gt-page-desc { color: var(--hh2-ink-soft) !important; font-family: var(--hh2-font-label) !important; }
+[data-genre-theme="hunter-hologram"] .gt-page-empty { background: var(--hh2-panel) !important; border-color: var(--hh2-panel-line) !important; color: var(--hh2-ink-soft) !important; }
+
+/* 매크로 위젯(스탯/게이지/타임라인/관계도 등) — 문자열로 즉시 조립되는 위젯이라
+   인라인 style="var(--...)"가 이미 박혀 있다. plain 전역 클래스(.gt-macro-*)로 !important 덮어쓴다 */
+[data-genre-theme="hunter-hologram"] .gt-macro-box { background: var(--hh2-panel) !important; border-color: var(--hh2-panel-line) !important; fill: var(--hh2-panel) !important; }
+[data-genre-theme="hunter-hologram"] .gt-macro-line { stroke: var(--hh2-panel-line) !important; border-color: var(--hh2-panel-line) !important; }
+[data-genre-theme="hunter-hologram"] .gt-macro-ink { color: var(--hh2-ink) !important; fill: var(--hh2-ink) !important; font-family: var(--hh2-font-label); }
+[data-genre-theme="hunter-hologram"] .gt-macro-ink-soft { color: var(--hh2-ink-soft) !important; fill: var(--hh2-ink-soft) !important; stroke: var(--hh2-ink-soft) !important; font-family: var(--hh2-font-mono); }
+[data-genre-theme="hunter-hologram"] .gt-macro-accent { color: var(--hh2-blue) !important; fill: var(--hh2-blue) !important; stroke: var(--hh2-blue) !important; border-color: var(--hh2-blue) !important; }
+[data-genre-theme="hunter-hologram"] .gt-macro-accent-bg { background: var(--hh2-blue) !important; color: #ffffff !important; }
+[data-genre-theme="hunter-hologram"] .gt-macro-accent-dot { fill: var(--hh2-blue) !important; }
+[data-genre-theme="hunter-hologram"] .gt-macro-accent-stroke { stroke: var(--hh2-blue) !important; }
+[data-genre-theme="hunter-hologram"] .gt-macro-inksoft-stroke { stroke: var(--hh2-ink-soft) !important; }
+[data-genre-theme="hunter-hologram"] .gt-macro-subheader { background: rgba(91,127,255,0.07) !important; }
+[data-genre-theme="hunter-hologram"] .gt-macro-track { background: rgba(91,127,255,0.12) !important; }
+[data-genre-theme="hunter-hologram"] .tl-dot { border-color: var(--hh2-bg3) !important; }
+
+[data-genre-theme="hunter-hologram"] .galpi-ext-quote {
+  border: none !important; border-top: 1px solid var(--hh2-blue) !important; border-bottom: 1px solid var(--hh2-blue) !important;
+  background: var(--hh2-panel) !important; color: var(--hh2-ink) !important; font-family: var(--hh2-font-label) !important;
+  text-align: center !important; box-shadow: none !important;
+}
+
+[data-genre-theme="hunter-hologram"] .gt-table { background: var(--hh2-panel) !important; box-shadow: 0 0 0 1px var(--hh2-panel-line) !important; }

@@ -1,0 +1,150 @@
+/* 파일 위치: src/pages/WorkDetail/themes/joseon-shrine.css */
+/* 동양판타지(요괴·주술·퇴마) 방향 B — 성황당. 새벽 안개 낀 당산나무 아래, 오방색(청·홍·황·
+   백·흑) 띠와 낮은 채도의 여명 톤. joseon-talisman.css(방향 A, 밤의 신당 실내)와 짝을 이루는
+   "야외·새벽" 변형이다. [data-genre-theme="joseon-shrine"] 속성 선택자만으로 단독 동작한다.
+   주의: 목업 단계에서 카드/태그에 backdrop-filter를 썼더니 특정 렌더링 환경에서 텍스트가
+   아예 안 그려지는 버그가 있었다 — 실제 코드에서는 처음부터 backdrop-filter를 안 쓴다. */
+
+[data-genre-theme="joseon-shrine"], [data-footer-theme="joseon-shrine"] {
+  --js-bg1: #3a4048; --js-bg2: #4c5058; --js-bg3: #5c5a55;
+  --js-ink: #f7f1e2; --js-ink-soft: #d8d2c2;
+  --js-blue: #3a6ea8; --js-red: #a8393a; --js-gold: #d4b23e;
+  --js-panel: rgba(20,19,16,0.5); --js-panel-line: rgba(255,255,255,0.22);
+  --js-font-display: 'Gowun Batang', serif;
+  --js-font-label: 'Rajdhani', 'Gothic A1', sans-serif;
+  --js-font-mono: 'IBM Plex Mono', 'Nanum Gothic Coding', monospace;
+}
+/* 이 테마는 항상 여명의 회청색 하늘 하나로 고정 — 라이트/다크 토글과 무관하게 동일하게 보인다 */
+
+[data-genre-theme="joseon-shrine"] {
+  position: relative;
+  background: linear-gradient(180deg, var(--js-bg1) 0%, var(--js-bg2) 45%, var(--js-bg3) 100%) !important;
+  border-radius: 6px;
+  padding: 24px !important;
+  clip-path: inset(0 round 6px);
+}
+/* 새벽 안개 */
+[data-genre-theme="joseon-shrine"]::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 25% 85%, rgba(255,255,255,.12), transparent 55%), radial-gradient(ellipse at 80% 55%, rgba(255,255,255,.08), transparent 50%);
+}
+/* 낡은 결 특유의 그레인(잡티) 텍스처 */
+[data-genre-theme="joseon-shrine"]::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 130px 130px; opacity: .08; mix-blend-mode: overlay;
+}
+[data-genre-theme="joseon-shrine"] > * { position: relative; z-index: 1; }
+
+/* 맨 위 오방색(청·홍·황·백·흑) 띠 — 서낭당 금줄에 매다는 오색천 */
+[data-genre-theme="joseon-shrine"] .gt-category {
+  border-top: 4px solid transparent !important;
+  border-image: linear-gradient(90deg, var(--js-blue) 0 20%, var(--js-red) 20% 40%, var(--js-gold) 40% 60%, #ece4d2 60% 80%, #2a2723 80% 100%) 1 !important;
+}
+
+/* ============================================================
+   컴포넌트 배선 (전부 .gt-* 순수 전역 hook 클래스 타겟)
+   ============================================================ */
+[data-genre-theme="joseon-shrine"] .gt-hero { border-color: var(--js-panel-line) !important; box-shadow: 0 20px 50px -22px rgba(0,0,0,.4) !important; }
+[data-genre-theme="joseon-shrine"] .gt-hero-title {
+  font-family: var(--js-font-display) !important; font-weight: 700; letter-spacing: .01em;
+  color: var(--js-ink) !important;
+  text-shadow: 0 2px 3px rgba(0,0,0,.75), 0 4px 18px rgba(0,0,0,.55);
+  /* 안개가 걷히듯 서서히 나타난다 */
+  opacity: 0; filter: blur(6px); animation: jsMistIn 1.3s ease both;
+}
+@keyframes jsMistIn { to { opacity: 1; filter: blur(0); } }
+
+/* 커버 이미지가 없을 때의 제목 영역 — 돌담 같은 낮은 채도 패널 */
+[data-genre-theme="joseon-shrine"] .gt-hero-fallback {
+  background: var(--js-panel) !important;
+  border: 1px solid var(--js-panel-line) !important;
+  border-radius: 8px;
+  padding: 22px 28px !important;
+  box-shadow: 0 20px 50px -20px rgba(0,0,0,.35) !important;
+}
+[data-genre-theme="joseon-shrine"] .gt-hero-fallback .wiki-btn {
+  border-color: var(--js-ink) !important; color: var(--js-ink) !important; background: transparent !important;
+}
+
+[data-genre-theme="joseon-shrine"] .gt-category { background: var(--js-panel) !important; border-color: var(--js-panel-line) !important; }
+[data-genre-theme="joseon-shrine"] .gt-category > :first-child { background: transparent !important; color: var(--js-ink) !important; }
+[data-genre-theme="joseon-shrine"] .gt-section-select { background: var(--js-panel) !important; border-color: var(--js-panel-line) !important; color: var(--js-ink) !important; }
+[data-genre-theme="joseon-shrine"] .gt-tag {
+  background: rgba(20,19,16,.45) !important; border: 1px solid rgba(255,255,255,.3) !important; color: var(--js-ink) !important;
+  font-family: var(--js-font-mono) !important; font-weight: 600;
+  border-radius: 999px !important; text-shadow: 0 1px 2px rgba(0,0,0,.6);
+}
+
+[data-genre-theme="joseon-shrine"] .gt-section-header { border-bottom-color: var(--js-panel-line) !important; }
+[data-genre-theme="joseon-shrine"] .gt-section-title { font-family: var(--js-font-display) !important; font-weight: 700; color: var(--js-ink) !important; }
+
+[data-genre-theme="joseon-shrine"] .gt-relation-group { background: var(--js-panel) !important; border-color: var(--js-panel-line) !important; }
+[data-genre-theme="joseon-shrine"] .gt-relation-header { color: var(--js-ink) !important; font-family: var(--js-font-label); letter-spacing: .02em; }
+
+/* 인물 카드 — 돌담/유물함 같은 낮은 채도 패널 */
+[data-genre-theme="joseon-shrine"] .gt-card {
+  background: rgba(20,19,16,.55) !important;
+  border: 1px solid var(--js-panel-line) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 10px 24px -14px rgba(0,0,0,.4) !important;
+  height: auto !important;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+[data-genre-theme="joseon-shrine"] .gt-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.55) !important; box-shadow: 0 14px 30px -12px rgba(0,0,0,.5) !important; }
+[data-genre-theme="joseon-shrine"] .gt-card-img { border-radius: 4px !important; filter: saturate(.85) contrast(1.02); }
+[data-genre-theme="joseon-shrine"] .gt-card h4 { font-family: var(--js-font-display) !important; font-weight: 700; color: var(--js-ink) !important; font-size: 14px !important; }
+[data-genre-theme="joseon-shrine"] .gt-card h4 span { color: var(--js-ink-soft) !important; }
+[data-genre-theme="joseon-shrine"] .gt-card > div:last-child > div span:first-child { color: var(--js-ink-soft) !important; font-family: var(--js-font-mono); font-size: 10.5px; }
+[data-genre-theme="joseon-shrine"] .gt-card > div:last-child > div span:last-child { color: var(--js-gold) !important; font-family: var(--js-font-label); font-weight: 700 !important; }
+
+[data-genre-theme="joseon-shrine"] .gt-infobox { background: var(--js-panel) !important; border-color: var(--js-panel-line) !important; box-shadow: 0 20px 50px -22px rgba(0,0,0,.35) !important; }
+[data-genre-theme="joseon-shrine"] .gt-infobox-title { font-family: var(--js-font-display) !important; font-weight: 700; background: var(--js-red) !important; }
+[data-footer-theme="joseon-shrine"] .gt-footer { background: var(--js-panel) !important; border-top: 1px solid var(--js-red) !important; }
+[data-footer-theme="joseon-shrine"] .gt-footer-btn:hover { color: var(--js-red) !important; }
+[data-genre-theme="joseon-shrine"] .gt-infobox-image { border-bottom-color: var(--js-panel-line) !important; filter: saturate(.85); }
+[data-genre-theme="joseon-shrine"] .gt-infobox-table th, [data-genre-theme="joseon-shrine"] .gt-table th { background: rgba(255,255,255,.05) !important; color: var(--js-ink-soft) !important; border-color: var(--js-panel-line) !important; font-family: var(--js-font-mono); font-weight: 500 !important; }
+[data-genre-theme="joseon-shrine"] .gt-infobox-table td, [data-genre-theme="joseon-shrine"] .gt-table td { color: var(--js-ink) !important; border-color: var(--js-panel-line) !important; font-family: var(--js-font-label); }
+[data-genre-theme="joseon-shrine"] .gt-infobox-desc { background: var(--js-panel) !important; color: var(--js-ink-soft) !important; border-top-color: var(--js-panel-line) !important; }
+[data-genre-theme="joseon-shrine"] .gt-btn-edit { border-color: var(--js-ink) !important; color: var(--js-ink) !important; background: transparent !important; }
+[data-genre-theme="joseon-shrine"] .gt-btn-del { border-color: var(--js-red) !important; color: #d97a7a !important; background: transparent !important; }
+
+[data-genre-theme="joseon-shrine"] .md-box { background: var(--js-panel) !important; border-color: var(--js-panel-line) !important; }
+[data-genre-theme="joseon-shrine"] .markdown-body { color: var(--js-ink); }
+[data-genre-theme="joseon-shrine"] .markdown-body h1,
+[data-genre-theme="joseon-shrine"] .markdown-body h2 { font-family: var(--js-font-display) !important; font-weight: 700; color: var(--js-ink) !important; border-color: var(--js-panel-line) !important; }
+[data-genre-theme="joseon-shrine"] .md-h1 { border-color: var(--js-ink) !important; color: var(--js-ink) !important; }
+
+[data-genre-theme="joseon-shrine"] .gt-quicknav { background: var(--js-panel) !important; border-color: var(--js-panel-line) !important; }
+[data-genre-theme="joseon-shrine"] .gt-quicknav-btn { font-family: var(--js-font-label); border-color: var(--js-ink) !important; }
+
+/* 하위 문서 목록 */
+[data-genre-theme="joseon-shrine"] .gt-page-count { color: var(--js-ink-soft) !important; font-family: var(--js-font-mono); }
+[data-genre-theme="joseon-shrine"] .gt-page-card { background: rgba(20,19,16,.55) !important; border-color: var(--js-panel-line) !important; }
+[data-genre-theme="joseon-shrine"] .gt-page-card:hover { border-color: rgba(255,255,255,.55) !important; box-shadow: 0 14px 30px -12px rgba(0,0,0,.5) !important; }
+[data-genre-theme="joseon-shrine"] .gt-page-title { font-family: var(--js-font-display) !important; font-weight: 700; color: var(--js-ink) !important; }
+[data-genre-theme="joseon-shrine"] .gt-page-desc { color: var(--js-ink-soft) !important; font-family: var(--js-font-label) !important; }
+[data-genre-theme="joseon-shrine"] .gt-page-empty { background: var(--js-panel) !important; border-color: var(--js-panel-line) !important; color: var(--js-ink-soft) !important; }
+
+/* 매크로 위젯(스탯/게이지/타임라인/관계도 등) — 문자열로 즉시 조립되는 위젯이라
+   인라인 style="var(--...)"가 이미 박혀 있다. plain 전역 클래스(.gt-macro-*)로 !important 덮어쓴다 */
+[data-genre-theme="joseon-shrine"] .gt-macro-box { background: var(--js-panel) !important; border-color: var(--js-panel-line) !important; fill: var(--js-panel) !important; }
+[data-genre-theme="joseon-shrine"] .gt-macro-line { stroke: var(--js-panel-line) !important; border-color: var(--js-panel-line) !important; }
+[data-genre-theme="joseon-shrine"] .gt-macro-ink { color: var(--js-ink) !important; fill: var(--js-ink) !important; font-family: var(--js-font-label); }
+[data-genre-theme="joseon-shrine"] .gt-macro-ink-soft { color: var(--js-ink-soft) !important; fill: var(--js-ink-soft) !important; stroke: var(--js-ink-soft) !important; font-family: var(--js-font-mono); }
+[data-genre-theme="joseon-shrine"] .gt-macro-accent { color: var(--js-gold) !important; fill: var(--js-gold) !important; stroke: var(--js-gold) !important; border-color: var(--js-gold) !important; }
+[data-genre-theme="joseon-shrine"] .gt-macro-accent-bg { background: var(--js-gold) !important; color: #2a2723 !important; }
+[data-genre-theme="joseon-shrine"] .gt-macro-accent-dot { fill: var(--js-gold) !important; }
+[data-genre-theme="joseon-shrine"] .gt-macro-accent-stroke { stroke: var(--js-gold) !important; }
+[data-genre-theme="joseon-shrine"] .gt-macro-inksoft-stroke { stroke: var(--js-ink-soft) !important; }
+[data-genre-theme="joseon-shrine"] .gt-macro-subheader { background: rgba(255,255,255,.05) !important; }
+[data-genre-theme="joseon-shrine"] .gt-macro-track { background: rgba(255,255,255,.08) !important; }
+[data-genre-theme="joseon-shrine"] .tl-dot { border-color: var(--js-bg3) !important; }
+
+[data-genre-theme="joseon-shrine"] .galpi-ext-quote {
+  border: none !important; border-top: 1px solid rgba(255,255,255,.4) !important; border-bottom: 1px solid rgba(255,255,255,.4) !important;
+  background: var(--js-panel) !important; color: var(--js-ink) !important; font-family: var(--js-font-display) !important;
+  text-align: center !important; box-shadow: none !important; text-shadow: 0 2px 4px rgba(0,0,0,.5);
+}
+
+[data-genre-theme="joseon-shrine"] .gt-table { background: var(--js-panel) !important; box-shadow: 0 0 0 1px var(--js-panel-line) !important; }

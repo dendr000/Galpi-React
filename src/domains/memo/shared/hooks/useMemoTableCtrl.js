@@ -6,7 +6,7 @@ import { useTableFormat } from './table/useTableFormat';
 
 export const useMemoTableCtrl = ({ editorRef, activeCellRef, updateCharCount }) => {
   // 1. 포커스 감지 센서 마운트
-  const { tableCtrlVisible, setTableCtrlVisible, checkTableFocus } = useTableFocus({
+  const { tableCtrlVisible, setTableCtrlVisible, hasTable, checkTableFocus } = useTableFocus({
     editorRef, activeCellRef
   });
 
@@ -21,7 +21,7 @@ export const useMemoTableCtrl = ({ editorRef, activeCellRef, updateCharCount }) 
   });
 
   return {
-    tableCtrlVisible, setTableCtrlVisible, checkTableFocus,
+    tableCtrlVisible, setTableCtrlVisible, hasTable, checkTableFocus,
     ...structureHooks,
     ...formatHooks
   };

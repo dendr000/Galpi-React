@@ -2,7 +2,7 @@
 /* 아포칼립스 방향 A — 핵진(核塵). 방사능 폐허, 낙진과 계기판. 사이버펑크/무협 후기작처럼
    라이트/다크 토글과 무관하게 항상 어두운 세계관으로 고정된다. */
 
-[data-genre-theme="apocalypse-rad"] {
+[data-genre-theme="apocalypse-rad"], [data-footer-theme="apocalypse-rad"] {
   --rad-bg: #201d16; --rad-bg2: #2c2818; --rad-toxic: #c4d92e; --rad-rust: #c1611a;
   --rad-ink: #e8e2c9; --rad-ink-soft: #8f8870; --rad-line: #4a4530;
   /* Black Ops One/Oswald/IBM Plex Mono는 한글 글리프가 없어 한글 텍스트가 조용히 시스템
@@ -24,6 +24,16 @@
   content: "☢"; position: absolute; z-index: 0; pointer-events: none; right: -40px; bottom: -60px;
   font-size: 280px; line-height: 1; color: var(--rad-toxic); opacity: .05;
   animation: radSpin 90s linear infinite;
+  /* 회전하는 큰 글리프의 바운딩박스가 각도에 따라 커졌다 작아졌다 하는데, 부모의
+     clip-path는 페인트만 자르고 레이아웃 오버플로 기여는 못 막아서(FloatingToc 때와 동일한
+     문제) 문서 전체 높이가 주기적으로 출렁여 footer 위에 생기는 빈 여백이 저절로
+     좁혀졌다 넓어졌다 하는 버그가 있었다. contain:paint로 이 요소 자신의 페인트/오버플로를
+     자기 박스 안에 가둬서 조상의 스크롤 오버플로 계산에 끼어들지 못하게 막는다. 그런데
+  contain:paint 하나만으로는 회전 각도에 따른 문서 높이 출렁임이 절반 정도만 줄고 완전히
+  없어지지 않았다 — will-change:transform으로 아예 별도 컴포지터 레이어로 승격시켜서
+  회전을 레이아웃 계산과 분리된 GPU 합성 단계에서만 처리하게 만들어야 완전히 고정됐다.*/
+  contain: paint;
+  will-change: transform;
 }
 @keyframes radSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 [data-genre-theme="apocalypse-rad"]::after {
@@ -81,13 +91,15 @@
 [data-genre-theme="apocalypse-rad"] .gt-card > div:last-child > div span:last-child { color: var(--rad-toxic) !important; font-family: var(--rad-font-mono); font-weight: 700 !important; }
 
 [data-genre-theme="apocalypse-rad"] .gt-infobox { background: var(--rad-bg2) !important; border-color: var(--rad-line) !important; border-top: 4px solid var(--rad-toxic) !important; }
-[data-genre-theme="apocalypse-rad"] .gt-infobox-title { font-family: var(--rad-font-display); filter: contrast(1.1) saturate(.85); }
+[data-genre-theme="apocalypse-rad"] .gt-infobox-title { font-family: var(--rad-font-display); filter: contrast(1.1) saturate(.85); background: var(--rad-bg2) !important; border-bottom: 3px solid var(--rad-toxic) !important; }
+[data-footer-theme="apocalypse-rad"] .gt-footer { background: var(--rad-bg2) !important; border-top: 1px solid var(--rad-toxic) !important; }
+[data-footer-theme="apocalypse-rad"] .gt-footer-btn:hover { color: var(--rad-toxic) !important; }
 [data-genre-theme="apocalypse-rad"] .gt-infobox-image { border-bottom-color: var(--rad-line) !important; filter: contrast(1.15) brightness(.88) saturate(.7); }
-[data-genre-theme="apocalypse-rad"] .gt-infobox-table th { background: #17140e !important; color: var(--rad-ink-soft) !important; border-color: var(--rad-line) !important; font-family: var(--rad-font-mono); font-weight: 500 !important; }
-[data-genre-theme="apocalypse-rad"] .gt-infobox-table td { color: var(--rad-ink) !important; border-color: var(--rad-line) !important; font-family: var(--rad-font-body); }
+[data-genre-theme="apocalypse-rad"] .gt-infobox-table th, [data-genre-theme="apocalypse-rad"] .gt-table th { background: #17140e !important; color: var(--rad-ink-soft) !important; border-color: var(--rad-line) !important; font-family: var(--rad-font-mono); font-weight: 500 !important; }
+[data-genre-theme="apocalypse-rad"] .gt-infobox-table td, [data-genre-theme="apocalypse-rad"] .gt-table td { color: var(--rad-ink) !important; border-color: var(--rad-line) !important; font-family: var(--rad-font-body); }
 [data-genre-theme="apocalypse-rad"] .gt-infobox-desc { background: var(--rad-bg2) !important; color: var(--rad-ink-soft) !important; border-top-color: var(--rad-line) !important; }
-[data-genre-theme="apocalypse-rad"] .gt-btn-edit { border-color: var(--rad-toxic) !important; color: var(--rad-toxic) !important; }
-[data-genre-theme="apocalypse-rad"] .gt-btn-del { border-color: var(--rad-rust) !important; color: var(--rad-rust) !important; }
+[data-genre-theme="apocalypse-rad"] .gt-btn-edit { border-color: var(--rad-toxic) !important; color: var(--rad-toxic) !important; background: transparent !important; }
+[data-genre-theme="apocalypse-rad"] .gt-btn-del { border-color: var(--rad-rust) !important; color: var(--rad-rust) !important; background: transparent !important; }
 
 [data-genre-theme="apocalypse-rad"] .md-box { background: var(--rad-bg2) !important; border-color: var(--rad-line) !important; }
 [data-genre-theme="apocalypse-rad"] .markdown-body { color: var(--rad-ink); }
@@ -126,3 +138,5 @@
 [data-genre-theme="apocalypse-rad"] .gt-macro-subheader { background: #17140e !important; }
 [data-genre-theme="apocalypse-rad"] .gt-macro-track { background: #17140e !important; }
 [data-genre-theme="apocalypse-rad"] .tl-dot { border-color: var(--rad-bg2) !important; }
+
+[data-genre-theme="apocalypse-rad"] .gt-table { background: var(--rad-bg2) !important; box-shadow: 0 0 0 1px var(--rad-line) !important; }

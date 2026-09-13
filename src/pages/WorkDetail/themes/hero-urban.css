@@ -2,7 +2,7 @@
 /* 히어로 방향 C — 도심의 히어로. 야간 순찰, 젖은 아스팔트 + 사이렌 스윕. 항상 어두운
    세계관으로 고정된다. */
 
-[data-genre-theme="hero-urban"] {
+[data-genre-theme="hero-urban"], [data-footer-theme="hero-urban"] {
   --ux-bg1: #0d1420; --ux-bg2: #060a12; --ux-panel: rgba(20,28,42,.6); --ux-line: rgba(122,142,176,.3);
   --ux-ink: #e8edf5; --ux-ink-soft: #7c8aa0; --ux-amber: #ffb347; --ux-blue: #3a8dff; --ux-red: #ff3b30;
   --ux-font-display: 'Black Han Sans', sans-serif;
@@ -22,7 +22,10 @@
   clip-path: polygon(0% 100%,0% 55%,6% 55%,6% 30%,14% 30%,14% 45%,22% 45%,22% 15%,30% 15%,30% 40%,40% 40%,40% 60%,48% 60%,48% 20%,56% 20%,56% 50%,66% 50%,66% 35%,74% 35%,74% 58%,84% 58%,84% 25%,92% 25%,92% 48%,100% 48%,100% 100%);
 }
 [data-genre-theme="hero-urban"]::after { /* 교차하는 사이렌 불빛 */
-  content: ""; position: absolute; inset: -20%; z-index: 0; pointer-events: none; mix-blend-mode: screen;
+  /* ★ inset:-20%는 이 pseudo-element의 컨테이닝 블록인 zone이 auto-height라서 그 순간의 zone
+     높이를 기준으로 top/bottom이 계산돼 zone 자신보다 커지고, 그게 다시 zone의 scrollHeight를
+     늘리는 문제가 있었다(apocalypse-camp/infect와 같은 종류). 고정 px로 바꿨다. */
+  content: ""; position: absolute; inset: -80px; z-index: 0; pointer-events: none; mix-blend-mode: screen;
   background:
     radial-gradient(ellipse 40% 60% at 0% 30%, rgba(255,59,48,.22), transparent 60%),
     radial-gradient(ellipse 40% 60% at 100% 70%, rgba(58,141,255,.22), transparent 60%);
@@ -74,13 +77,15 @@
 [data-genre-theme="hero-urban"] .gt-card > div:last-child > div span:last-child { color: var(--ux-amber) !important; font-family: var(--ux-font-mono); font-weight: 700 !important; }
 
 [data-genre-theme="hero-urban"] .gt-infobox { background: var(--ux-panel) !important; backdrop-filter: blur(4px); border-color: var(--ux-line) !important; border-top: 3px solid var(--ux-amber) !important; }
-[data-genre-theme="hero-urban"] .gt-infobox-title { font-family: var(--ux-font-display); filter: contrast(1.05) saturate(.92); }
+[data-genre-theme="hero-urban"] .gt-infobox-title { font-family: var(--ux-font-display); filter: contrast(1.05) saturate(.92); background: var(--ux-panel) !important; border-bottom: 3px solid var(--ux-amber) !important; }
+[data-footer-theme="hero-urban"] .gt-footer { background: var(--ux-panel) !important; border-top: 1px solid var(--ux-amber) !important; }
+[data-footer-theme="hero-urban"] .gt-footer-btn:hover { color: var(--ux-amber) !important; }
 [data-genre-theme="hero-urban"] .gt-infobox-image { border-bottom-color: var(--ux-line) !important; filter: contrast(1.1) saturate(.9) brightness(.92); }
-[data-genre-theme="hero-urban"] .gt-infobox-table th { background: #0a1018 !important; color: var(--ux-ink-soft) !important; border-color: var(--ux-line) !important; font-family: var(--ux-font-mono); font-weight: 500 !important; }
-[data-genre-theme="hero-urban"] .gt-infobox-table td { color: var(--ux-ink) !important; border-color: var(--ux-line) !important; font-family: var(--ux-font-body); }
+[data-genre-theme="hero-urban"] .gt-infobox-table th, [data-genre-theme="hero-urban"] .gt-table th { background: #0a1018 !important; color: var(--ux-ink-soft) !important; border-color: var(--ux-line) !important; font-family: var(--ux-font-mono); font-weight: 500 !important; }
+[data-genre-theme="hero-urban"] .gt-infobox-table td, [data-genre-theme="hero-urban"] .gt-table td { color: var(--ux-ink) !important; border-color: var(--ux-line) !important; font-family: var(--ux-font-body); }
 [data-genre-theme="hero-urban"] .gt-infobox-desc { background: var(--ux-panel) !important; color: var(--ux-ink-soft) !important; border-top-color: var(--ux-line) !important; }
-[data-genre-theme="hero-urban"] .gt-btn-edit { border-color: var(--ux-amber) !important; color: var(--ux-amber) !important; }
-[data-genre-theme="hero-urban"] .gt-btn-del { border-color: var(--ux-red) !important; color: var(--ux-red) !important; }
+[data-genre-theme="hero-urban"] .gt-btn-edit { border-color: var(--ux-amber) !important; color: var(--ux-amber) !important; background: transparent !important; }
+[data-genre-theme="hero-urban"] .gt-btn-del { border-color: var(--ux-red) !important; color: var(--ux-red) !important; background: transparent !important; }
 
 [data-genre-theme="hero-urban"] .md-box { background: var(--ux-panel) !important; border-color: var(--ux-line) !important; }
 [data-genre-theme="hero-urban"] .markdown-body { color: var(--ux-ink); }
@@ -118,3 +123,5 @@
 [data-genre-theme="hero-urban"] .gt-macro-subheader { background: #0a1018 !important; }
 [data-genre-theme="hero-urban"] .gt-macro-track { background: #0a1018 !important; }
 [data-genre-theme="hero-urban"] .tl-dot { border-color: var(--ux-bg2) !important; }
+
+[data-genre-theme="hero-urban"] .gt-table { background: var(--ux-panel) !important; box-shadow: 0 0 0 1px var(--ux-line) !important; }

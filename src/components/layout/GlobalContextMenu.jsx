@@ -2,9 +2,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../../api/axiosCore';
+import { IconEyeOff } from '../common/icons/DomainIcons';
+
+const RECENT_EXCLUDED_KEY = 'galpi-recent-excluded';
+const isRecentExcluded = (id) => {
+  try { return JSON.parse(localStorage.getItem(RECENT_EXCLUDED_KEY) || '[]').includes(String(id)); } catch (e) { return false; }
+};
 
 const GlobalContextMenu = () => {
-  const [menu, setMenu] = useState({ isOpen: false, x: 0, y: 0, selectedText: '' });
+  const [menu, setMenu] = useState({ isOpen: false, x: 0, y: 0, selectedText: '', recentWorkId: null, recentWorkTitle: '' });
   const [isSavePrevented, setIsSavePrevented] = useState(() => localStorage.getItem('galpi-prevent-save') !== 'false');
   const navigate = useNavigate();
   const location = useLocation();
@@ -15,15 +21,20 @@ const GlobalContextMenu = () => {
       e.stopPropagation();
       
       const selection = window.getSelection().toString().trim();
+      // "최근 열람 작품" 모달의 행에서 눌렀으면(FAB) 그 작품을 목록에 숨길지/보일지 정하는
+      // 항목을 메뉴에 얹어준다 — data-galpi-recent-id는 RecentModal.jsx가 각 행에 심어둔다.
+      const recentRow = e.target.closest('[data-galpi-recent-id]');
+      const recentWorkId = recentRow?.getAttribute('data-galpi-recent-id') || null;
+      const recentWorkTitle = recentRow?.getAttribute('data-galpi-recent-title') || '';
       let posX = e.clientX;
       let posY = e.clientY;
 
-      const menuWidth = 220; 
+      const menuWidth = 220;
       const menuHeight = 350;
       if (posX + menuWidth > window.innerWidth) posX = window.innerWidth - menuWidth - 10;
       if (posY + menuHeight > window.innerHeight) posY = window.innerHeight - menuHeight - 10;
 
-      setMenu({ isOpen: true, x: posX, y: posY, selectedText: selection });
+      setMenu({ isOpen: true, x: posX, y: posY, selectedText: selection, recentWorkId, recentWorkTitle });
     }
   }, []);
 
@@ -51,6 +62,16 @@ const GlobalContextMenu = () => {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isSavePrevented]);
+
+  const toggleRecentExcluded = () => {
+    const id = String(menu.recentWorkId);
+    let excluded = [];
+    try { excluded = JSON.parse(localStorage.getItem(RECENT_EXCLUDED_KEY) || '[]'); } catch (e) {}
+    const next = excluded.includes(id) ? excluded.filter(x => x !== id) : [...excluded, id];
+    localStorage.setItem(RECENT_EXCLUDED_KEY, JSON.stringify(next));
+    window.dispatchEvent(new Event('galpi-recent-excluded-changed'));
+    setMenu(prev => ({ ...prev, isOpen: false }));
+  };
 
   const toggleSavePrevention = () => {
     const nextState = !isSavePrevented;
@@ -131,6 +152,16 @@ const GlobalContextMenu = () => {
         <>
           <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 0' }}></div>
           <div className="context-item" onClick={addSelectionToMemo} style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>📝 선택 문구 새 메모로</div>
+        </>
+      )}
+
+      {menu.recentWorkId && (
+        <>
+          <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 0' }}></div>
+          <div className="context-item" onClick={toggleRecentExcluded} style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>
+            <IconEyeOff size={14} />
+            {isRecentExcluded(menu.recentWorkId) ? `"${menu.recentWorkTitle}" 최근 목록에 표시` : `"${menu.recentWorkTitle}" 최근 목록에서 숨기기`}
+          </div>
         </>
       )}
 

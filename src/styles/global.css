@@ -10,6 +10,10 @@
     --border-color: #333333; --header-bg: #1e1e1e; --table-bg-alt: #252525;
 }
 
+/* ★ 되돌림: 여기 html/body에 overflow-x:hidden을 걸었더니, 트랙패드로 확대(핀치줌)한
+   상태에서 좌우로 패닝하는 것까지 막혀버리는 부작용이 있었다(확대 중 좌우 이동이 위아래
+   스크롤로만 되던 문제). 화면 밖 position:fixed 요소(FloatingToc, 테마 배경 장식 등)로
+   인한 가로 오버플로우는 루트를 막는 대신 그 요소들 각각에서 contain으로 잡는다. */
 html, body { height: 100%; margin: 0; padding: 0; }
 body {
   display: flex; flex-direction: column; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif;
@@ -104,6 +108,15 @@ body {
   50% { box-shadow: 0 0 0 8px rgba(59,91,219,0); }
 }
 .galpi-theme-pulse { animation: galpi-theme-pulse 0.9s ease-out 2; }
+
+/* 전역 인물 검색(SearchModal)에서 결과를 클릭해 다른 페이지의 캐릭터 카드로 점프했을 때,
+   어떤 카드로 이동했는지 알아보기 쉽도록 잠깐 테두리를 밝혀준다. */
+@keyframes galpi-search-highlight {
+  0% { box-shadow: 0 0 0 0 rgba(59,91,219,0); }
+  20% { box-shadow: 0 0 0 5px rgba(59,91,219,0.5); }
+  100% { box-shadow: 0 0 0 5px rgba(59,91,219,0); }
+}
+.galpi-search-highlight { animation: galpi-search-highlight 1.4s ease-out 1; border-radius: 8px; }
 
 /* =========================================================
    Firefox 브라우저 호환성 대응

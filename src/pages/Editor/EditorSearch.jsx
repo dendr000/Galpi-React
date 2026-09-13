@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './EditorPage.module.css';
 
-const EditorSearch = ({ editorRef, updatePreview }) => {
+const EditorSearch = ({ editorRef, rawText, setRawText }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isReplaceOpen, setIsReplaceOpen] = useState(false);
   const [findText, setFindText] = useState('');
@@ -28,30 +28,27 @@ const EditorSearch = ({ editorRef, updatePreview }) => {
     return () => document.removeEventListener('keydown', handleKeyDown, true);
   }, [isOpen, editorRef]);
 
-  useEffect(() => {
-    executeFind();
-  }, [findText]);
-
-  const executeFind = () => {
-    if (!editorRef.current) return;
-    const text = editorRef.current.value;
-    
-    if (!findText) {
-      setMatches([]);
-      setCurrentIndex(-1);
-      return;
-    }
-
+  // 텍스트 안에서 검색어가 나오는 모든 위치를 찾는 순수 함수 — state/ref를 안 건드리므로
+  // "바꾸기" 직후처럼 아직 rawText state에는 반영 안 됐지만 이미 알고 있는 새 문자열에도
+  // 곧바로 재사용할 수 있다(React 리렌더를 기다리는 stale closure 문제를 피한다).
+  const findMatchesIn = (text, query) => {
+    if (!query) return [];
     const lowerText = text.toLowerCase();
-    const lowerQuery = findText.toLowerCase();
+    const lowerQuery = query.toLowerCase();
     let startIndex = 0;
     const found = [];
-
     while ((startIndex = lowerText.indexOf(lowerQuery, startIndex)) > -1) {
-      found.push({ start: startIndex, end: startIndex + findText.length });
-      startIndex += findText.length;
+      found.push({ start: startIndex, end: startIndex + query.length });
+      startIndex += query.length;
     }
+    return found;
+  };
 
+  // 검색어(findText)가 바뀔 때만 자동으로 첫 매치로 이동+포커스한다 — rawText 변화(=타이핑
+  // 한 글자 한 글자)마다 이걸 돌리면 사용자가 다른 곳에 타이핑 중에도 계속 에디터로 포커스가
+  // 뺏겨서 아예 입력이 안 되는 상태가 된다.
+  useEffect(() => {
+    const found = findMatchesIn(rawText || '', findText);
     setMatches(found);
     if (found.length > 0) {
       setCurrentIndex(0);
@@ -59,7 +56,8 @@ const EditorSearch = ({ editorRef, updatePreview }) => {
     } else {
       setCurrentIndex(-1);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [findText]);
 
   const highlightMatch = (arr, idx) => {
     if (!editorRef.current || arr.length === 0 || idx === -1) return;
@@ -68,7 +66,7 @@ const EditorSearch = ({ editorRef, updatePreview }) => {
     el.focus();
     el.setSelectionRange(match.start, match.end);
 
-    const fullTextToMatch = el.value.substring(0, match.start);
+    const fullTextToMatch = (rawText || '').substring(0, match.start);
     const lines = fullTextToMatch.split('\n');
     const lineHeight = 20; 
     el.scrollTop = (lines.length - 1) * lineHeight - (el.clientHeight / 2);
@@ -83,27 +81,39 @@ const EditorSearch = ({ editorRef, updatePreview }) => {
     highlightMatch(matches, nextIdx);
   };
 
+  // ★ 예전엔 el.value = ... 로 textarea DOM을 직접 고쳤는데, 이 textarea는 React가
+  // value={rawText}로 제어하는 컨트롤드 컴포넌트라서 DOM만 고치면 진짜 상태인 rawText는
+  // 그대로 남는다 — 화면엔 바뀐 것처럼 보여도 저장 버튼을 누르면 rawText(바뀌기 전 내용)가
+  // 그대로 저장되고, 다른 이유로 리렌더가 한 번이라도 일어나면 React가 textarea를 rawText
+  // 값으로 다시 맞추면서 방금 바꾼 내용이 조용히 원래대로 되돌아가는 버그였다. 반드시
+  // setRawText를 통해서 진짜 상태를 갱신해야 한다.
   const handleReplaceCurrent = () => {
-    if (matches.length === 0 || currentIndex === -1 || !editorRef.current) return;
-    const el = editorRef.current;
+    if (matches.length === 0 || currentIndex === -1) return;
     const match = matches[currentIndex];
-    
-    const before = el.value.substring(0, match.start);
-    const after = el.value.substring(match.end);
-    el.value = before + replaceText + after;
-    
-    updatePreview();
-    executeFind(); 
+    const text = rawText || '';
+
+    const before = text.substring(0, match.start);
+    const after = text.substring(match.end);
+    const newText = before + replaceText + after;
+    setRawText(newText);
+
+    // setRawText는 비동기라 이 시점에 rawText를 다시 읽으면 아직 옛날 값이므로, 방금 만든
+    // newText를 그대로 넘겨서 매치 목록을 다시 계산한다.
+    const found = findMatchesIn(newText, findText);
+    setMatches(found);
+    setCurrentIndex(found.length > 0 ? Math.min(currentIndex, found.length - 1) : -1);
   };
 
   const handleReplaceAll = () => {
-    if (!findText || !editorRef.current) return;
-    const el = editorRef.current;
+    if (!findText) return;
     const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(escapeRegExp(findText), 'gi');
-    el.value = el.value.replace(regex, replaceText);
-    updatePreview();
-    executeFind();
+    const newText = (rawText || '').replace(regex, replaceText);
+    setRawText(newText);
+
+    const found = findMatchesIn(newText, findText);
+    setMatches(found);
+    setCurrentIndex(found.length > 0 ? 0 : -1);
   };
 
   if (!isOpen) return null;

@@ -1,0 +1,145 @@
+/* 파일 위치: src/pages/WorkDetail/themes/horror-archive.css */
+/* 괴담/이상현상/괴이 방향 A — 괴담 채록실. 매뉴얼 괴담·SCP식 사건 기록 문서 톤.
+   상시 이펙트는 최소화하고 4~10초 랜덤 간격으로 딱 한 번씩만 도는 트래킹 글리치로
+   긴장을 만든다(계속 번쩍이면 무섭지 않고 시끄럽기만 하다).
+   [data-genre-theme="horror-archive"] 속성 선택자만으로 단독 동작한다. */
+
+[data-genre-theme="horror-archive"], [data-footer-theme="horror-archive"] {
+  --ha-bg: #08090a; --ha-ink: #a8c0a8; --ha-ink-bright: #e4ece2; --ha-line: #2a3a2a;
+  --ha-red: #ff5a5a;
+  --ha-font-display: 'Gothic A1', sans-serif;
+  /* Special Elite는 한글 글리프가 없어 본문 대부분(이 테마는 사실상 전체가 여기 의존)이
+     조용히 시스템 기본 폰트로 대체되던 버그가 있었다 — 한글 지원 폴백을 이어 붙였다. */
+  --ha-font-mono: 'Special Elite', 'Nanum Gothic Coding', monospace;
+}
+/* 이 테마는 항상 어두운 세계관 하나로 고정 — 라이트/다크 토글과 무관하게 동일하게 보인다 */
+
+[data-genre-theme="horror-archive"] {
+  position: relative;
+  background: var(--ha-bg) !important;
+  border-radius: 6px;
+  padding: 24px !important;
+  clip-path: inset(0 round 6px);
+}
+[data-genre-theme="horror-archive"]::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(160,200,170,.035) 0px, transparent 1px, transparent 3px);
+}
+/* 화면은 거의 안 움직이다가 7초 주기로 아주 잠깐만 트래킹 노이즈가 지나간다 */
+[data-genre-theme="horror-archive"]::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: rgba(160,200,170,.02);
+  animation: haFlicker 7s infinite;
+}
+@keyframes haFlicker { 0%,100% { opacity: 0; } 41% { opacity: 0; } 42% { opacity: 1; } 43% { opacity: 0; } 78% { opacity: 0; } 78.5% { opacity: .6; } 79% { opacity: 0; } }
+[data-genre-theme="horror-archive"] > * { position: relative; z-index: 1; }
+
+/* ============================================================
+   컴포넌트 배선 (전부 .gt-* 순수 전역 hook 클래스 타겟)
+   ============================================================ */
+[data-genre-theme="horror-archive"] .gt-hero { border-color: var(--ha-line) !important; box-shadow: none !important; filter: grayscale(.3) contrast(1.05); }
+[data-genre-theme="horror-archive"] .gt-hero-title {
+  font-family: var(--ha-font-display) !important; font-weight: 900; letter-spacing: -.01em;
+  color: var(--ha-ink-bright) !important;
+  position: relative; display: inline-block;
+}
+/* 4~10초 랜덤 간격으로 딱 한 번씩(useGenreTitleGlitch.js가 클래스를 토글) 반투명 붉은
+   레이어가 살짝 어긋나며 스친다 — attr(data-title)로 실제 제목 텍스트를 그대로 복제한다 */
+[data-genre-theme="horror-archive"] .gt-hero-title::before {
+  content: attr(data-title); position: absolute; inset: 0; opacity: 0; color: var(--ha-red); mix-blend-mode: screen; pointer-events: none;
+}
+[data-genre-theme="horror-archive"] .gt-hero-title.gt-title-glitched::before {
+  animation: haTitleGlitch .18s steps(2) 2;
+}
+@keyframes haTitleGlitch { 0% { opacity: .8; clip-path: inset(10% 0 60% 0); transform: translateX(-3px); } 50% { opacity: .8; clip-path: inset(60% 0 5% 0); transform: translateX(3px); } 100% { opacity: 0; } }
+
+/* 커버 이미지가 없을 때의 제목 영역 — 사건 파일 표지처럼 감싼다 */
+[data-genre-theme="horror-archive"] .gt-hero-fallback {
+  background: #0d0f0d !important;
+  border: 1px solid var(--ha-line) !important;
+  border-radius: 0 !important;
+  padding: 20px 26px !important;
+}
+[data-genre-theme="horror-archive"] .gt-hero-fallback .wiki-btn {
+  border-color: var(--ha-ink) !important; color: var(--ha-ink) !important; background: transparent !important; font-family: var(--ha-font-mono); border-radius: 0 !important;
+}
+
+[data-genre-theme="horror-archive"] .gt-category { background: var(--ha-bg) !important; border: 1px solid var(--ha-line) !important; }
+[data-genre-theme="horror-archive"] .gt-category > :first-child { background: var(--ha-bg) !important; color: var(--ha-ink) !important; font-family: var(--ha-font-mono); }
+[data-genre-theme="horror-archive"] .gt-section-select { background: var(--ha-bg) !important; border-color: var(--ha-line) !important; color: var(--ha-ink) !important; font-family: var(--ha-font-mono); }
+[data-genre-theme="horror-archive"] .gt-tag {
+  background: transparent !important; border: 1px solid var(--ha-line) !important; color: var(--ha-ink) !important;
+  font-family: var(--ha-font-mono) !important; border-radius: 0 !important;
+}
+[data-genre-theme="horror-archive"] .gt-tag::before { content: "[ "; color: #4a6a4a; }
+[data-genre-theme="horror-archive"] .gt-tag::after { content: " ]"; color: #4a6a4a; }
+
+[data-genre-theme="horror-archive"] .gt-section-header { border-bottom-color: var(--ha-line) !important; }
+[data-genre-theme="horror-archive"] .gt-section-title { font-family: var(--ha-font-display) !important; font-weight: 700; color: var(--ha-ink-bright) !important; }
+
+[data-genre-theme="horror-archive"] .gt-relation-group { background: var(--ha-bg) !important; border: 1px solid var(--ha-line) !important; }
+[data-genre-theme="horror-archive"] .gt-relation-header { color: var(--ha-ink-bright) !important; font-family: var(--ha-font-mono); }
+
+/* 인물 카드 — 사건 파일 한 장. 오른쪽 위에 상태 스탬프(대사코드로 아무 문구나 넣을 수 있게
+   하려 했지만, 실제 데이터엔 없는 필드라 지금은 고정 문구로 둔다) */
+[data-genre-theme="horror-archive"] .gt-card {
+  background: #0d0f0d !important; border: 1px solid var(--ha-line) !important; border-radius: 0 !important;
+  box-shadow: none !important; height: auto !important; position: relative;
+  transition: border-color .2s;
+}
+[data-genre-theme="horror-archive"] .gt-card:hover { border-color: #4a6a4a !important; }
+[data-genre-theme="horror-archive"] .gt-card-img { border-radius: 0 !important; filter: grayscale(.6) contrast(1.1); }
+[data-genre-theme="horror-archive"] .gt-card h4 { font-family: var(--ha-font-display) !important; font-weight: 700; color: var(--ha-ink-bright) !important; font-size: 13px !important; }
+[data-genre-theme="horror-archive"] .gt-card h4 span { color: var(--ha-ink) !important; }
+[data-genre-theme="horror-archive"] .gt-card > div:last-child > div span:first-child { color: var(--ha-ink) !important; font-family: var(--ha-font-mono); font-size: 11px; }
+[data-genre-theme="horror-archive"] .gt-card > div:last-child > div span:last-child { color: var(--ha-ink-bright) !important; font-family: var(--ha-font-mono); font-weight: 400 !important; }
+
+[data-genre-theme="horror-archive"] .gt-infobox { background: var(--ha-bg) !important; border: 1px solid var(--ha-line) !important; }
+[data-genre-theme="horror-archive"] .gt-infobox-title { font-family: var(--ha-font-display) !important; background: #0d0f0d !important; }
+[data-footer-theme="horror-archive"] .gt-footer { background: #0d0f0d !important; border-top: 1px solid var(--ha-line) !important; }
+[data-footer-theme="horror-archive"] .gt-footer-btn:hover { color: var(--ha-ink-bright) !important; }
+[data-genre-theme="horror-archive"] .gt-infobox-image { border-bottom-color: var(--ha-line) !important; filter: grayscale(.6) contrast(1.1); }
+[data-genre-theme="horror-archive"] .gt-infobox-table th, [data-genre-theme="horror-archive"] .gt-table th { background: #0d0f0d !important; color: var(--ha-ink) !important; border-color: var(--ha-line) !important; font-family: var(--ha-font-mono); font-weight: 500 !important; }
+[data-genre-theme="horror-archive"] .gt-infobox-table td, [data-genre-theme="horror-archive"] .gt-table td { color: var(--ha-ink-bright) !important; border-color: var(--ha-line) !important; font-family: var(--ha-font-mono); }
+[data-genre-theme="horror-archive"] .gt-infobox-desc { background: var(--ha-bg) !important; color: var(--ha-ink) !important; border-top-color: var(--ha-line) !important; font-family: var(--ha-font-mono); }
+[data-genre-theme="horror-archive"] .gt-btn-edit { border-color: var(--ha-ink) !important; color: var(--ha-ink) !important; background: transparent !important; }
+[data-genre-theme="horror-archive"] .gt-btn-del { border-color: var(--ha-red) !important; color: var(--ha-red) !important; background: transparent !important; }
+
+[data-genre-theme="horror-archive"] .md-box { background: var(--ha-bg) !important; border: 1px solid var(--ha-line) !important; }
+[data-genre-theme="horror-archive"] .markdown-body { color: var(--ha-ink); font-family: var(--ha-font-mono); }
+[data-genre-theme="horror-archive"] .markdown-body h1,
+[data-genre-theme="horror-archive"] .markdown-body h2 { font-family: var(--ha-font-display) !important; font-weight: 700; color: var(--ha-ink-bright) !important; border-color: var(--ha-line) !important; }
+[data-genre-theme="horror-archive"] .md-h1 { border-color: var(--ha-ink) !important; color: var(--ha-ink-bright) !important; }
+
+[data-genre-theme="horror-archive"] .gt-quicknav { background: var(--ha-bg) !important; border: 1px solid var(--ha-line) !important; }
+[data-genre-theme="horror-archive"] .gt-quicknav-btn { font-family: var(--ha-font-mono); border-color: var(--ha-ink) !important; border-radius: 0 !important; }
+
+/* 하위 문서 목록 */
+[data-genre-theme="horror-archive"] .gt-page-count { color: var(--ha-ink) !important; font-family: var(--ha-font-mono); }
+[data-genre-theme="horror-archive"] .gt-page-card { background: #0d0f0d !important; border-color: var(--ha-line) !important; border-radius: 0 !important; }
+[data-genre-theme="horror-archive"] .gt-page-card:hover { border-color: #4a6a4a !important; }
+[data-genre-theme="horror-archive"] .gt-page-title { font-family: var(--ha-font-display) !important; font-weight: 700; color: var(--ha-ink-bright) !important; }
+[data-genre-theme="horror-archive"] .gt-page-desc { color: var(--ha-ink) !important; font-family: var(--ha-font-mono) !important; }
+[data-genre-theme="horror-archive"] .gt-page-empty { background: var(--ha-bg) !important; border-color: var(--ha-line) !important; color: var(--ha-ink) !important; font-family: var(--ha-font-mono); }
+
+/* 매크로 위젯(스탯/게이지/타임라인/관계도 등) — 문자열로 즉시 조립되는 위젯이라
+   인라인 style="var(--...)"가 이미 박혀 있다. plain 전역 클래스(.gt-macro-*)로 !important 덮어쓴다 */
+[data-genre-theme="horror-archive"] .gt-macro-box { background: #0d0f0d !important; border-color: var(--ha-line) !important; fill: #0d0f0d !important; }
+[data-genre-theme="horror-archive"] .gt-macro-line { stroke: var(--ha-line) !important; border-color: var(--ha-line) !important; }
+[data-genre-theme="horror-archive"] .gt-macro-ink { color: var(--ha-ink-bright) !important; fill: var(--ha-ink-bright) !important; font-family: var(--ha-font-mono); }
+[data-genre-theme="horror-archive"] .gt-macro-ink-soft { color: var(--ha-ink) !important; fill: var(--ha-ink) !important; stroke: var(--ha-ink) !important; font-family: var(--ha-font-mono); }
+[data-genre-theme="horror-archive"] .gt-macro-accent { color: var(--ha-red) !important; fill: var(--ha-red) !important; stroke: var(--ha-red) !important; border-color: var(--ha-red) !important; }
+[data-genre-theme="horror-archive"] .gt-macro-accent-bg { background: var(--ha-red) !important; color: var(--ha-bg) !important; }
+[data-genre-theme="horror-archive"] .gt-macro-accent-dot { fill: var(--ha-red) !important; }
+[data-genre-theme="horror-archive"] .gt-macro-accent-stroke { stroke: var(--ha-red) !important; }
+[data-genre-theme="horror-archive"] .gt-macro-inksoft-stroke { stroke: var(--ha-ink) !important; }
+[data-genre-theme="horror-archive"] .gt-macro-subheader { background: #0d0f0d !important; }
+[data-genre-theme="horror-archive"] .gt-macro-track { background: #0d0f0d !important; }
+[data-genre-theme="horror-archive"] .tl-dot { border-color: var(--ha-bg) !important; }
+
+[data-genre-theme="horror-archive"] .galpi-ext-quote {
+  border: 1px solid var(--ha-line) !important; background: var(--ha-bg) !important; color: var(--ha-ink-bright) !important;
+  font-family: var(--ha-font-mono) !important; text-align: left !important; box-shadow: none !important;
+}
+[data-genre-theme="horror-archive"] .galpi-ext-quote::before { content: "> "; color: var(--ha-ink); }
+
+[data-genre-theme="horror-archive"] .gt-table { background: var(--ha-bg) !important; box-shadow: 0 0 0 1px var(--ha-line) !important; }

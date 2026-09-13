@@ -20,6 +20,8 @@ const IconItalic = () => <svg viewBox="0 0 24 24" width="16" height="16" stroke=
 const IconStrike = () => <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4H9a3 3 0 00-2.83 4"/><path d="M14 12a4 4 0 010 8H6"/><line x1="4" y1="12" x2="20" y2="12"/></svg>;
 const IconEraser = () => <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 20H7L3 16a2 2 0 010-2.83l9-9a2 2 0 012.83 0l4 4a2 2 0 010 2.83L14 15"/><path d="M18 11l-5 5"/></svg>;
 const IconUndo = () => <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 015.5 5.5v0a5.5 5.5 0 01-5.5 5.5H11"/></svg>;
+const IconHeaderCol = () => <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16" fill="none"/><rect x="3" y="4" width="6" height="16" fill="currentColor" stroke="none" opacity="0.35"/></svg>;
+const IconHeaderRow = () => <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18" fill="none"/><rect x="3" y="4" width="18" height="6" fill="currentColor" stroke="none" opacity="0.35"/></svg>;
 const IconRedo = () => <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 004 14.5v0A5.5 5.5 0 009.5 20H13"/></svg>;
 
 function TableToolbar({
@@ -29,13 +31,36 @@ function TableToolbar({
   deleteFocusedRow, deleteFocusedCol,
   mergeRight, mergeDown, unmerge,
   undo, redo, canUndo, canRedo,
-  toggleFormat, handleAlignChange, clearFormatting
+  toggleFormat, toggleHeaderCol, toggleRowHeader, handleAlignChange, clearFormatting, handleCellChange
 }) {
   console.log("[TableToolbar] 컴포넌트 렌더링 됨");
 
   const activeCell = focusedCell ? grid[focusedCell.r][focusedCell.c] : null;
   const hasActiveArea = !!activeCell || (selectedCellKeys && selectedCellKeys.length > 0);
   const isMerged = activeCell ? (activeCell.rowSpan > 1 || activeCell.colSpan > 1) : false;
+  // 0번 행이 옵트아웃(<nr>) 되지 않은 이상 계속 헤더이므로, 포커스와 무관하게 0번 행 기준으로 판단
+  const isRowHeaderOn = grid.length > 0 && grid[0].some(c => c && !c.noRowHeader);
+
+  // 텍스트를 드래그로 부분 선택한 상태에서 서식 버튼을 누르면 선택된 부분만 마커로 감싸고,
+  // 선택 없이 누르면 예전처럼 셀 전체 토글로 동작한다 — 부분 굵게/기울임/취소선을 지원하기 위함.
+  // 버튼에 onMouseDown={e => e.preventDefault()}를 같이 걸어둬야 클릭해도 textarea 포커스가
+  // 안 풀려서 selectionStart/End가 살아있다.
+  const wrapSelectionOrToggle = (formatType, marker) => {
+    const active = document.activeElement;
+    if (active && active.tagName === 'TEXTAREA' && active.selectionStart !== active.selectionEnd && focusedCell) {
+      const start = active.selectionStart, end = active.selectionEnd;
+      const text = active.value;
+      const selected = text.substring(start, end);
+      const newText = text.substring(0, start) + marker + selected + marker + text.substring(end);
+      handleCellChange(focusedCell.r, focusedCell.c, newText);
+      requestAnimationFrame(() => {
+        active.focus();
+        active.setSelectionRange(start + marker.length, end + marker.length);
+      });
+    } else {
+      toggleFormat(formatType);
+    }
+  };
 
   const containerStyle = {
     display: 'flex', flexDirection: 'column', gap: '12px', padding: '12px 16px',
@@ -93,7 +118,15 @@ function TableToolbar({
           <button type="button" onClick={mergeDown} disabled={!activeCell} title="아래쪽 칸과 병합" style={getBtnStyle(false, !activeCell)}><IconMergeDown /></button>
           <button type="button" onClick={unmerge} disabled={!isMerged} title="병합 해제" style={getBtnStyle(false, !isMerged)}><IconSplit /></button>
         </div>
-        
+
+        <div style={dividerStyle} />
+
+        <div style={groupStyle}>
+          <span style={labelStyle}>헤더:</span>
+          <button type="button" onClick={toggleRowHeader} disabled={grid.length === 0} title="맨 위 행을 헤더로 지정/해제" style={getBtnStyle(isRowHeaderOn, grid.length === 0)}><IconHeaderRow /> 행</button>
+          <button type="button" onClick={toggleHeaderCol} disabled={!activeCell} title="포커스된 칸이 속한 열 전체를 헤더로 지정/해제" style={getBtnStyle(activeCell?.headCol, !activeCell)}><IconHeaderCol /> 열</button>
+        </div>
+
         <div style={{ marginLeft: 'auto', ...groupStyle }}>
           <button type="button" onClick={undo} disabled={!canUndo} title="실행 취소" style={getBtnStyle(false, !canUndo)}><IconUndo /></button>
           <button type="button" onClick={redo} disabled={!canRedo} title="다시 실행" style={getBtnStyle(false, !canRedo)}><IconRedo /></button>
@@ -113,9 +146,9 @@ function TableToolbar({
 
         <div style={groupStyle}>
           <span style={labelStyle}>서식:</span>
-          <button type="button" onClick={() => toggleFormat('bold')} disabled={!hasActiveArea} title="굵게" style={getBtnStyle(activeCell?.bold, !hasActiveArea)}><IconBold /></button>
-          <button type="button" onClick={() => toggleFormat('italic')} disabled={!hasActiveArea} title="기울임" style={getBtnStyle(activeCell?.italic, !hasActiveArea)}><IconItalic /></button>
-          <button type="button" onClick={() => toggleFormat('strike')} disabled={!hasActiveArea} title="취소선" style={getBtnStyle(activeCell?.strike, !hasActiveArea)}><IconStrike /></button>
+          <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => wrapSelectionOrToggle('bold', '~')} disabled={!hasActiveArea} title="굵게 (일부만 선택하면 선택한 부분만 적용)" style={getBtnStyle(activeCell?.bold, !hasActiveArea)}><IconBold /></button>
+          <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => wrapSelectionOrToggle('italic', '_')} disabled={!hasActiveArea} title="기울임 (일부만 선택하면 선택한 부분만 적용)" style={getBtnStyle(activeCell?.italic, !hasActiveArea)}><IconItalic /></button>
+          <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => wrapSelectionOrToggle('strike', '--')} disabled={!hasActiveArea} title="취소선 (일부만 선택하면 선택한 부분만 적용)" style={getBtnStyle(activeCell?.strike, !hasActiveArea)}><IconStrike /></button>
           
           <div style={dividerStyle} />
           

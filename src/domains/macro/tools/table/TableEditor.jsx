@@ -15,7 +15,7 @@ export const TableEditor = ({ selectedText, onInsert, onCancel }) => {
     focusedCell, setFocusedCell, initGrid, handleCellChange, handleAlignChange,
     insertRowAbove, insertRowBelow, insertColLeft, insertColRight, deleteFocusedRow, deleteFocusedCol,
     mergeRight, mergeDown, unmerge,
-    toggleFormat, clearFormatting, clearSelectedContents, pasteToSelectedCells,
+    toggleFormat, toggleHeaderCol, toggleRowHeader, clearFormatting, clearSelectedContents, pasteToSelectedCells,
     selectedCellKeys, setSelectedCellKeys,
     undo, redo, canUndo, canRedo
   } = useTableGrid();
@@ -57,9 +57,12 @@ export const TableEditor = ({ selectedText, onInsert, onCancel }) => {
           redo={redo} 
           canUndo={canUndo} 
           canRedo={canRedo}
-          toggleFormat={toggleFormat} 
-          handleAlignChange={handleAlignChange} 
+          toggleFormat={toggleFormat}
+          toggleHeaderCol={toggleHeaderCol}
+          toggleRowHeader={toggleRowHeader}
+          handleAlignChange={handleAlignChange}
           clearFormatting={clearFormatting}
+          handleCellChange={handleCellChange}
         />
 
         <TableGrid 

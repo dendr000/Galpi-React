@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 import useSettingStore from '../../store/useSettingStore';
 import { IconGear, IconX, IconEye, IconKeyboard, IconLock } from './icons/SettingsIcon';
+import GateSettingsPanel from './GateSettingsPanel';
 
 const SettingModal = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('appearance');
-  const { fontSize, lineHeight, fontFamily, layoutWidth, isCustomCursor, cursorColor, isStarryBackground, autoSaveInterval, bossKey, blindTheme, bootLock, hiddenCmd, updateSetting } = useSettingStore();
+  const { fontSize, lineHeight, fontFamily, layoutWidth, isCustomCursor, cursorColor, isStarryBackground, autoSaveInterval, bossKey, blindTheme, updateSetting } = useSettingStore();
 
   if (!isOpen) return null;
 
@@ -175,18 +176,7 @@ const SettingModal = ({ isOpen, onClose }) => {
               </div>
             )}
 
-            {activeTab === 'security' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <label style={{ fontWeight: 'bold', fontSize: '14px', color: '#e53e3e', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={bootLock} onChange={e => updateSetting('bootLock', e.target.checked)} style={{ accentColor: '#e53e3e', width: '16px', height: '16px', margin: 0 }} /> 
-                  서버 기동 시 사이트 전체 보안 잠금
-                </label>
-                <label style={{ fontWeight: 'bold', fontSize: '14px', color: 'var(--text-primary)' }}>
-                  히든 암호 해제 명령어: 
-                  <input type="text" value={hiddenCmd} onChange={e => updateSetting('hiddenCmd', e.target.value)} placeholder="/unlock" style={inputStyle} />
-                </label>
-              </div>
-            )}
+            {activeTab === 'security' && <GateSettingsPanel />}
           </div>
         </div>
       </div>

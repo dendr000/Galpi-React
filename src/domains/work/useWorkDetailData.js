@@ -39,6 +39,7 @@ export const useWorkDetailData = () => {
   const [formSwaps, setFormSwaps] = useState(() => JSON.parse(localStorage.getItem(`galpi-swaps-${workId}`) || "{}"));
   const [isBatchImgModalOpen, setIsBatchImgModalOpen] = useState(false);
   const [batchImgY, setBatchImgY] = useState(50);
+  const [batchImgX, setBatchImgX] = useState(50);
 
   // 분류 기준 로컬 스토리지 동기화 세션
   useEffect(() => {
@@ -83,7 +84,11 @@ export const useWorkDetailData = () => {
         setCharacters(validChars);
         setWikiPages(pRes.data);
         
-        const savedY = sessionStorage.getItem('galpi-note-scroll-y');
+        // ★ 이 키가 작품별로 나뉘어 있지 않고 전역이었어서, 다른(주로 더 긴) 작품에서
+        // 저장된 스크롤 좌표가 지금 작품(주로 더 짧음)에 그대로 적용돼 브라우저가 그 좌표를
+        // 알아서 페이지 최대 스크롤 높이로 clamp해버리는 바람에 "저장하고 돌아오면 항상
+        // 캐릭터 그리드 맨 아래로 가버린다"는 증상으로 나타났다. 작품 ID로 스코프를 나눠서 고침.
+        const savedY = sessionStorage.getItem(`galpi-note-scroll-y-${workId}`);
         if (savedY) {
           console.log(`[useWorkDetailData] 이전 스크롤 세션 좌표 감지 완료. 포지션 이동 집행: ${savedY}px`);
           setTimeout(() => window.scrollTo({ top: parseInt(savedY, 10), behavior: 'smooth' }), 300);
@@ -141,12 +146,12 @@ export const useWorkDetailData = () => {
 
   // 실시간 스크롤 트래킹 백업 레이어
   useEffect(() => {
-    const trackScroll = () => { 
-      if (window.scrollY > 0) sessionStorage.setItem('galpi-note-scroll-y', window.scrollY); 
+    const trackScroll = () => {
+      if (window.scrollY > 0) sessionStorage.setItem(`galpi-note-scroll-y-${workId}`, window.scrollY);
     };
     window.addEventListener('scroll', trackScroll);
     return () => window.removeEventListener('scroll', trackScroll);
-  }, []);
+  }, [workId]);
 
   return {
     workId,
@@ -178,6 +183,8 @@ export const useWorkDetailData = () => {
     isBatchImgModalOpen,
     setIsBatchImgModalOpen,
     batchImgY,
-    setBatchImgY
+    setBatchImgY,
+    batchImgX,
+    setBatchImgX
   };
 };

@@ -49,7 +49,9 @@ const WorkCover = ({ work, workId, coverExt, coverUrl, coverY, setCoverY, isCove
         >
           <div className={styles.heroOverlay}></div>
           <div className={styles.heroTitleContainer}>
-            <h1 className={`${styles.heroTitle} gt-hero-title`}>{work.title}</h1>
+            {/* data-title: 사이버펑크 네온/그래피티 테마가 CSS content:attr()로 복제 글리치
+                레이어를 그리는 데 쓴다 (themes/cyberpunk-neon.css, cyberpunk-graffiti.css) */}
+            <h1 className={`${styles.heroTitle} gt-hero-title`} data-title={work.title}>{work.title}</h1>
           </div>
           <div className={`${styles.coverControls} ${isCoverEdit ? styles.activeDrag : ''}`}>
             {!isCoverEdit ? (
@@ -65,7 +67,7 @@ const WorkCover = ({ work, workId, coverExt, coverUrl, coverY, setCoverY, isCove
         </div>
       ) : (
         <div className={`${styles.wikiTitleArea} gt-hero gt-hero-fallback`}>
-          <h1 className={`${styles.wikiTitle} gt-hero-title`}>{work.title}</h1>
+          <h1 className={`${styles.wikiTitle} gt-hero-title`} data-title={work.title}>{work.title}</h1>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button className="wiki-btn" style={{ background: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }} onClick={() => navigate(`/edit?type=work&action=edit&id=${workId}`)}>⚙️ 작품 설정</button>
           </div>

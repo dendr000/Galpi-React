@@ -8,10 +8,10 @@ const Footer = () => {
   const { activeTool, toggleTool, closeTool } = useFooter();
 
   return (
-    <div className={styles['footer-wrapper']}>
+    <div className={`${styles['footer-wrapper']} gt-footer`}>
       <div style={{ display: 'flex', gap: '10px' }}>
-        <button 
-          className={`${styles['footer-btn']} ${activeTool === 'font' ? styles['active'] : ''}`}
+        <button
+          className={`${styles['footer-btn']} gt-footer-btn ${activeTool === 'font' ? styles['active'] : ''}`}
           onClick={() => toggleTool('font')}
           title="폰트 딕셔너리 관리"
         >

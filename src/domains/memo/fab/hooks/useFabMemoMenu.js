@@ -52,7 +52,7 @@ export const useFabMemoMenu = ({ memoData, setMemoData, activeMemoId, setActiveM
     localStorage.setItem('galpi-memos', JSON.stringify(newData));
 
     try {
-      const isEdit = !String(targetMemo.id).startsWith("local_") && String(targetMemo.id).length < 13;
+      const isEdit = !String(targetMemo.id).startsWith("local_");
       await api[isEdit ? 'put' : 'post'](`/api/memos${isEdit ? `/${targetMemo.id}` : ''}`, updatedMemo);
     } catch(e) {}
     setMenuData({ isOpen: false, x: 0, y: 0, memoId: null });
@@ -74,7 +74,7 @@ export const useFabMemoMenu = ({ memoData, setMemoData, activeMemoId, setActiveM
     localStorage.setItem('galpi-memos', JSON.stringify(newData));
 
     try {
-      const isEdit = !String(menuData.memoId).startsWith("local_") && String(menuData.memoId).length < 13;
+      const isEdit = !String(menuData.memoId).startsWith("local_");
       if (isEdit) await api.delete(`/api/memos/${menuData.memoId}`);
     } catch(e) {}
     

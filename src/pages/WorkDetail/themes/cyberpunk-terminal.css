@@ -1,7 +1,7 @@
 /* 파일 위치: src/pages/WorkDetail/themes/cyberpunk-terminal.css */
 /* 사이버펑크 방향 B — 터미널 해커. 그린 포스포 CRT, 스캔라인 + 미세 플리커. */
 
-[data-genre-theme="cyberpunk-terminal"] {
+[data-genre-theme="cyberpunk-terminal"], [data-footer-theme="cyberpunk-terminal"] {
   --cp-bg: #030503; --cp-ink: #57ffa0; --cp-ink-dim: #2fae6d; --cp-ink-bright: #b8ffd6;
   --cp-line: #1f7a4c;
   /* Share Tech Mono는 한글 글리프가 없어 한글 텍스트(이 테마는 사실상 전체 본문이 여기에
@@ -35,6 +35,15 @@
    ============================================================ */
 [data-genre-theme="cyberpunk-terminal"] .gt-hero { border-color: var(--cp-line) !important; box-shadow: none !important; filter: grayscale(0.3) contrast(1.05); }
 [data-genre-theme="cyberpunk-terminal"] .gt-hero-title { font-family: var(--cp-font-mono) !important; color: var(--cp-ink) !important; text-shadow: 0 0 6px rgba(87,255,160,0.6); }
+
+/* 진입 시 제목을 부팅 시퀀스처럼 타이핑해서 보여준다 (useGenreTitleBoot.js가 텍스트를
+   글자 단위로 채워 넣고, 이 캐럿만 CSS로 깜빡인다) */
+[data-genre-theme="cyberpunk-terminal"] .gt-boot-caret {
+  display: inline-block; width: 0.5em; height: 1em; background: var(--cp-ink);
+  vertical-align: -0.15em; margin-left: 3px; animation: cpCaretBlink 1s step-end infinite;
+  box-shadow: 0 0 6px rgba(87,255,160,0.6);
+}
+@keyframes cpCaretBlink { 50% { opacity: 0; } }
 
 /* 커버 이미지가 없을 때의 제목 영역 — 터미널 윈도우 프레임처럼 감싼다 */
 [data-genre-theme="cyberpunk-terminal"] .gt-hero-fallback {
@@ -77,12 +86,14 @@
 
 [data-genre-theme="cyberpunk-terminal"] .gt-infobox { background: var(--cp-bg) !important; border: 1px solid var(--cp-line) !important; }
 [data-genre-theme="cyberpunk-terminal"] .gt-infobox-title { font-family: var(--cp-font-mono) !important; background: #0a1a10 !important; }
+[data-footer-theme="cyberpunk-terminal"] .gt-footer { background: #0a1a10 !important; border-top: 1px solid var(--cp-ink) !important; }
+[data-footer-theme="cyberpunk-terminal"] .gt-footer-btn:hover { color: var(--cp-ink) !important; }
 [data-genre-theme="cyberpunk-terminal"] .gt-infobox-image { border-bottom-color: var(--cp-line) !important; filter: grayscale(0.5) sepia(0.3) hue-rotate(60deg) saturate(2); }
-[data-genre-theme="cyberpunk-terminal"] .gt-infobox-table th { background: #0a1a10 !important; color: var(--cp-ink-dim) !important; border-color: var(--cp-line) !important; font-family: var(--cp-font-mono); font-weight: 500 !important; }
-[data-genre-theme="cyberpunk-terminal"] .gt-infobox-table td { color: var(--cp-ink) !important; border-color: var(--cp-line) !important; font-family: var(--cp-font-mono); }
+[data-genre-theme="cyberpunk-terminal"] .gt-infobox-table th, [data-genre-theme="cyberpunk-terminal"] .gt-table th { background: #0a1a10 !important; color: var(--cp-ink-dim) !important; border-color: var(--cp-line) !important; font-family: var(--cp-font-mono); font-weight: 500 !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-infobox-table td, [data-genre-theme="cyberpunk-terminal"] .gt-table td { color: var(--cp-ink) !important; border-color: var(--cp-line) !important; font-family: var(--cp-font-mono); }
 [data-genre-theme="cyberpunk-terminal"] .gt-infobox-desc { background: var(--cp-bg) !important; color: var(--cp-ink-dim) !important; border-top-color: var(--cp-line) !important; font-family: var(--cp-font-mono); }
-[data-genre-theme="cyberpunk-terminal"] .gt-btn-edit { border-color: var(--cp-ink) !important; color: var(--cp-ink) !important; }
-[data-genre-theme="cyberpunk-terminal"] .gt-btn-del { border-color: #ff5a5a !important; color: #ff5a5a !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-btn-edit { border-color: var(--cp-ink) !important; color: var(--cp-ink) !important; background: transparent !important; }
+[data-genre-theme="cyberpunk-terminal"] .gt-btn-del { border-color: #ff5a5a !important; color: #ff5a5a !important; background: transparent !important; }
 
 [data-genre-theme="cyberpunk-terminal"] .md-box { background: var(--cp-bg) !important; border: 1px solid var(--cp-line) !important; }
 [data-genre-theme="cyberpunk-terminal"] .markdown-body { color: var(--cp-ink); font-family: var(--cp-font-mono); }
@@ -121,3 +132,5 @@
   font-family: var(--cp-font-mono) !important; text-align: left !important; box-shadow: none !important;
 }
 [data-genre-theme="cyberpunk-terminal"] .galpi-ext-quote::before { content: "> "; color: var(--cp-ink-dim); }
+
+[data-genre-theme="cyberpunk-terminal"] .gt-table { background: var(--cp-bg) !important; box-shadow: 0 0 0 1px var(--cp-line) !important; }

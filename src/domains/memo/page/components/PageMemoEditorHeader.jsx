@@ -35,13 +35,18 @@ const PageMemoEditorHeader = ({
         {/* 버튼 구역: 텍스트를 제거하고 32x32 정사각형 아이콘 툴팁 버튼으로 압축 */}
         <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
           
-          <select 
-            style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border-color)', fontSize: '12px', fontWeight: 'bold', background: 'var(--bg-color)', color: 'var(--text-primary)', outline: 'none', cursor: 'pointer', maxWidth: '100px' }} 
-            value={editData.folder} 
+          <select
+            style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border-color)', fontSize: '12px', fontWeight: 'bold', background: 'var(--bg-color)', color: 'var(--text-primary)', outline: 'none', cursor: 'pointer', maxWidth: '100px' }}
+            value={editData.folder}
             onChange={e => setEditData({ ...editData, folder: e.target.value })}
             disabled={isReadOnly}
             title="폴더 이동"
           >
+            {/* ★ "웹툰"처럼 하위 폴더만 있고 그 경로 자체에 메모가 하나도 없는 상위 폴더를 선택한
+                채로 새 메모를 만들면, folders 목록엔 그 경로가 아예 없어서 select가 옵션을 못 찾고
+                조용히 첫 번째("기타")를 보여주는 버그가 있었다 — 실제 데이터는 맞게 들어가는데
+                화면에는 엉뚱한 폴더로 저장된 것처럼 보였다. 지금 값이 목록에 없으면 끼워 넣는다. */}
+            {!folders.includes(editData.folder) && editData.folder && <option value={editData.folder}>{editData.folder}</option>}
             {folders.filter(f => f !== '전체 메모').map(f => <option key={f} value={f}>{f}</option>)}
           </select>
 

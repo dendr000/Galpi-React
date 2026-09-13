@@ -21,7 +21,14 @@ const PageMemoFormatBar = (props) => {
       }}
     >
       <MemoFormatMainBar {...props} />
-      {props.tableCtrlVisible && <MemoTableControlBar {...props} />}
+      {/* ★ 표가 있으면 이 자리를 항상 미리 확보해두고(visibility만 토글) 표 칸을 처음 클릭할 때
+          컨트롤바가 마운트되며 생기는 레이아웃 시프트(에디터가 밀려서 한글 조합이 깨지던 버그)를
+          원천 차단한다 — 자세한 배경은 useTableFocus.js 참고. */}
+      {props.hasTable && (
+        <div style={{ visibility: props.tableCtrlVisible ? 'visible' : 'hidden' }}>
+          <MemoTableControlBar {...props} />
+        </div>
+      )}
       {props.findReplaceVisible && <MemoFindReplaceBar {...props} />}
     </div>
   );

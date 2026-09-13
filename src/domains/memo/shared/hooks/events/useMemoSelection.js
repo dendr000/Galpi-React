@@ -87,7 +87,10 @@ export const useMemoSelection = ({ editorRef, updateCharCount }) => {
     if (editor && editor.classList.contains('galpi-outer-select')) {
       e.preventDefault();
       const clone = editor.cloneNode(true);
-      const ignores = clone.querySelectorAll('[contenteditable="false"], [data-temp-disabled="true"]');
+      // ★ 전체선택 시 표/아코디언을 격리하려고 붙여둔 임시 표식(data-temp-disabled)만 걸러낸다.
+      // 예전엔 [contenteditable="false"]도 같이 걸러냈는데, 각주 마커([1])도 항상
+      // contenteditable="false"라서 전체선택 복사할 때마다 각주가 통째로 사라지는 버그였다.
+      const ignores = clone.querySelectorAll('[data-temp-disabled="true"]');
       ignores.forEach(el => el.remove());
       
       clone.style.position = 'absolute'; clone.style.left = '-9999px';

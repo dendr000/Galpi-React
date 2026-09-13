@@ -175,6 +175,11 @@
   background: var(--table-bg-alt) !important;
 }
 
+/* 속성(열) 삭제 버튼은 평소엔 숨겨두고, 그 헤더 칸에 마우스를 올렸을 때만 보이게 한다 —
+   ◀ 관계 ▶ 처럼 화살표+이름만 남기고 늘 깔끔하게 두려는 의도. */
+:global(.colDeleteBtn) { opacity: 0; transition: opacity .12s ease; }
+:global(.colHeaderCell:hover .colDeleteBtn) { opacity: 1; }
+
 :global(.input) { 
   width: 100%; 
   padding: 12px 10px; 

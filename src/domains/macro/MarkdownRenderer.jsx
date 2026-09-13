@@ -12,7 +12,8 @@ import {
   createChatHtml,
   createSpoilerHtml,
   createAlignmentChartHtml,
-  createTabHtml
+  createTabHtml,
+  createLogTabHtml
 } from './utils/macroGenerators';
 import { processMarkdownHtml } from './utils/htmlProcessor';
 import { useFootnoteTooltip } from './hooks/useFootnoteTooltip';

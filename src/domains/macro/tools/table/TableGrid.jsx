@@ -89,12 +89,13 @@ function TableGrid({
               {row.map((cell, cIndex) => {
                 if (cell.isHidden) return null;
 
+                const isHeaderCell = (rIndex === 0 && !cell.noRowHeader) || cell.headCol;
                 const cellStyle = {
                   textAlign: cell.align,
                   fontWeight: cell.bold ? 'bold' : 'normal',
                   fontStyle: cell.italic ? 'italic' : 'normal',
                   textDecoration: cell.strike ? 'line-through' : 'none',
-                  backgroundColor: (rIndex === 0) ? 'var(--table-bg-alt, #f6f8fa)' : 'transparent',
+                  backgroundColor: isHeaderCell ? 'var(--table-bg-alt, #f6f8fa)' : 'transparent',
                 };
 
                 const cellKey = `${rIndex},${cIndex}`;
@@ -166,7 +167,7 @@ function TableGrid({
                           clearSelectedContents();
                         }
                       }}
-                      placeholder={rIndex === 0 ? "헤더" : "내용"}
+                      placeholder={isHeaderCell ? "헤더" : "내용"}
                     />
                   </td>
                 );

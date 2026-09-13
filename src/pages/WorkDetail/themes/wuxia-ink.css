@@ -2,7 +2,7 @@
 /* 무협 방향 A — 묵화(墨畵). 화선지 위 수묵 잉크, 흑백 고대비 + 주홍 인장.
    기존 '묵향'(wuxia.css)과 별개의 독립 시안 — 같은 [무협/무림/강호] 분류를 공유하며 팔레트 버튼으로 순환 선택된다. */
 
-[data-genre-theme="wuxia-ink"] {
+[data-genre-theme="wuxia-ink"], [data-footer-theme="wuxia-ink"] {
   --wi-paper: #f3efe1; --wi-paper2: #e8e1cb; --wi-ink: #1d1a15; --wi-ink-soft: #6f6858;
   --wi-seal: #b3272b; --wi-line: #cabf9c;
   --wi-font-display: 'Nanum Brush Script', cursive;
@@ -11,7 +11,7 @@
      폰트로 대체되던 버그가 있었다 — 한글 지원 폴백을 이어 붙였다. */
   --wi-font-mono: 'IBM Plex Mono', 'Nanum Gothic Coding', monospace;
 }
-[data-theme="dark"] [data-genre-theme="wuxia-ink"] {
+[data-theme="dark"] [data-genre-theme="wuxia-ink"], [data-theme="dark"][data-footer-theme="wuxia-ink"] {
   --wi-paper: #17140f; --wi-paper2: #221e17; --wi-ink: #ece5d4; --wi-ink-soft: #a89b7f;
   --wi-seal: #d9695f; --wi-line: #3c3527;
 }
@@ -101,13 +101,15 @@
 [data-genre-theme="wuxia-ink"] .gt-card > div:last-child > div span:last-child { color: var(--wi-seal) !important; font-family: var(--wi-font-body); font-weight: 700 !important; }
 
 [data-genre-theme="wuxia-ink"] .gt-infobox { background: var(--wi-paper2) !important; border-color: var(--wi-line) !important; border-top: 4px solid var(--wi-seal) !important; }
-[data-genre-theme="wuxia-ink"] .gt-infobox-title { font-family: var(--wi-font-body); font-weight: 700; filter: grayscale(.5) contrast(1.1); }
+[data-genre-theme="wuxia-ink"] .gt-infobox-title { font-family: var(--wi-font-body); font-weight: 700; filter: grayscale(.5) contrast(1.1); background: var(--wi-seal) !important; }
+[data-footer-theme="wuxia-ink"] .gt-footer { background: var(--wi-paper2) !important; border-top: 1px solid var(--wi-seal) !important; }
+[data-footer-theme="wuxia-ink"] .gt-footer-btn:hover { color: var(--wi-seal) !important; }
 [data-genre-theme="wuxia-ink"] .gt-infobox-image { border-bottom-color: var(--wi-line) !important; filter: grayscale(1) contrast(1.2); }
-[data-genre-theme="wuxia-ink"] .gt-infobox-table th { background: var(--wi-paper) !important; color: var(--wi-ink-soft) !important; border-color: var(--wi-line) !important; font-family: var(--wi-font-mono); font-weight: 500 !important; }
-[data-genre-theme="wuxia-ink"] .gt-infobox-table td { color: var(--wi-ink) !important; border-color: var(--wi-line) !important; font-family: var(--wi-font-body); }
+[data-genre-theme="wuxia-ink"] .gt-infobox-table th, [data-genre-theme="wuxia-ink"] .gt-table th { background: var(--wi-paper) !important; color: var(--wi-ink-soft) !important; border-color: var(--wi-line) !important; font-family: var(--wi-font-mono); font-weight: 500 !important; }
+[data-genre-theme="wuxia-ink"] .gt-infobox-table td, [data-genre-theme="wuxia-ink"] .gt-table td { color: var(--wi-ink) !important; border-color: var(--wi-line) !important; font-family: var(--wi-font-body); }
 [data-genre-theme="wuxia-ink"] .gt-infobox-desc { background: var(--wi-paper2) !important; color: var(--wi-ink-soft) !important; border-top-color: var(--wi-line) !important; }
-[data-genre-theme="wuxia-ink"] .gt-btn-edit { border-color: var(--wi-seal) !important; color: var(--wi-seal) !important; }
-[data-genre-theme="wuxia-ink"] .gt-btn-del { border-color: var(--wi-ink-soft) !important; color: var(--wi-ink-soft) !important; }
+[data-genre-theme="wuxia-ink"] .gt-btn-edit { border-color: var(--wi-seal) !important; color: var(--wi-seal) !important; background: transparent !important; }
+[data-genre-theme="wuxia-ink"] .gt-btn-del { border-color: var(--wi-ink-soft) !important; color: var(--wi-ink-soft) !important; background: transparent !important; }
 
 [data-genre-theme="wuxia-ink"] .md-box { background: var(--wi-paper2) !important; border-color: var(--wi-line) !important; }
 [data-genre-theme="wuxia-ink"] .markdown-body { color: var(--wi-ink); }
@@ -146,3 +148,5 @@
 [data-genre-theme="wuxia-ink"] .gt-macro-subheader { background: var(--wi-paper) !important; }
 [data-genre-theme="wuxia-ink"] .gt-macro-track { background: var(--wi-line) !important; }
 [data-genre-theme="wuxia-ink"] .tl-dot { border-color: var(--wi-paper2) !important; }
+
+[data-genre-theme="wuxia-ink"] .gt-table { background: var(--wi-paper2) !important; box-shadow: 0 0 0 1px var(--wi-line) !important; }

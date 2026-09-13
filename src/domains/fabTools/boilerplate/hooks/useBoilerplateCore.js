@@ -61,7 +61,10 @@ export const useBoilerplateCore = (showToast) => {
   }, []);
 
   const closeBpPopup = useCallback(() => {
-    updatePopupState({ active: false });
+    // mode도 'suggest'로 되돌린다 — 안 그러면 openTemplateList로 연 'choice' 모드가 닫힌
+    // 뒤에도 그대로 남아서, handleInput의 "mode === 'choice'면 무시" 가드에 걸려 그 이후
+    // 타이핑 중 자동완성 제안이 영영 안 뜨는 상태로 멈춰버린다.
+    updatePopupState({ active: false, mode: 'suggest' });
     targetEditorRef.current = null;
   }, [updatePopupState]);
 

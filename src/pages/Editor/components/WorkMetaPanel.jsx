@@ -1,12 +1,59 @@
 // 절대 경로: src/pages/Editor/components/WorkMetaPanel.jsx
 // 기능 요약: 작품 문서(work) 작성 시 필요한 상세 속성(제작자, 장르, 연재 상태, 이미지 변환 등)을 설정하는 UI 컴포넌트 v1.0.0
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../EditorPage.module.css';
 import { IconGear, IconShirt, IconX } from './EditorIcons';
+import api from '../../../api/axiosCore';
+import { extractMeta } from '../../../utils/markdown/metaUtils';
 
 const WorkMetaPanel = ({ workMeta, setWorkMeta }) => {
   console.log("[WorkMetaPanel] 컴포넌트 렌더링 됨");
+
+  // 기능: 이미 등록된 다른 작품들이 쓴 제작자 명의를 모아서, 입력 칸에 타이핑할 때
+  // 브라우저 자동완성 목록(datalist)으로 띄워준다 — 홈 화면의 "작가" 필터 검색어 힌트와
+  // 같은 방식(고유값 Set 추출)이다.
+  const [creatorSuggestions, setCreatorSuggestions] = useState([]);
+  useEffect(() => {
+    api.get('/api/works')
+      .then(({ data: works }) => {
+        const names = new Set();
+        works.forEach(w => { if (w.creator?.trim()) names.add(w.creator.trim()); });
+        setCreatorSuggestions(Array.from(names));
+      })
+      .catch(err => console.warn('[WorkMetaPanel] 제작자 명의 목록 조회 실패:', err));
+  }, []);
+
+  // 기능: 제작자 명의 입력 후 Tab으로 빠져나갈 때, 같은 제작자의 다른 작품들을 뒤져서
+  // 가장 많이 쓴 캐릭터 확장자를 자동으로 채워준다.
+  const handleCreatorTab = async (e) => {
+    if (e.key !== 'Tab') return;
+    const creatorName = workMeta.creator.trim();
+    if (!creatorName) return;
+
+    try {
+      const { data: works } = await api.get('/api/works');
+      const counts = {};
+      works.forEach(w => {
+        if (w.creator?.trim() !== creatorName) return;
+        const ext = extractMeta(w.description).meta.charExt;
+        if (!ext) return;
+        counts[ext] = (counts[ext] || 0) + 1;
+      });
+
+      let bestExt = null, bestCount = 0;
+      for (const ext in counts) {
+        if (counts[ext] > bestCount) { bestExt = ext; bestCount = counts[ext]; }
+      }
+
+      if (bestExt) {
+        console.log(`[WorkMetaPanel] 제작자 "${creatorName}"의 최다 사용 캐릭터 확장자로 자동 적용: ${bestExt}`);
+        setWorkMeta(prev => ({ ...prev, charExt: bestExt }));
+      }
+    } catch (err) {
+      console.warn('[WorkMetaPanel] 제작자 기반 확장자 조회 실패:', err);
+    }
+  };
 
   // 기능: 새로운 이미지 변환(바리에이션) 입력 칸을 추가합니다.
   const handleAddVariant = () => {
@@ -39,14 +86,20 @@ const WorkMetaPanel = ({ workMeta, setWorkMeta }) => {
         {/* 제작자 명의 입력 영역 */}
         <div className={styles.propRow}>
           <label>제작자 명의</label>
-          <input 
-            value={workMeta.creator} 
+          <input
+            value={workMeta.creator}
             onChange={e => {
               console.log(`[WorkMetaPanel] 제작자 명의 변경: ${e.target.value}`);
               setWorkMeta({...workMeta, creator: e.target.value});
-            }} 
-            placeholder="미상" 
+            }}
+            onKeyDown={handleCreatorTab}
+            placeholder="미상"
+            list="creator-suggestions"
+            autoComplete="off"
           />
+          <datalist id="creator-suggestions">
+            {creatorSuggestions.map((name, i) => <option key={i} value={name} />)}
+          </datalist>
         </div>
         
         {/* 장르 태그 입력 영역 */}

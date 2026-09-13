@@ -16,30 +16,34 @@ const MACRO_TOOLS = [
   { id: 'relation', icon: 'relation.svg', tooltip: '비주얼 인물 관계도 캔버스' }
 ];
 
-const MacroToolbar = ({ editorRef, onInsert }) => {
+const MacroToolbar = ({ editorRef, rawText, onInsert }) => {
   const [activeTool, setActiveTool] = useState(null);
 
+  // ★ 표 등 매크로 도구를 열어놓고 한참 내용을 채우다 삽입을 누르면, 그동안 써둔 본문이
+  // 통째로 사라지는 버그가 있었다 — insert 시점에 editorRef.current.value(DOM)를 다시
+  // 읽어서 그걸 기준으로 잘라붙이는 방식이었는데, 도구가 열려 있는 동안 어떤 이유로든
+  // textarea DOM이 다시 그려지면(예: 개발 중 HMR, 혹은 다른 리렌더) 그 시점의 DOM 값이
+  // 진짜 최신 본문과 어긋날 수 있었다. React state(rawText)가 항상 유일한 진실 소스이므로,
+  // DOM을 다시 읽는 대신 이걸 그대로 쓴다. 커서 위치(start/end)도 도구를 여는 "그 순간"에
+  // 한 번만 고정해두고, 도구가 열려 있는 동안 textarea 쪽에서 벌어지는 어떤 일과도
+  // 완전히 무관하게 만든다.
   const handleOpenModal = (tool) => {
-    let text = "";
+    let start = rawText.length, end = rawText.length;
     if (editorRef.current) {
-      const start = editorRef.current.selectionStart;
-      const end = editorRef.current.selectionEnd;
-      text = editorRef.current.value.substring(start, end);
+      start = editorRef.current.selectionStart;
+      end = editorRef.current.selectionEnd;
     }
-    // 클릭 시점에 드래그된 텍스트를 캡처하여 tool 객체에 담아 전달합니다.
-    setActiveTool({ ...tool, selectedText: text });
+    const text = rawText.substring(start, end);
+    setActiveTool({ ...tool, selectedText: text, insertStart: start, insertEnd: end });
   };
 
   const handleCloseModal = () => setActiveTool(null);
 
   const handleInsertSnippet = (snippet) => {
-    if (!editorRef.current) return;
-    const textarea = editorRef.current;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const currentText = textarea.value;
-    
-    onInsert(currentText.substring(0, start) + snippet + currentText.substring(end), start + snippet.length);
+    const start = activeTool?.insertStart ?? rawText.length;
+    const end = activeTool?.insertEnd ?? rawText.length;
+
+    onInsert(rawText.substring(0, start) + snippet + rawText.substring(end), start + snippet.length);
     handleCloseModal();
   };
 

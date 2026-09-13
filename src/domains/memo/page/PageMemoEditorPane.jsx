@@ -16,7 +16,7 @@ const PageMemoEditorPane = (props) => {
   const [isReadOnly, setIsReadOnly] = useState(false);
 
   const {
-    editorRef, titleRef, charCount, isSaving, tableCtrlVisible, setTableCtrlVisible,
+    editorRef, titleRef, charCount, isSaving, tableCtrlVisible, setTableCtrlVisible, hasTable,
     findReplaceVisible, setFindReplaceVisible, findText, setFindText, replaceText, setReplaceText,
     selectedColor, setSelectedColor, mentionCandidates, mentionState,
     handleSaveMemo, handleDeleteMemo, handleMentionSelect, handleTitleKeyDown,
@@ -51,6 +51,7 @@ const PageMemoEditorPane = (props) => {
           insertHtml={insertHtml}
           tableCtrlVisible={tableCtrlVisible}
           setTableCtrlVisible={setTableCtrlVisible}
+          hasTable={hasTable}
           addTableRowBelow={addTableRowBelow}
           addTableColRight={addTableColRight}
           delTableRow={delTableRow}

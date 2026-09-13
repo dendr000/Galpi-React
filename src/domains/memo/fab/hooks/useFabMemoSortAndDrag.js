@@ -15,7 +15,9 @@ export const useFabMemoSortAndDrag = ({ memoData, setMemoData, currentFolder, so
     const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
     filteredMemos = filteredMemos.filter(m => m.updatedAt >= sevenDaysAgo);
   } else if (currentFolder === "미분류") {
-    filteredMemos = filteredMemos.filter(m => m.folder === '기타' || !m.tags || m.tags.trim() === "");
+    // "미분류"는 태그가 하나도 없는 메모를 뜻한다 — 예전엔 "폴더가 기타"인 것까지 OR로
+    // 묶어서, 태그를 붙여놨어도 그냥 기타 폴더에 있으면 계속 미분류함에 남아있었다.
+    filteredMemos = filteredMemos.filter(m => !m.tags || m.tags.trim() === "");
   } else if (currentFolder !== "전체 메모") {
     filteredMemos = filteredMemos.filter(m => m.folder === currentFolder);
   }

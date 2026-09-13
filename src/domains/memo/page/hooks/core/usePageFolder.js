@@ -96,18 +96,19 @@ export const usePageFolder = ({ memos, setMemos, folders, setFolders, currentFol
     }
   };
 
-  // ★ 퀵 액션: 단일 메모 즉시 삭제
+  // ★ 퀵 액션: 단일 메모 즉시 삭제. 취소 여부를 알아야 호출부(에디터의 삭제 버튼)에서 탭을
+  // 같이 닫을지 판단할 수 있어서, 실제로 삭제를 진행했는지를 boolean으로 돌려준다.
   const handleDeleteMemo = async (e, memoId) => {
     e.stopPropagation();
-    if (window.confirm("정말 이 메모를 영구 삭제하시겠습니까?")) {
-      setMemos(prev => prev.filter(m => String(m.id) !== String(memoId)));
-      try {
-        const isEdit = !String(memoId).startsWith("local_") && String(memoId).length < 13;
-        if (isEdit) await api.delete(`/api/memos/${memoId}`);
-      } catch (err) {
-        console.error("[usePageFolder] 메모 삭제 통신 오류", err);
-      }
+    if (!window.confirm("정말 이 메모를 영구 삭제하시겠습니까?")) return false;
+    setMemos(prev => prev.filter(m => String(m.id) !== String(memoId)));
+    try {
+      const isEdit = !String(memoId).startsWith("local_") && String(memoId).length < 13;
+      if (isEdit) await api.delete(`/api/memos/${memoId}`);
+    } catch (err) {
+      console.error("[usePageFolder] 메모 삭제 통신 오류", err);
     }
+    return true;
   };
 
   // ★ 다중 선택: 일괄 폴더 이동

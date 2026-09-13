@@ -27,18 +27,18 @@ export const useMemoSave = ({
     };
 
     const isEdit = !String(activeMemo.id).startsWith("local_");
-
-    if (!isEdit) {
-      delete memoPayload.id;
-    } else {
-      memoPayload.id = activeMemo.id;
-    }
+    // 로컬 상태(memoPayload.id)엔 항상 기존 id를 들고 있는다 — POST가 실패하면(오프라인 등)
+    // id가 사라져서 방금 쓴 메모가 목록에서 고아가 되고 activeMemoId가 더 이상 아무것도
+    // 못 찾는 문제가 있었다. 서버로 보내는 요청 바디에서만 id를 뺀다(JSON.stringify는
+    // undefined 값을 가진 키를 알아서 생략해준다).
+    memoPayload.id = activeMemo.id;
 
     try {
       const url = isEdit ? `/api/memos/${activeMemo.id}` : '/api/memos';
       const method = isEdit ? 'put' : 'post';
+      const payloadToSend = isEdit ? memoPayload : { ...memoPayload, id: undefined };
 
-      const response = await api[method](url, memoPayload);
+      const response = await api[method](url, payloadToSend);
       if (!isEdit && response.data?.id) memoPayload.id = response.data.id;
     } catch (error) {
       console.error(error);

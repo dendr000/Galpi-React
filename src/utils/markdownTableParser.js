@@ -39,9 +39,11 @@ export const parseMarkdownToGrid = (mdText) => {
       let bold = false;
       let italic = false;
       let strike = false;
+      let headCol = false;
+      let noRowHeader = false;
       let text = rawCell;
 
-      // 옵션 태그 파싱 (예: <left>, <-2>, <|3>, ~ 등)
+      // 옵션 태그 파싱 (예: <left>, <-2>, <|3>, <h>, <nr> 등)
       // 변경: <strong> 등 HTML 태그를 옵션으로 오인하지 않도록 엄격한 정규식으로 방어
       let match = text.match(/^<([a-z0-9,\-|]+)>/i);
       if (match) {
@@ -51,14 +53,26 @@ export const parseMarkdownToGrid = (mdText) => {
           if (['left', 'center', 'right'].includes(t)) { align = t; isValid = true; }
           else if (t.startsWith('-') && !isNaN(parseInt(t.substring(1)))) { colSpan = parseInt(t.substring(1)); isValid = true; }
           else if (t.startsWith('|') && !isNaN(parseInt(t.substring(1)))) { rowSpan = parseInt(t.substring(1)); isValid = true; }
+          else if (t === 'h') { headCol = true; isValid = true; }
+          else if (t === 'nr') { noRowHeader = true; isValid = true; }
         });
         if (isValid) text = text.substring(match[0].length).trim();
       }
 
-      // 굵은 서식 확인 (~)
-      if (text.startsWith('~') && text.endsWith('~')) {
+      // 셀 전체가 통째로 감싸진 서식 확인 — 저장 시 감싼 순서(굵게 바깥 → 기울임 → 취소선 안쪽)의
+      // 역순으로 벗겨낸다. 부분(일부 글자만) 서식은 여기서 걸러지지 않고 원문 그대로 남아있다가
+      // 렌더링 시점(syntaxParser.js)에 인라인으로 해석된다.
+      if (text.length > 1 && text.startsWith('~') && text.endsWith('~')) {
         bold = true;
         text = text.substring(1, text.length - 1).trim();
+      }
+      if (text.length > 1 && text.startsWith('_') && text.endsWith('_')) {
+        italic = true;
+        text = text.substring(1, text.length - 1).trim();
+      }
+      if (text.length > 3 && text.startsWith('--') && text.endsWith('--')) {
+        strike = true;
+        text = text.substring(2, text.length - 2).trim();
       }
 
       // 줄바꿈 복원 ([br] -> \n)
@@ -72,7 +86,9 @@ export const parseMarkdownToGrid = (mdText) => {
         isHidden: false,
         bold,
         italic,
-        strike
+        strike,
+        headCol,
+        noRowHeader
       };
     });
   });
@@ -113,15 +129,30 @@ export const generateMarkdownFromGrid = (grid) => {
         options.push(`|${cell.rowSpan}`);
       }
 
+      // 열 헤더 지정 옵션 부여 (0번 행은 위치만으로 이미 헤더라 굳이 안 붙여도 되지만,
+      // 붙어 있어도 렌더러 쪽에서 무해하게 무시되므로 조건 없이 그대로 반영한다)
+      if (cell.headCol) {
+        options.push('h');
+      }
+
+      // 0번 행인데도 "행 헤더 끄기"로 옵트아웃된 셀이면, 렌더러가 위치만 보고 다시
+      // th로 되살리지 않도록 명시적으로 표시해둔다.
+      if (cell.noRowHeader) {
+        options.push('nr');
+      }
+
       let optionPrefix = options.length > 0 ? `<${options.join(',')}> ` : '';
 
       // 텍스트 내부 줄바꿈 변환 (\n -> [br])
       let processedText = cell.text ? cell.text.replace(/\n/g, ' [br] ') : ' ';
 
-      // 굵은 서식 적용
-      if (cell.bold) {
-        processedText = `~${processedText}~`;
-      }
+      // 서식 적용 (셀 전체 토글 플래그 기준) — 안쪽부터 취소선, 기울임, 굵게 순으로 감싸서
+      // 렌더러가 굵게(바깥) → 기울임 → 취소선(안쪽) 순으로 벗겨내며 중첩 해석할 수 있게 한다.
+      // ★ 예전엔 italic/strike가 여기서 빠져 있어서 에디터 미리보기엔 반영되는데 정작
+      // 저장(마크다운 변환) 시에는 통째로 사라지는 버그였다.
+      if (cell.strike) processedText = `--${processedText}--`;
+      if (cell.italic) processedText = `_${processedText}_`;
+      if (cell.bold) processedText = `~${processedText}~`;
 
       rowStr += ` ${optionPrefix}${processedText} ||`;
     });

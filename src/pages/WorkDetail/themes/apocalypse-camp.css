@@ -2,7 +2,7 @@
 /* 아포칼립스 방향 C — 잔불(殘火). 최후의 생존 캠프, 폐허 속 온기. 항상 어두운 세계관으로
    고정된다. */
 
-[data-genre-theme="apocalypse-camp"] {
+[data-genre-theme="apocalypse-camp"], [data-footer-theme="apocalypse-camp"] {
   --cm-bg: #141b22; --cm-bg2: #1c252e; --cm-fire: #ff9a44; --cm-fireglow: #ffc470; --cm-tape: #c9a24a;
   --cm-ink: #ece3d4; --cm-ink-soft: #8d95a0; --cm-line: #2c3742;
   /* Bebas Neue/Special Elite/IBM Plex Mono는 한글 글리프가 없어 한글 텍스트가 조용히
@@ -24,9 +24,17 @@
 }
 [data-genre-theme="apocalypse-camp"]::before {
   content: ""; position: absolute; z-index: 0; pointer-events: none;
-  left: -10%; bottom: -20%; width: 60%; height: 80%; border-radius: 50%;
+  /* ★ width/height를 %로 주면, 이 pseudo-element의 컨테이닝 블록인 zone 자신이 auto-height
+     (내용에 맞춰 늘어나는) 컨테이너라서 브라우저가 "그 순간 렌더링된 zone 높이"를 기준으로
+     퍼센트를 계산해버린다 — zone이 클수록 이 요소도 커지고, 이 요소가 커지면 zone의
+     scrollHeight도 같이 커지는 식으로 서로 부풀리는 문제가 있었다(실측: zone 높이 6330px일 때
+     이 요소가 5063px짜리로 부풀어서 footer 위에 1200px+짜리 빈 여백이 생겼다). 고정 px로
+     바꿔서 zone 크기와 무관하게 항상 같은 크기의 은은한 불빛 번짐만 그리게 한다. */
+  left: -80px; bottom: -120px; width: 480px; height: 480px; border-radius: 50%;
   background: radial-gradient(circle, rgba(255,154,68,.22), transparent 65%);
   animation: campFlicker 3.4s ease-in-out infinite;
+  contain: paint;
+  will-change: transform;
 }
 @keyframes campFlicker { 0%,100% { opacity: .75; transform: scale(1); } 19% { opacity: .55; transform: scale(.97); } 38% { opacity: .9; transform: scale(1.03); } 55% { opacity: .6; transform: scale(.99); } 77% { opacity: .85; transform: scale(1.02); } }
 [data-genre-theme="apocalypse-camp"]::after {
@@ -82,13 +90,15 @@
 [data-genre-theme="apocalypse-camp"] .gt-card > div:last-child > div span:last-child { color: var(--cm-fireglow) !important; font-family: var(--cm-font-mono); font-weight: 700 !important; }
 
 [data-genre-theme="apocalypse-camp"] .gt-infobox { background: var(--cm-bg2) !important; border-color: var(--cm-line) !important; border-top: 3px solid var(--cm-tape) !important; }
-[data-genre-theme="apocalypse-camp"] .gt-infobox-title { font-family: var(--cm-font-display); letter-spacing: 0.02em; filter: contrast(1.02); }
+[data-genre-theme="apocalypse-camp"] .gt-infobox-title { font-family: var(--cm-font-display); letter-spacing: 0.02em; filter: contrast(1.02); background: var(--cm-bg2) !important; border-bottom: 3px solid var(--cm-fire) !important; }
+[data-footer-theme="apocalypse-camp"] .gt-footer { background: var(--cm-bg2) !important; border-top: 1px solid var(--cm-fire) !important; }
+[data-footer-theme="apocalypse-camp"] .gt-footer-btn:hover { color: var(--cm-fire) !important; }
 [data-genre-theme="apocalypse-camp"] .gt-infobox-image { border-bottom-color: var(--cm-line) !important; filter: contrast(1.05) brightness(.95); }
-[data-genre-theme="apocalypse-camp"] .gt-infobox-table th { background: #10161c !important; color: var(--cm-ink-soft) !important; border-color: var(--cm-line) !important; font-family: var(--cm-font-mono); font-weight: 500 !important; }
-[data-genre-theme="apocalypse-camp"] .gt-infobox-table td { color: var(--cm-ink) !important; border-color: var(--cm-line) !important; font-family: var(--cm-font-body); }
+[data-genre-theme="apocalypse-camp"] .gt-infobox-table th, [data-genre-theme="apocalypse-camp"] .gt-table th { background: #10161c !important; color: var(--cm-ink-soft) !important; border-color: var(--cm-line) !important; font-family: var(--cm-font-mono); font-weight: 500 !important; }
+[data-genre-theme="apocalypse-camp"] .gt-infobox-table td, [data-genre-theme="apocalypse-camp"] .gt-table td { color: var(--cm-ink) !important; border-color: var(--cm-line) !important; font-family: var(--cm-font-body); }
 [data-genre-theme="apocalypse-camp"] .gt-infobox-desc { background: var(--cm-bg2) !important; color: var(--cm-ink-soft) !important; border-top-color: var(--cm-line) !important; }
-[data-genre-theme="apocalypse-camp"] .gt-btn-edit { border-color: var(--cm-fireglow) !important; color: var(--cm-fireglow) !important; }
-[data-genre-theme="apocalypse-camp"] .gt-btn-del { border-color: var(--cm-ink-soft) !important; color: var(--cm-ink-soft) !important; }
+[data-genre-theme="apocalypse-camp"] .gt-btn-edit { border-color: var(--cm-fireglow) !important; color: var(--cm-fireglow) !important; background: transparent !important; }
+[data-genre-theme="apocalypse-camp"] .gt-btn-del { border-color: var(--cm-ink-soft) !important; color: var(--cm-ink-soft) !important; background: transparent !important; }
 
 [data-genre-theme="apocalypse-camp"] .md-box { background: var(--cm-bg2) !important; border-color: var(--cm-line) !important; }
 [data-genre-theme="apocalypse-camp"] .markdown-body { color: var(--cm-ink); }
@@ -127,3 +137,5 @@
 [data-genre-theme="apocalypse-camp"] .gt-macro-subheader { background: #10161c !important; }
 [data-genre-theme="apocalypse-camp"] .gt-macro-track { background: #10161c !important; }
 [data-genre-theme="apocalypse-camp"] .tl-dot { border-color: var(--cm-bg2) !important; }
+
+[data-genre-theme="apocalypse-camp"] .gt-table { background: var(--cm-bg2) !important; box-shadow: 0 0 0 1px var(--cm-line) !important; }

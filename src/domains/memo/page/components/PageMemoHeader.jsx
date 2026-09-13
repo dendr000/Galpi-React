@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../PageMemo.module.css';
-import { HomeIcon, SearchIcon, FilePlusIcon } from '../../shared/components/MemoIcons';
+import { HomeIcon, SearchIcon, FilePlusIcon, BookIcon } from '../../shared/components/MemoIcons';
 
 const PageMemoHeader = ({ searchQuery, setSearchQuery, searchScope, setSearchScope, handleOpenTab }) => {
   const navigate = useNavigate();
@@ -12,7 +12,9 @@ const PageMemoHeader = ({ searchQuery, setSearchQuery, searchScope, setSearchSco
         <button className="wiki-btn" onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <HomeIcon /> 홈으로
         </button>
-        <h1 style={{ fontSize: '18px', margin: 0, color: 'var(--text-primary)', fontWeight: 900 }}>메모장</h1>
+        <h1 style={{ fontSize: '18px', margin: 0, color: 'var(--text-primary)', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ display: 'flex', color: 'var(--primary-color)' }}><BookIcon /></span> 메모장
+        </h1>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 

@@ -95,6 +95,58 @@
 @keyframes gtBeaconPulse { 0%,100% { opacity: .7; } 50% { opacity: 1; } }
 .gt-cursor-beacon.gt-cursor-hover .gt-cursor-beacon-core { background: radial-gradient(circle,#fff3e0,#ffb347 60%,transparent 75%); box-shadow: 0 0 16px 5px rgba(255,179,71,.7); }
 
+/* 헌터 · 게이트 시스템 — 부드럽게 따라오는 소환진 링. 위치이동(JS, gatePos)과 회전(CSS
+   애니메이션, 안쪽 점선 링)이 같은 transform을 두고 충돌하지 않도록 다른 요소에 나눠 걸었다. */
+.gt-cursor-gate-wrap { width: 34px; height: 34px; margin: -17px 0 0 -17px; }
+.gt-cursor-gate-ring { position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid #7c5cff; box-shadow: 0 0 12px rgba(124,92,255,.6); }
+.gt-cursor-gate-dash { position: absolute; inset: 4px; border-radius: 50%; border: 1.5px dashed rgba(124,92,255,.7); animation: gtGateSpin 4s linear infinite; }
+@keyframes gtGateSpin { to { transform: rotate(360deg); } }
+.gt-cursor-gate-wrap.gt-cursor-hover .gt-cursor-gate-ring { border-color: #ffc857; box-shadow: 0 0 16px rgba(255,200,87,.7); }
+.gt-cursor-gate-wrap.gt-cursor-hover .gt-cursor-gate-dash { border-color: rgba(255,200,87,.8); animation-duration: 1.6s; }
+
+/* 헌터 · 라이트 홀로그램 — 얇은 조준 십자선 + 좌표 리드아웃 */
+.gt-cursor-trackcross { width: 22px; height: 22px; }
+.gt-cursor-trackcross::before, .gt-cursor-trackcross::after { content: ""; position: absolute; background: #5b7fff; }
+.gt-cursor-trackcross::before { left: 50%; top: 0; width: 1.5px; height: 100%; transform: translateX(-50%); }
+.gt-cursor-trackcross::after { top: 50%; left: 0; width: 100%; height: 1.5px; transform: translateY(-50%); }
+.gt-cursor-trackcross.gt-cursor-hover::before, .gt-cursor-trackcross.gt-cursor-hover::after { background: #ff8a3d; }
+.gt-cursor-trackcross-readout { position: absolute; left: 100%; top: 50%; margin-left: 8px; transform: translateY(-50%); font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #5b7fff; white-space: nowrap; background: rgba(255,255,255,.85); padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(91,127,255,.35); }
+
+/* 조선 무속 · 부적당 — 살랑이는 부적 패 (상단 중앙 축으로 회전) */
+.gt-cursor-talisman { width: 13px; height: 24px; transform-origin: top center; background: linear-gradient(180deg, #d9b563, #b98a3d); border: 1px solid #8f1f1a; box-shadow: 0 0 10px rgba(224,164,88,.4); position: relative; }
+.gt-cursor-talisman-glyph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Nanum Myeongjo', serif; font-size: 8px; color: #8f1f1a; }
+.gt-cursor-talisman.gt-cursor-hover { box-shadow: 0 0 16px rgba(224,164,88,.8); }
+
+/* 조선 무속 · 성황당 — 흔들리는 오색천 한 가닥 (상단 중앙 축으로 회전) */
+.gt-cursor-ribbon { width: 8px; height: 30px; transform-origin: top center; background: linear-gradient(180deg,#a8393a,#7e2b2c); border-radius: 0 0 2px 2px; box-shadow: 0 0 8px rgba(168,57,58,.4); }
+.gt-cursor-ribbon.gt-cursor-hover { box-shadow: 0 0 14px rgba(212,178,62,.7); background: linear-gradient(180deg,#d4b23e,#a88b2e); }
+
+/* 조선 무속 · 저승길 — 일렁이는 청사초롱 (상단 중앙 축으로 회전 + JS가 sin파로 흔든다) */
+.gt-cursor-lantern { width: 18px; height: 24px; transform-origin: top center; position: relative; }
+.gt-cursor-lantern-cap { position: absolute; top: 0; left: 4px; right: 4px; height: 4px; background: #2a2016; border-radius: 2px; }
+.gt-cursor-lantern-body { position: absolute; top: 4px; left: 1px; right: 1px; bottom: 3px; border-radius: 40%; background: radial-gradient(ellipse at 50% 40%, #ffdca0, #ff9a44 65%, #d9701e 100%); box-shadow: 0 0 14px 4px rgba(255,154,68,.55); }
+.gt-cursor-lantern.gt-cursor-hover .gt-cursor-lantern-body { box-shadow: 0 0 22px 7px rgba(255,185,106,.8); }
+
+/* 괴담 · 채록실 — 깜빡이는 REC 점 + 타임코드 */
+.gt-cursor-rec { display: flex; align-items: center; gap: 6px; }
+.gt-cursor-rec-dot { width: 8px; height: 8px; border-radius: 50%; background: #ff5a5a; box-shadow: 0 0 8px rgba(255,90,90,.7); animation: gtRecBlink 1s step-end infinite; }
+@keyframes gtRecBlink { 50% { opacity: .3; } }
+.gt-cursor-rec-tc { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #ff5a5a; white-space: nowrap; }
+.gt-cursor-rec.gt-cursor-hover .gt-cursor-rec-dot { box-shadow: 0 0 14px rgba(255,90,90,1); }
+
+/* 괴담 · 자정의 편의점 — 흔들리는 가격표. 아주 가끔 순간이동하듯 튄다(useGenreCursorMotion.js) */
+.gt-cursor-pricetag { font-family: 'IBM Plex Mono', monospace; font-size: 10px; background: #fff; color: #2e3324; border: 1px dashed #8a9c6e; padding: 2px 6px; box-shadow: 1px 1px 3px rgba(0,0,0,.15); transition: transform .1s; }
+.gt-cursor-pricetag.gt-cursor-glitch-jump { transform: translate(-50%,-50%) translate(6px,-4px) !important; }
+.gt-cursor-pricetag.gt-cursor-hover { border-color: #c0392b; color: #c0392b; }
+
+/* 괴담 · 이면의 복도 — 존재감이 옅은 얇은 링. 옅은 정도는 .gt-cursor-show와 클래스 2개
+   조합으로 걸어야 한다 — .gt-cursor-thinring{opacity}만 단독으로 걸면 명시도가 같은
+   .gt-cursor-show{opacity:1}보다 스타일시트 뒤에 있어서 숨김 상태(opacity:0)까지 덮어써
+   버려 존 밖에서도 계속 보이는 버그가 났었다. */
+.gt-cursor-thinring { width: 20px; height: 20px; border-radius: 50%; border: 1px solid rgba(20,20,10,.5); }
+.gt-cursor-thinring.gt-cursor-show { opacity: .5; }
+.gt-cursor-thinring.gt-cursor-hover { opacity: .8; border-color: rgba(20,20,10,.8); }
+
 /* ===== 클릭 반응(useGenreClickBurst.js) ===== */
 .gt-burst-comic { position: fixed; pointer-events: none; z-index: 999996; transform: translate(-50%,-50%) scale(0) rotate(0deg); animation: gtBurstPop .65s cubic-bezier(.15,.85,.3,1) forwards; }
 .gt-burst-comic svg { display: block; width: 130px; height: 130px; filter: drop-shadow(3px 3px 0 #141110); }
@@ -112,3 +164,111 @@
 @keyframes gtRippleExpand { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(7); opacity: 0; } }
 .gt-drop-urban { position: fixed; left: 0; top: 0; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: rgba(200,225,255,.9); pointer-events: none; z-index: 999996; animation: gtDropFly .5s cubic-bezier(.2,.8,.4,1) forwards; }
 @keyframes gtDropFly { 0% { transform: translate(0,0); opacity: 1; } 100% { transform: translate(var(--tx,0),var(--ty,0)); opacity: 0; } }
+
+/* 헌터 · 게이트 시스템 — 클릭하면 이중 링과 함께 EXP 획득 텍스트가 떠오른다 */
+.gt-burst-gate { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; }
+.gt-burst-gate .ring1, .gt-burst-gate .ring2 { position: absolute; left: 0; top: 0; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; border: 2px solid #7c5cff; animation: gtGateBurstExpand .7s cubic-bezier(.15,.7,.3,1) forwards; }
+.gt-burst-gate .ring2 { border-color: #ffc857; animation-delay: .08s; }
+@keyframes gtGateBurstExpand { to { transform: scale(7); opacity: 0; } }
+.gt-burst-gate .exp { position: absolute; left: 0; top: 0; transform: translate(-50%,-50%); font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 13px; color: #ffc857; text-shadow: 0 0 8px rgba(255,200,87,.7); animation: gtExpFloat .8s ease-out forwards; white-space: nowrap; }
+@keyframes gtExpFloat { 0% { opacity: 0; transform: translate(-50%,-50%) translateY(0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%,-50%) translateY(-38px); } }
+
+/* 헌터 · 라이트 홀로그램 — 클릭하면 잔잔한 파동 링과 "감지됨" 태그가 뜬다 */
+.gt-burst-scan-ring { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; border: 2px solid rgba(91,127,255,.6); animation: gtScanRipple .75s ease-out forwards; }
+@keyframes gtScanRipple { to { transform: scale(6); opacity: 0; } }
+.gt-burst-scan-tag { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; transform: translate(-50%,-50%); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #3b4a8f; background: rgba(255,255,255,.9); border: 1px solid rgba(91,127,255,.4); padding: 3px 8px; border-radius: 999px; animation: gtScanTagFloat .8s ease-out forwards; }
+@keyframes gtScanTagFloat { 0% { opacity: 0; transform: translate(-50%,-50%) translateY(4px) scale(.8); } 25% { opacity: 1; transform: translate(-50%,-50%) translateY(0) scale(1); } 100% { opacity: 0; transform: translate(-50%,-50%) translateY(-26px) scale(1); } }
+
+/* 조선 무속 · 부적당 — 클릭하면 봉인 링과 함께 부적 글자가 찍힌다 */
+.gt-burst-talisman { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; transform: translate(-50%,-50%); }
+.gt-burst-talisman .ring { position: absolute; inset: 0; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; border: 2px solid #e0a458; animation: gtSealRing .55s cubic-bezier(.1,.7,.3,1) forwards; }
+@keyframes gtSealRing { 0% { transform: scale(.3); opacity: .9; } 100% { transform: scale(1.6); opacity: 0; } }
+.gt-burst-talisman .glyph { position: absolute; font-family: 'Nanum Myeongjo', serif; font-weight: 800; font-size: 21px; color: #c23c2f; text-shadow: 0 0 10px rgba(194,60,47,.7); animation: gtGlyphStamp .6s cubic-bezier(.2,.9,.3,1) forwards; }
+@keyframes gtGlyphStamp { 0% { opacity: 0; transform: scale(2) rotate(-8deg); } 40% { opacity: 1; transform: scale(.9) rotate(-8deg); } 100% { opacity: 0; transform: scale(1) rotate(-8deg) translateY(-10px); } }
+
+/* 조선 무속 · 성황당 — 클릭하면 풍경 소리처럼 링이 퍼지며 소원 글자가 떠오른다 */
+.gt-burst-ribbon { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; transform: translate(-50%,-50%); }
+.gt-burst-ribbon .chime { position: absolute; inset: 0; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.7); animation: gtChimeRing .8s ease-out forwards; }
+@keyframes gtChimeRing { 0% { transform: scale(.4); opacity: .9; } 100% { transform: scale(2.2); opacity: 0; } }
+.gt-burst-ribbon .wish { position: absolute; font-family: 'Gowun Batang', serif; font-weight: 700; font-size: 15px; color: #f7f1e2; text-shadow: 0 0 8px rgba(0,0,0,.5); white-space: nowrap; animation: gtWishFloat .9s ease-out forwards; }
+@keyframes gtWishFloat { 0% { opacity: 0; transform: translateY(0); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(-30px); } }
+
+/* 조선 무속 · 저승길 — 클릭하면 등불이 일렁이며 글자가 잔잔히 떠오른다 */
+.gt-burst-lantern { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; transform: translate(-50%,-50%); }
+.gt-burst-lantern .glow { position: absolute; inset: 0; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; background: radial-gradient(circle, rgba(255,185,106,.55), transparent 70%); animation: gtGlowPulse 1s ease-out forwards; }
+@keyframes gtGlowPulse { 0% { transform: scale(.3); opacity: .9; } 100% { transform: scale(2.4); opacity: 0; } }
+.gt-burst-lantern .word { position: absolute; font-family: 'Nanum Myeongjo', serif; font-size: 16px; color: #ffb96a; text-shadow: 0 0 10px rgba(255,185,106,.7); white-space: nowrap; animation: gtWordFloat 1.1s ease-out forwards; }
+@keyframes gtWordFloat { 0% { opacity: 0; transform: translateY(0); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(-34px); } }
+
+/* 괴담 · 채록실 — 클릭하면 사건 번호 도장이 잠깐 찍힌다 */
+.gt-burst-rec { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; transform: translate(-50%,-50%); font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+.gt-burst-rec .stamp { border: 1px solid #ff5a5a; color: #ff5a5a; padding: 2px 6px; animation: gtStampFloat .7s ease-out forwards; white-space: nowrap; }
+@keyframes gtStampFloat { 0% { opacity: 0; transform: scale(1.4); } 30% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: translateY(-20px); } }
+
+/* 괴담 · 자정의 편의점 — 클릭하면 영수증이 짧게 인쇄된다 (가끔 이상한 줄) */
+.gt-burst-receipt { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; transform: translate(-50%,-50%); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #2e3324; background: #fff; border: 1px solid #8a9c6e; padding: 3px 7px; animation: gtReceiptFloat .9s ease-out forwards; white-space: pre; }
+@keyframes gtReceiptFloat { 0% { opacity: 0; transform: translate(-50%,-50%) translateY(0) scaleY(.3); } 20% { opacity: 1; transform: translate(-50%,-50%) translateY(0) scaleY(1); } 100% { opacity: 0; transform: translate(-50%,-50%) translateY(-24px) scaleY(1); } }
+
+/* 괴담 · 이면의 복도 — 클릭하면 존 전체가 "누가 눈치챈 듯" 잠깐 흔들리고 어두워졌다 돌아온다 */
+@keyframes gtZoneNotice { 0%,100% { transform: translate(0,0); filter: brightness(1); } 15% { transform: translate(-6px,0); filter: brightness(.4); } 30% { transform: translate(5px,0); } 45% { transform: translate(-3px,0); } 60% { filter: brightness(1); } }
+.gt-zone-notice { animation: gtZoneNotice .5s ease; }
+
+/* 사이버펑크 · 네온 메가시티 — 클릭하면 조준 브래킷 4개가 스냅되고 스캔선이 스친다 */
+.gt-burst-reticle { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; width: 50px; height: 50px; margin: -25px 0 0 -25px; }
+.gt-burst-reticle .corner { position: absolute; width: 12px; height: 12px; border: 2px solid #4fd3ec; filter: drop-shadow(0 0 4px rgba(79,211,236,.8)); animation: gtReticleSnap .5s cubic-bezier(.2,.9,.3,1) forwards; }
+.gt-burst-reticle .c1 { top: 0; left: 0; border-right: none; border-bottom: none; --sx: -14px; --sy: -14px; }
+.gt-burst-reticle .c2 { top: 0; right: 0; border-left: none; border-bottom: none; --sx: 14px; --sy: -14px; }
+.gt-burst-reticle .c3 { bottom: 0; left: 0; border-right: none; border-top: none; --sx: -14px; --sy: 14px; }
+.gt-burst-reticle .c4 { bottom: 0; right: 0; border-left: none; border-top: none; --sx: 14px; --sy: 14px; }
+@keyframes gtReticleSnap { 0% { opacity: 0; transform: translate(var(--sx),var(--sy)); } 20% { opacity: 1; } 60% { transform: translate(0,0); opacity: 1; } 100% { transform: translate(0,0); opacity: 0; } }
+.gt-burst-reticle-scan { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; width: 60px; height: 2px; margin: -1px 0 0 -30px; background: linear-gradient(90deg, transparent, #4fd3ec, transparent); animation: gtReticleScanFlash .4s ease-out forwards; }
+@keyframes gtReticleScanFlash { 0% { opacity: 0; transform: translateX(-30px) scaleX(.3); } 40% { opacity: 1; } 100% { opacity: 0; transform: translateX(30px) scaleX(1); } }
+
+/* 사이버펑크 · 터미널 해커 — 클릭한 자리에 명령줄이 짧게 떴다 사라진다 */
+.gt-burst-terminal { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; transform: translate(-50%,-50%); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #57ffa0; text-shadow: 0 0 6px rgba(87,255,160,.7); background: rgba(10,20,14,.85); border: 1px solid rgba(87,255,160,.4); padding: 3px 7px; white-space: nowrap; animation: gtTerminalFloat .75s steps(1) forwards; }
+@keyframes gtTerminalFloat { 0% { opacity: 0; transform: translate(-50%,-50%) translateY(4px); } 15% { opacity: 1; transform: translate(-50%,-50%) translateY(0); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%,-50%) translateY(-18px); } }
+
+/* 사이버펑크 · 크롬 그래피티 — 클릭하면 색수차 링이 튀고 스프레이 방울이 사방으로 흩어진다 */
+.gt-burst-chroma { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; width: 30px; height: 30px; margin: -15px 0 0 -15px; }
+.gt-burst-chroma .ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid; mix-blend-mode: screen; animation: gtChromaSplit .5s ease-out forwards; }
+.gt-burst-chroma .r { border-color: #ff1f3d; }
+.gt-burst-chroma .c { border-color: #2be0ff; animation-delay: .04s; }
+@keyframes gtChromaSplit { 0% { transform: scale(.3); opacity: .9; } 100% { transform: scale(3.2); opacity: 0; } }
+.gt-burst-chroma-drip { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 40%; animation: gtDripFly .55s cubic-bezier(.2,.8,.4,1) forwards; }
+@keyframes gtDripFly { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx,0),var(--ty,0)) scale(.4); opacity: 0; } }
+
+/* 무협 · 묵화 — 클릭하면 먹방울이 튀고 짧은 붓 자국이 스친다 */
+.gt-burst-ink-drop { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; border-radius: 45% 55% 50% 50%; background: radial-gradient(circle, #141210, rgba(20,18,16,.6) 70%, transparent 85%); animation: gtInkSplat .6s cubic-bezier(.2,.8,.3,1) forwards; }
+@keyframes gtInkSplat { 0% { transform: translate(0,0) scale(1); opacity: .85; } 100% { transform: translate(var(--tx,0),var(--ty,0)) scale(.3); opacity: 0; } }
+.gt-burst-ink-stroke { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; width: 50px; height: 6px; margin: -3px 0 0 -25px; background: linear-gradient(90deg, transparent, #141210 30%, #141210 70%, transparent); border-radius: 50%; filter: blur(.5px); animation: gtInkStroke .5s ease-out forwards; }
+@keyframes gtInkStroke { 0% { transform: rotate(var(--rot,0deg)) scaleX(0); opacity: .8; } 60% { transform: rotate(var(--rot,0deg)) scaleX(1); opacity: .8; } 100% { transform: rotate(var(--rot,0deg)) scaleX(1); opacity: 0; } }
+
+/* 무협 · 혈로 — 클릭하면 붉은 충격 링과 함께 굵은 일격의 궤적이 스친다 */
+.gt-burst-blade-ring { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; border: 2px solid rgba(255,45,77,.7); animation: gtBladeRing .45s cubic-bezier(.15,.8,.3,1) forwards; }
+@keyframes gtBladeRing { 0% { transform: scale(.4); opacity: 1; } 100% { transform: scale(5); opacity: 0; } }
+.gt-burst-blade-cut { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; width: 60px; height: 3px; margin: -1.5px 0 0 -30px; background: linear-gradient(90deg, transparent, #fff, #ff2d4d 55%, transparent); animation: gtBladeCut .4s ease-out forwards; }
+@keyframes gtBladeCut { 0% { transform: rotate(var(--rot,0deg)) scaleX(0); opacity: 1; } 60% { transform: rotate(var(--rot,0deg)) scaleX(1); opacity: 1; } 100% { transform: rotate(var(--rot,0deg)) scaleX(1); opacity: 0; } }
+
+/* 무협 · 등선 — 클릭하면 영기 파동 링이 퍼지고 잔알갱이가 사방으로 흩어진다 */
+.gt-burst-orb-ring { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; border: 1.5px solid rgba(82,224,172,.6); animation: gtOrbRing .7s ease-out forwards; }
+@keyframes gtOrbRing { 0% { transform: scale(.4); opacity: .9; } 100% { transform: scale(4.5); opacity: 0; } }
+.gt-burst-orb-mote { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; border-radius: 50%; background: radial-gradient(circle,#eafff3,#52e0ac 55%,transparent 75%); box-shadow: 0 0 6px 2px rgba(82,224,172,.5); animation: gtOrbMoteFly .65s ease-out forwards; }
+@keyframes gtOrbMoteFly { 0% { transform: translate(0,0) scale(1); opacity: .95; } 100% { transform: translate(var(--tx,0),var(--ty,0)) scale(.2); opacity: 0; } }
+
+/* 아포칼립스 · 핵진 — 클릭하면 계기판 링이 튀며 방사능 수치 텍스트가 짧게 표시된다 */
+.gt-burst-geiger-ring { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; border: 2px solid #c4d92e; box-shadow: 0 0 10px rgba(196,217,46,.6); animation: gtGeigerBurstRing .55s cubic-bezier(.15,.8,.3,1) forwards; }
+@keyframes gtGeigerBurstRing { 0% { transform: scale(.4); opacity: 1; } 100% { transform: scale(5.5); opacity: 0; } }
+.gt-burst-geiger-tick { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; transform: translate(-50%,-50%); font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 12px; color: #c4d92e; text-shadow: 0 0 8px rgba(196,217,46,.8); white-space: nowrap; animation: gtGeigerTickFloat .7s ease-out forwards; }
+@keyframes gtGeigerTickFloat { 0% { opacity: 0; transform: translate(-50%,-50%) scale(1.3); } 25% { opacity: 1; transform: translate(-50%,-50%) scale(1); } 100% { opacity: 0; transform: translate(-50%,-50%) translateY(-24px); } }
+
+/* 아포칼립스 · 역병 — 클릭하면 얼룩이 번지듯 퍼지며 감염/오염 태그가 뜬다 */
+.gt-burst-infect-blot { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 42% 58% 60% 40%; background: radial-gradient(circle, rgba(200,28,51,.5), rgba(93,255,160,.25) 60%, transparent 80%); animation: gtInfectSpread .7s ease-out forwards; }
+@keyframes gtInfectSpread { 0% { transform: scale(.3); opacity: .9; } 100% { transform: scale(4.5); opacity: 0; } }
+.gt-burst-infect-tag { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; transform: translate(-50%,-50%); font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; color: #c81c33; text-shadow: 0 0 6px rgba(200,28,51,.6); white-space: nowrap; animation: gtInfectTagFloat .75s ease-out forwards; }
+@keyframes gtInfectTagFloat { 0% { opacity: 0; transform: translate(-50%,-50%) translateY(2px); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%,-50%) translateY(-22px); } }
+
+/* 아포칼립스 · 잔불 — 클릭하면 불씨가 사방으로 튀고 타는 소리 의성어가 잠깐 떠오른다 */
+.gt-burst-camp-spark { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; border-radius: 50%; background: radial-gradient(circle,#ffe2b0,#ff9a44 60%,transparent 78%); box-shadow: 0 0 6px 2px rgba(255,154,68,.5); animation: gtCampSparkFly .55s ease-out forwards; }
+@keyframes gtCampSparkFly { 0% { transform: translate(0,0) scale(1); opacity: .95; } 100% { transform: translate(var(--tx,0),var(--ty,0)) scale(.15); opacity: 0; } }
+.gt-burst-camp-word { position: fixed; pointer-events: none; z-index: 999996; left: 0; top: 0; transform: translate(-50%,-50%); font-family: 'Nanum Myeongjo', serif; font-size: 13px; color: #ffb96a; text-shadow: 0 0 8px rgba(255,154,68,.7); white-space: nowrap; animation: gtCampWordFloat .7s ease-out forwards; }
+@keyframes gtCampWordFloat { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.8); } 25% { opacity: 1; transform: translate(-50%,-50%) scale(1); } 100% { opacity: 0; transform: translate(-50%,-50%) translateY(-20px); } }

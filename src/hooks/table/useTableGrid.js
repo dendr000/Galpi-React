@@ -63,7 +63,7 @@ export const useTableGrid = () => {
       Array.from({ length: 3 }, (_, r) =>
         Array.from({ length: 3 }, () => ({
           text: '', align: r === 0 ? 'center' : 'left', rowSpan: 1, colSpan: 1, isHidden: false,
-          bold: false, italic: false, strike: false
+          bold: false, italic: false, strike: false, headCol: false, noRowHeader: false
         }))
       )
     );
@@ -120,6 +120,34 @@ export const useTableGrid = () => {
           newGrid[r][c] = { ...newGrid[r][c], [formatType]: !newGrid[r][c][formatType] };
         }
       }
+      return newGrid;
+    });
+  };
+
+  // 0번 행은 원래부터 위치 기반으로 항상 헤더 취급되는데, 이 함수는 그와 별개로
+  // 포커스된 셀이 속한 "열" 전체를 헤더로 지정/해제한다(행 헤더와 독립적으로 동작).
+  // 이미 전부 켜져 있으면 끄고, 아니면 전부 켠다 — 열 안에서 일부만 켜진 애매한 상태를 피한다.
+  const toggleHeaderCol = () => {
+    if (!focusedCell) return;
+    const { c } = focusedCell;
+    setGrid(prev => {
+      const newGrid = prev.map(row => row.map(cell => ({ ...cell })));
+      const allOn = newGrid.every(row => !row[c] || row[c].headCol);
+      newGrid.forEach(row => { if (row[c]) row[c].headCol = !allOn; });
+      return newGrid;
+    });
+  };
+
+  // 0번 행의 "위치상 무조건 헤더" 기본값을 껐다 켰다 하는 옵트아웃 스위치.
+  // 열 헤더와 달리 포커스된 셀에 의존하지 않는다 — 헤더가 될 수 있는 행은 애초에 0번 행뿐이라
+  // 항상 그 행을 대상으로 한다(포커스가 다른 행에 있어도 헷갈리지 않게).
+  const toggleRowHeader = () => {
+    setGrid(prev => {
+      if (prev.length === 0) return prev;
+      const newGrid = prev.map(row => row.map(cell => ({ ...cell })));
+      const row0 = newGrid[0];
+      const currentlyOptedOut = row0.every(cell => !cell || cell.noRowHeader);
+      row0.forEach(cell => { if (cell) cell.noRowHeader = !currentlyOptedOut; });
       return newGrid;
     });
   };
@@ -307,7 +335,7 @@ export const useTableGrid = () => {
     focusedCell, setFocusedCell, initGrid, handleCellChange, handleAlignChange,
     insertRowAbove, insertRowBelow, insertColLeft, insertColRight, deleteFocusedRow, deleteFocusedCol,
     mergeRight, mergeDown, unmerge,
-    toggleFormat, clearFormatting, clearSelectedContents, pasteToSelectedCells,
+    toggleFormat, toggleHeaderCol, toggleRowHeader, clearFormatting, clearSelectedContents, pasteToSelectedCells,
     selectedCellKeys, setSelectedCellKeys,
     undo, redo, canUndo: history.past.length > 0, canRedo: history.future.length > 0
   };

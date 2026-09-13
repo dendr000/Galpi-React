@@ -5,7 +5,7 @@ import { useModalStore } from '../../../store/useModalStore';
 import FabMemoSidebar from './components/FabMemoSidebar';
 import FabMemoEditor from './FabMemoEditor';
 
-const FabMemoModal = () => {
+const FabMemoModal = ({ bpCore, globalBpList }) => {
   const { closeModal } = useModalStore();
   const [memoData, setMemoData] = useState([]);
   const [memoFolders, setMemoFolders] = useState(["기타"]);
@@ -48,8 +48,14 @@ const FabMemoModal = () => {
           setMemoFolders(mergedFolders);
           localStorage.setItem('galpi-memo-folders', JSON.stringify(mergedFolders));
 
+          // ★ localStorage 캐시엔 없었지만(그래서 위 동기 복원이 못 잡았지만) 방금 받아온
+          // 서버 목록엔 있는 경우를 대비한 뒤늦은 복원인데, 이 API 응답이 돌아오기까지 몇 초
+          // 걸리는 동안 사용자가 이미 다른 메모를 클릭했을 수도 있다 — 그때도 무조건 여기서
+          // lastId로 되돌려버려서, 메모1 보다가 메모2를 눌러도 몇 초 뒤 메모1로 "튕기는"
+          // 버그였다. prev가 아직 아무것도 안 골라진(null) 상태일 때만 복원해서, 그 사이
+          // 사용자가 뭔가 이미 선택해뒀으면 절대 안 건드리게 한다.
           if (lastId && res.data.find(m => String(m.id) === String(lastId))) {
-            setActiveMemoId(isNaN(Number(lastId)) ? lastId : Number(lastId));
+            setActiveMemoId(prev => (prev == null ? (isNaN(Number(lastId)) ? lastId : Number(lastId)) : prev));
           }
         }
       }).catch(err => {});
@@ -112,6 +118,7 @@ const FabMemoModal = () => {
           memoData={memoData} setMemoData={setMemoData}
           currentFolder={currentFolder}
           setActiveMemoId={setActiveMemoId}
+          bpCore={bpCore} globalBpList={globalBpList}
         />
       </div>
     </div>

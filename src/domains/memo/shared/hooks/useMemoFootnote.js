@@ -6,6 +6,9 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
   const timeoutRef = useRef(null);
 
   // ★ CSS 정밀 교정: inline을 유지하여 튕김 차단
+  // (user-select:none은 일부러 안 넣는다 — 이게 있으면 각주를 포함한 문장을 드래그해서
+  // 복사할 때 브라우저가 [1] 마커 텍스트를 선택/복사 대상에서 통째로 제외해버려서, 각주가
+  // 있는 문장을 복사해 다른 곳에 붙여넣으면 각주만 조용히 사라지는 버그가 있었다.)
   useEffect(() => {
     if (!document.getElementById('memo-footnote-styles')) {
       const style = document.createElement('style');
@@ -17,12 +20,11 @@ export const useMemoFootnote = (editorRef, updateCharCount, saveMemo) => {
             background: var(--table-bg-alt); 
             padding: 0 1px; 
             margin: 0; 
-            border-radius: 3px; 
-            cursor: pointer; 
-            font-size: 0.8em; 
-            vertical-align: super; 
-            text-decoration: none; 
-            user-select: none; 
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8em;
+            vertical-align: super;
+            text-decoration: none;
             display: inline;
             white-space: nowrap;
             line-height: 1;

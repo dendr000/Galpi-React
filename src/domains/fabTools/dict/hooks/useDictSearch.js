@@ -1,10 +1,12 @@
 // 파일 위치: src/domains/fabTools/dict/hooks/useDictSearch.js
 // 서버사이드 검색으로 전면 개편: Enter를 누를 때만 백엔드에 키워드를 보내 일부 결과만 받아온다.
 // (기존에는 globalDictList 전체를 useMemo로 클라이언트 필터링 — 19만 건 이상에서 브라우저/서버 크래시 유발)
+// ★ 사전이 작품별로 나뉘지 않는 전역 단일 사전으로 바뀌면서 workId 파라미터도 제거했다 —
+// 등록한 작품이 아니면 검색이 안 되던 혼란의 원인이 바로 이 workId 스코프였다.
 import { useState, useCallback } from 'react';
 import api from '../../../../api/axiosCore';
 
-export const useDictSearch = (currentWorkId) => {
+export const useDictSearch = () => {
   const [dictSearch, setDictSearch] = useState('');
   const [submittedSearch, setSubmittedSearch] = useState('');
   const [filteredList, setFilteredList] = useState([]);
@@ -18,7 +20,7 @@ export const useDictSearch = (currentWorkId) => {
     setIsSearching(true);
     try {
       const res = await api.get('/api/dicts/search', {
-        params: { workId: currentWorkId, keyword }
+        params: { keyword }
       });
       setFilteredList(res.data);
     } catch (e) {
@@ -27,7 +29,7 @@ export const useDictSearch = (currentWorkId) => {
     } finally {
       setIsSearching(false);
     }
-  }, [currentWorkId]);
+  }, []);
 
   const submitSearch = useCallback(() => {
     const keyword = dictSearch.trim();

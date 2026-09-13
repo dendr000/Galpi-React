@@ -17,6 +17,14 @@ import './themes/apocalypse-camp.css';
 import './themes/hero-comic.css';
 import './themes/hero-hud.css';
 import './themes/hero-urban.css';
+import './themes/hunter-gate.css';
+import './themes/hunter-hologram.css';
+import './themes/joseon-talisman.css';
+import './themes/joseon-shrine.css';
+import './themes/joseon-lantern.css';
+import './themes/horror-archive.css';
+import './themes/horror-store.css';
+import './themes/horror-corridor.css';
 import { resolveGenreTheme } from '../../domains/work/genreTheme';
 import GenreCursor from '../../components/common/GenreCursor';
 import { extractMeta } from '../../utils/markdownParser';
@@ -58,6 +66,35 @@ const WorkDetailPage = () => {
     window.addEventListener('galpi-theme-cycled', handleThemeCycled);
     return () => window.removeEventListener('galpi-theme-cycled', handleThemeCycled);
   }, [data.workId]);
+
+  // "최근 열람 작품"(FAB 메뉴) 기록 — 예전엔 RecentModal이 읽기만 하고 아무도 이 키에 쓰질
+  // 않아서 항상 빈 목록이었다. 이 작품에 진입할 때마다 맨 앞으로 올리고(중복 제거), 너무
+  // 길어지지 않게 20개로 제한한다.
+  useEffect(() => {
+    if (!data.work?.id) return;
+    try {
+      const ids = JSON.parse(localStorage.getItem('galpi-recent-works') || '[]');
+      const deduped = ids.filter(id => String(id) !== String(data.work.id));
+      deduped.unshift(data.work.id);
+      localStorage.setItem('galpi-recent-works', JSON.stringify(deduped.slice(0, 20)));
+    } catch (e) { /* 로컬스토리지 접근 불가 환경이면 조용히 무시 */ }
+  }, [data.work?.id]);
+
+  // ★ 장르 테마는 #galpi-genre-zone 안에서만 [data-genre-theme] 속성으로 적용돼서, 그 바깥의
+  // 전역 요소(하단 푸터 등)는 지금 보고 있는 작품이 무슨 테마든 항상 똑같은 기본 모습이었다.
+  // body에 그대로 같은 속성명을 동기화했더니, 각 테마 CSS가 전부 "[data-genre-theme=...]"를
+  // 스코프 없이(#galpi-genre-zone 한정 없이) 그대로 쓰고 있어서 body 자체에도 배경/클립패스가
+  // 그대로 적용돼버려 페이지 아래쪽이 통째로 잘려 보이지 않는 심각한 회귀가 났었다. 그래서
+  // 아예 다른 속성명(data-footer-theme)을 써서 기존 테마 규칙과 절대 충돌하지 않게 했다
+  // (Footer.module.css/각 테마 CSS의 gt-footer 규칙은 이 새 속성만 본다).
+  useEffect(() => {
+    if (!data.work) return;
+    const parsed = extractMeta(data.work.description || "");
+    const theme = resolveGenreTheme(data.work.genre, parsed.meta.themeOverride);
+    if (theme) document.body.setAttribute('data-footer-theme', theme);
+    else document.body.removeAttribute('data-footer-theme');
+    return () => document.body.removeAttribute('data-footer-theme');
+  }, [data.work?.genre, data.work?.description]);
 
   if (data.loading || !data.work) {
     return <div className="fixed-container" style={{ padding: '50px 20px', color: 'var(--text-secondary)', fontWeight:'bold' }}>데이터베이스 스캔 중...</div>;
@@ -119,8 +156,14 @@ const WorkDetailPage = () => {
         try {
           let dp = JSON.parse(base.dynamicProperties || base._rawDynamic || "{}");
           if (typeof dp === 'string') dp = JSON.parse(dp);
-          return dp._groupSortOrders?.[k] ?? base.sortOrder ?? 999;
-        } catch(e) { 
+          // ★ base.sortOrder는 캐릭터 객체에 존재한 적이 없는 필드라 항상 undefined였다(백엔드
+          // Character 엔티티에 sortOrder 컬럼 자체가 없음) — 그래서 드래그로 이 그룹 전용 순서를
+          // 따로 정해둔 적 없는 캐릭터는 전부 999로 묶여 정렬이 사실상 무동작이었고, 붙여넣기로
+          // 여러 명을 한꺼번에 저장할 때 동시에 날아간 POST 요청들의 완료 순서(=DB id 부여 순서)
+          // 그대로 뒤죽박죽 표시되는 버그였다. 실제 저장되는 필드는 dynamicProperties 안의
+          // dp.sortOrder이므로 그걸 읽어야 한다.
+          return dp._groupSortOrders?.[k] ?? dp.sortOrder ?? 999;
+        } catch(e) {
           console.warn(`[WorkDetailPage] 정렬 순서 파싱 에러 발생: ${char.name}`, e);
           return base.sortOrder ?? 999; 
         }
@@ -129,7 +172,10 @@ const WorkDetailPage = () => {
     });
   });
 
-  const groupOrderArray = parsedDesc.meta._groupOrder?.[data.groupCriteria] || [];
+  // "관계" 기준으로 볼 때 작품마다 _groupOrder를 따로 설정해두지 않았으면, 연인 → 친구 →
+  // 일반 순서를 기본값으로 쓴다 (일괄 관리 스튜디오의 "카드 배치 순" 정렬과 같은 기본값).
+  const DEFAULT_GROUP_ORDER = { '관계': ['연인', '친구', '일반'] };
+  const groupOrderArray = parsedDesc.meta._groupOrder?.[data.groupCriteria] || DEFAULT_GROUP_ORDER[data.groupCriteria] || [];
   const sortedGroupNames = Object.keys(groupedChars).sort((a, b) => {
     let idxA = groupOrderArray.indexOf(a);
     let idxB = groupOrderArray.indexOf(b);
@@ -267,7 +313,7 @@ const WorkDetailPage = () => {
       </div>
 
       {/* 실시간 썸네일 Y축 드래그 조정 일괄 레이어 모달 */}
-      <BatchImageModal isOpen={data.isBatchImgModalOpen} onClose={() => data.setIsBatchImgModalOpen(false)} characters={data.characters} work={data.work} charExt={charExt} batchImgY={data.batchImgY} setBatchImgY={data.setBatchImgY} setCharacters={data.setCharacters} />
+      <BatchImageModal isOpen={data.isBatchImgModalOpen} onClose={() => data.setIsBatchImgModalOpen(false)} characters={data.characters} work={data.work} charExt={charExt} batchImgY={data.batchImgY} setBatchImgY={data.setBatchImgY} batchImgX={data.batchImgX} setBatchImgX={data.setBatchImgX} setCharacters={data.setCharacters} />
     </div>
   );
 };

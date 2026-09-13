@@ -8,9 +8,9 @@ import BulkSidebar from './BulkSidebar';
 import BulkToolbar from './BulkToolbar';
 import BulkTable from './BulkTable';
 import { BulkModals } from './BulkModals';
+import { IconSave } from '../../components/common/icons/DomainIcons';
 
 const BulkStudioPage = () => {
-  console.log("[BulkStudioPage] 일괄 수정 스튜디오 코어 UI 렌더링 호출");
   const data = useBulkStudioData();
 
   const activeRow = data.activeRowIdx !== null ? data.rows[data.activeRowIdx] : null;
@@ -39,8 +39,8 @@ const BulkStudioPage = () => {
 
         {/* 4. 하단 마스터 세이브 패널 */}
         <div className={styles.footer}>
-          <button className="wiki-btn" style={{ width: '100%', background: '#10b981', padding: '15px', fontSize: '16px', fontWeight: 'bold' }} onClick={data.handleSaveAll}>
-            💾 전체 데이터베이스에 일괄 저장 및 작품으로 돌아가기
+          <button className="wiki-btn" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#10b981', padding: '15px', fontSize: '16px', fontWeight: 'bold' }} onClick={data.handleSaveAll}>
+            <IconSave size={18} /> 전체 데이터베이스에 일괄 저장 및 작품으로 돌아가기
           </button>
         </div>
       </main>

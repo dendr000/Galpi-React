@@ -2,7 +2,7 @@
 /* 무협 방향 C — 등선(登仙). 구름 위 선경, 옥빛과 금. 사이버펑크 계열처럼 라이트/다크 토글과
    무관하게 항상 어두운 세계관으로 고정된 시안(committed dark world). */
 
-[data-genre-theme="wuxia-ascend"] {
+[data-genre-theme="wuxia-ascend"], [data-footer-theme="wuxia-ascend"] {
   --wa-bg1: #0a2b23; --wa-bg2: #06211c; --wa-panel: rgba(28,74,63,.5); --wa-panel-line: rgba(223,192,106,.4);
   --wa-ink: #e9f7f0; --wa-ink-soft: #9fc9bb; --wa-jade: #52e0ac; --wa-gold: #dfc06a;
   --wa-font-display: 'Hahmlet', serif;
@@ -76,13 +76,15 @@
 [data-genre-theme="wuxia-ascend"] .gt-card > div:last-child > div span:last-child { color: var(--wa-jade) !important; font-family: var(--wa-font-body); font-weight: 700 !important; }
 
 [data-genre-theme="wuxia-ascend"] .gt-infobox { background: var(--wa-panel) !important; backdrop-filter: blur(6px); border-color: var(--wa-panel-line) !important; border-top: 3px solid var(--wa-gold) !important; }
-[data-genre-theme="wuxia-ascend"] .gt-infobox-title { font-family: var(--wa-font-display); filter: saturate(1.15) brightness(1.02); }
+[data-genre-theme="wuxia-ascend"] .gt-infobox-title { font-family: var(--wa-font-display); filter: saturate(1.15) brightness(1.02); background: var(--wa-panel) !important; border-bottom: 3px solid var(--wa-gold) !important; }
+[data-footer-theme="wuxia-ascend"] .gt-footer { background: var(--wa-panel) !important; border-top: 1px solid var(--wa-gold) !important; }
+[data-footer-theme="wuxia-ascend"] .gt-footer-btn:hover { color: var(--wa-gold) !important; }
 [data-genre-theme="wuxia-ascend"] .gt-infobox-image { border-bottom-color: var(--wa-panel-line) !important; }
-[data-genre-theme="wuxia-ascend"] .gt-infobox-table th { background: rgba(82,224,172,.08) !important; color: var(--wa-ink-soft) !important; border-color: var(--wa-panel-line) !important; font-family: var(--wa-font-mono); font-weight: 500 !important; }
-[data-genre-theme="wuxia-ascend"] .gt-infobox-table td { color: var(--wa-ink) !important; border-color: var(--wa-panel-line) !important; font-family: var(--wa-font-body); }
+[data-genre-theme="wuxia-ascend"] .gt-infobox-table th, [data-genre-theme="wuxia-ascend"] .gt-table th { background: rgba(82,224,172,.08) !important; color: var(--wa-ink-soft) !important; border-color: var(--wa-panel-line) !important; font-family: var(--wa-font-mono); font-weight: 500 !important; }
+[data-genre-theme="wuxia-ascend"] .gt-infobox-table td, [data-genre-theme="wuxia-ascend"] .gt-table td { color: var(--wa-ink) !important; border-color: var(--wa-panel-line) !important; font-family: var(--wa-font-body); }
 [data-genre-theme="wuxia-ascend"] .gt-infobox-desc { background: var(--wa-panel) !important; color: var(--wa-ink-soft) !important; border-top-color: var(--wa-panel-line) !important; }
-[data-genre-theme="wuxia-ascend"] .gt-btn-edit { border-color: var(--wa-jade) !important; color: var(--wa-jade) !important; }
-[data-genre-theme="wuxia-ascend"] .gt-btn-del { border-color: var(--wa-ink-soft) !important; color: var(--wa-ink-soft) !important; }
+[data-genre-theme="wuxia-ascend"] .gt-btn-edit { border-color: var(--wa-jade) !important; color: var(--wa-jade) !important; background: transparent !important; }
+[data-genre-theme="wuxia-ascend"] .gt-btn-del { border-color: var(--wa-ink-soft) !important; color: var(--wa-ink-soft) !important; background: transparent !important; }
 
 [data-genre-theme="wuxia-ascend"] .md-box { background: var(--wa-panel) !important; backdrop-filter: blur(6px); border-color: var(--wa-panel-line) !important; }
 [data-genre-theme="wuxia-ascend"] .markdown-body { color: var(--wa-ink); }
@@ -121,3 +123,5 @@
 [data-genre-theme="wuxia-ascend"] .gt-macro-subheader { background: rgba(82,224,172,.08) !important; }
 [data-genre-theme="wuxia-ascend"] .gt-macro-track { background: rgba(82,224,172,.12) !important; }
 [data-genre-theme="wuxia-ascend"] .tl-dot { border-color: var(--wa-bg2) !important; }
+
+[data-genre-theme="wuxia-ascend"] .gt-table { background: var(--wa-panel) !important; box-shadow: 0 0 0 1px var(--wa-panel-line) !important; }

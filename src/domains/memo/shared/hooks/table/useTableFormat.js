@@ -48,12 +48,16 @@ export const useTableFormat = ({ activeCellRef, updateCharCount }) => {
   const toggleTableWidth = () => {
     if (!activeCellRef.current) return;
     const table = activeCellRef.current.closest('table');
+    // ★ 예전엔 두 분기가 똑같이 width를 'max-content'로 넣고 있어서, 버튼을 눌러도
+    // 실제로는 아무것도 안 바뀌었다(항상 콘텐츠 크기 모드). "채우기"는 진짜 100%로,
+    // "콘텐츠 크기만" 모드는 max-content로 — 전역 CSS의 max-width:100%가 그래도
+    // 컨테이너 밖으로 새는 것만은 막아준다.
     if (table.style.minWidth === '100%') {
       table.style.minWidth = 'auto';
       table.style.width = 'max-content';
     } else {
       table.style.minWidth = '100%';
-      table.style.width = 'max-content';
+      table.style.width = '100%';
     }
     updateCharCount();
   };

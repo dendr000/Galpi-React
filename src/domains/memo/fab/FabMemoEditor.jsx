@@ -8,7 +8,6 @@ import MemoFootnotePopover from '../shared/components/MemoFootnotePopover';
 import MemoLinkPopover from '../shared/components/MemoLinkPopover';
 import MemoEditorBody from '../shared/components/MemoEditorBody';
 import MemoTagBar from '../shared/components/MemoTagBar';
-import BoilerplateSuggestPopup from '../../fabTools/boilerplate/components/BoilerplateSuggestPopup';
 import MemoBookmarkModal from '../shared/components/MemoBookmarkModal';
 
 const FabMemoEditor = (props) => {
@@ -33,12 +32,6 @@ const FabMemoEditor = (props) => {
         onNavigate={editorHooks.bookmarkHooks.scrollToBookmark}
       />
 
-      <BoilerplateSuggestPopup 
-        popupState={editorHooks.bpPopupState}
-        commitBpExpansion={editorHooks.commitBpExpansion}
-        updatePopupState={editorHooks.updatePopupState}
-      />
-
       <MemoFootnotePopover {...editorHooks.footnoteHooks} />
       <MemoLinkPopover {...editorHooks.linkHooks} />
 
@@ -54,8 +47,9 @@ const FabMemoEditor = (props) => {
       <FabMemoFormatBar 
         executeCmd={editorHooks.executeCmd} 
         insertHtml={editorHooks.insertHtml} 
-        tableCtrlVisible={editorHooks.tableCtrlVisible} 
-        setTableCtrlVisible={editorHooks.setTableCtrlVisible} 
+        tableCtrlVisible={editorHooks.tableCtrlVisible}
+        setTableCtrlVisible={editorHooks.setTableCtrlVisible}
+        hasTable={editorHooks.hasTable}
         addTableRowBelow={editorHooks.addTableRowBelow} 
         addTableColRight={editorHooks.addTableColRight} 
         delTableRow={editorHooks.delTableRow} 

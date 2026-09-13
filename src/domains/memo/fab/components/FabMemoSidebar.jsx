@@ -31,9 +31,7 @@ const FabMemoSidebar = (props) => {
     e.stopPropagation();
     const path = type === 'memo' ? `/memo?id=${target}` : `/memo?folder=${encodeURIComponent(target)}`;
 
-    navigator.clipboard.writeText(path).then(() => {
-      console.log(`[FabMemoSidebar] 경로 복사 완료: ${path}`);
-    }).catch(err => {
+    navigator.clipboard.writeText(path).catch(err => {
       console.error("[FabMemoSidebar] 클립보드 복사 실패:", err);
     });
   };
@@ -68,7 +66,7 @@ const FabMemoSidebar = (props) => {
             </div>
           </div>
 
-          <div className="galpi-sidebar-scroll" style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
+          <div ref={sidebarHooks.listContainerRef} className="galpi-sidebar-scroll" style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
             <FabMemoSmartFolders 
               currentFolder={props.currentFolder} 
               setCurrentFolder={props.setCurrentFolder} 
@@ -76,19 +74,30 @@ const FabMemoSidebar = (props) => {
 
             {(["최근 7일", "미분류"].includes(props.currentFolder) || props.selectedTag) ? (
               <div style={{ padding: '5px 0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 8px', marginBottom: '10px' }}>
-                  <span style={{ fontSize: '11px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 8px', marginBottom: '10px', gap: '8px' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--primary-color)', fontWeight: 'bold', flexShrink: 0 }}>
                     {props.selectedTag ? `#${props.selectedTag} 검색 결과` : `${props.currentFolder} 결과`} ({sidebarHooks.filteredMemos.length}건)
                   </span>
-                  <button 
-                    onClick={() => {
-                      if (props.selectedTag) props.setSelectedTag(null);
-                      else props.setCurrentFolder("기타");
-                    }}
-                    style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px', padding: 0 }}
-                  >
-                    <XIcon size={12} /> 닫기
-                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                    <select
+                      value={sidebarHooks.currentSort}
+                      onChange={sidebarHooks.handleSortChange}
+                      title="정렬 기준"
+                      style={{ background: 'transparent', border: '1px solid var(--border-color)', borderRadius: '4px', color: 'var(--text-secondary)', fontSize: '10.5px', fontWeight: 'bold', padding: '2px 4px', cursor: 'pointer', outline: 'none' }}
+                    >
+                      <option value="name">이름순</option>
+                      <option value="date">최신순</option>
+                    </select>
+                    <button
+                      onClick={() => {
+                        if (props.selectedTag) props.setSelectedTag(null);
+                        else props.setCurrentFolder("기타");
+                      }}
+                      style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px', padding: 0 }}
+                    >
+                      <XIcon size={12} /> 닫기
+                    </button>
+                  </div>
                 </div>
                 {sidebarHooks.filteredMemos.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: 'bold' }}>해당하는 메모가 없습니다.</div>

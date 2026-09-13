@@ -1,6 +1,6 @@
 // 파일 위치: src/domains/memo/page/components/PageMemoSidebar.jsx
 import React from 'react';
-import { FolderIcon, FolderPlusIcon, EditIcon, TrashIcon } from '../../shared/components/MemoIcons';
+import { FolderIcon, FolderPlusIcon, TrashIcon } from '../../shared/components/MemoIcons';
 import PageMemoTreeRenderer from './PageMemoTreeRenderer';
 import { usePageMemoTree } from '../hooks/usePageMemoTree';
 
@@ -26,8 +26,9 @@ const PageMemoSidebar = ({
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><FolderIcon /> 메모 폴더</span>
             <div style={{ display: 'flex', gap: '4px' }}>
+              {/* "현재 폴더 수정" 버튼은 제거함 — 트리에서 폴더를 선택하면 나오는 "이름 변경" 버튼과
+                  완전히 같은 handleEditFolder(currentFolder) 호출이라 순수 중복이었다. */}
               <button className="wiki-btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', fontSize: '11px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} onClick={() => handleAddFolder('')} title="최상위 폴더 추가"><FolderPlusIcon /></button>
-              <button className="wiki-btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', fontSize: '11px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} onClick={() => handleEditFolder(currentFolder)} title="현재 폴더 수정"><EditIcon /></button>
               <button className="wiki-btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', fontSize: '11px', background: 'var(--surface-color)', border: '1px solid #e53e3e', color: '#e53e3e' }} onClick={() => handleDeleteFolder(currentFolder)} title="삭제"><TrashIcon /></button>
             </div>
           </div>

@@ -38,19 +38,18 @@ export const useTableStructure = ({ editorRef, activeCellRef, setTableCtrlVisibl
     updateCharCount();
   };
 
+  // ★ execCommand('delete')는 표 안에서는 셀/행 "내용"만 비우고 태그 자체는 안 지운다 — 브라우저가
+  // 표를 삐뚤빼뚤(행마다 칸 수가 다른) 상태로 만들지 않으려고 구조 변경성 delete를 막아버리기
+  // 때문이다(행 삭제도 열 삭제도 똑같이 셀만 비워지고 실제 행/열이 안 없어지던 버그였음).
+  // execCommand 대신 DOM에서 직접 tr/td를 떼어내면 확실히 지워진다 — 다만 이 방식은 브라우저의
+  // 네이티브 실행취소(Ctrl+Z) 스택에는 안 잡힌다(execCommand 기반 변경만 자동으로 추적됨).
   const delTableRow = () => {
     if (!activeCellRef.current) return;
     editorRef.current?.focus();
     const tr = activeCellRef.current.closest('tr');
     if (tr.parentNode.children.length <= 1) return alert("표에는 최소 1개의 행이 남아있어야 합니다.");
-    
-    const sel = window.getSelection();
-    const range = document.createRange();
-    range.selectNode(tr);
-    sel.removeAllRanges();
-    sel.addRange(range);
-    
-    document.execCommand('delete', false, null);
+
+    tr.remove();
     setTableCtrlVisible(false);
     activeCellRef.current = null;
     updateCharCount();
@@ -62,19 +61,12 @@ export const useTableStructure = ({ editorRef, activeCellRef, setTableCtrlVisibl
     const tr = activeCellRef.current.closest('tr');
     const table = activeCellRef.current.closest('table');
     const cellIdx = Array.from(tr.children).indexOf(activeCellRef.current);
-    
+
     if (tr.children.length <= 1) return alert("표에는 최소 1개의 열이 남아있어야 합니다.");
 
-    const sel = window.getSelection();
     table.querySelectorAll('tr').forEach(row => {
       const cell = row.children[cellIdx];
-      if (cell) {
-        const range = document.createRange();
-        range.selectNode(cell);
-        sel.removeAllRanges();
-        sel.addRange(range);
-        document.execCommand('delete', false, null);
-      }
+      if (cell) cell.remove();
     });
     setTableCtrlVisible(false);
     activeCellRef.current = null;

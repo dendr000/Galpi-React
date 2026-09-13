@@ -2,7 +2,7 @@
 /* 무협 방향 B — 혈로(血路). 밤의 강호, 핏빛과 강철. 사이버펑크 계열처럼 라이트/다크 토글과
    무관하게 항상 어두운 세계관으로 고정된 시안(committed dark world). */
 
-[data-genre-theme="wuxia-blood"] {
+[data-genre-theme="wuxia-blood"], [data-footer-theme="wuxia-blood"] {
   --wb-bg: #0c0807; --wb-bg2: #1a1210; --wb-ink: #f1e7e2; --wb-ink-soft: #a3877f;
   --wb-red: #e0263f; --wb-redglow: #ff4a63; --wb-line: #3c211d;
   --wb-font-display: 'Gugi', sans-serif;
@@ -86,13 +86,15 @@
 [data-genre-theme="wuxia-blood"] .gt-card > div:last-child > div span:last-child { color: var(--wb-redglow) !important; font-family: var(--wb-font-body); font-weight: 900 !important; }
 
 [data-genre-theme="wuxia-blood"] .gt-infobox { background: var(--wb-bg2) !important; border-color: var(--wb-line) !important; border-top: 4px solid var(--wb-red) !important; }
-[data-genre-theme="wuxia-blood"] .gt-infobox-title { font-family: var(--wb-font-display); filter: saturate(1.1) brightness(.95); }
+[data-genre-theme="wuxia-blood"] .gt-infobox-title { font-family: var(--wb-font-display); filter: saturate(1.1) brightness(.95); background: var(--wb-red) !important; }
+[data-footer-theme="wuxia-blood"] .gt-footer { background: var(--wb-bg2) !important; border-top: 1px solid var(--wb-red) !important; }
+[data-footer-theme="wuxia-blood"] .gt-footer-btn:hover { color: var(--wb-red) !important; }
 [data-genre-theme="wuxia-blood"] .gt-infobox-image { border-bottom-color: var(--wb-line) !important; }
-[data-genre-theme="wuxia-blood"] .gt-infobox-table th { background: #140d0b !important; color: var(--wb-ink-soft) !important; border-color: var(--wb-line) !important; font-family: var(--wb-font-mono); font-weight: 500 !important; }
-[data-genre-theme="wuxia-blood"] .gt-infobox-table td { color: var(--wb-ink) !important; border-color: var(--wb-line) !important; font-family: var(--wb-font-body); }
+[data-genre-theme="wuxia-blood"] .gt-infobox-table th, [data-genre-theme="wuxia-blood"] .gt-table th { background: #140d0b !important; color: var(--wb-ink-soft) !important; border-color: var(--wb-line) !important; font-family: var(--wb-font-mono); font-weight: 500 !important; }
+[data-genre-theme="wuxia-blood"] .gt-infobox-table td, [data-genre-theme="wuxia-blood"] .gt-table td { color: var(--wb-ink) !important; border-color: var(--wb-line) !important; font-family: var(--wb-font-body); }
 [data-genre-theme="wuxia-blood"] .gt-infobox-desc { background: var(--wb-bg2) !important; color: var(--wb-ink-soft) !important; border-top-color: var(--wb-line) !important; }
-[data-genre-theme="wuxia-blood"] .gt-btn-edit { border-color: var(--wb-red) !important; color: var(--wb-redglow) !important; }
-[data-genre-theme="wuxia-blood"] .gt-btn-del { border-color: var(--wb-ink-soft) !important; color: var(--wb-ink-soft) !important; }
+[data-genre-theme="wuxia-blood"] .gt-btn-edit { border-color: var(--wb-red) !important; color: var(--wb-redglow) !important; background: transparent !important; }
+[data-genre-theme="wuxia-blood"] .gt-btn-del { border-color: var(--wb-ink-soft) !important; color: var(--wb-ink-soft) !important; background: transparent !important; }
 
 [data-genre-theme="wuxia-blood"] .md-box { background: var(--wb-bg2) !important; border-color: var(--wb-line) !important; }
 [data-genre-theme="wuxia-blood"] .markdown-body { color: var(--wb-ink); }
@@ -131,3 +133,5 @@
 [data-genre-theme="wuxia-blood"] .gt-macro-subheader { background: #140d0b !important; }
 [data-genre-theme="wuxia-blood"] .gt-macro-track { background: #140d0b !important; }
 [data-genre-theme="wuxia-blood"] .tl-dot { border-color: var(--wb-bg) !important; }
+
+[data-genre-theme="wuxia-blood"] .gt-table { background: var(--wb-bg2) !important; box-shadow: 0 0 0 1px var(--wb-line) !important; }

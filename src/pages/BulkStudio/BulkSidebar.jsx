@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import MarkdownRenderer from '../../domains/macro/MarkdownRenderer';
+import { IconEye } from '../../components/common/icons/DomainIcons';
 
 const BulkSidebar = ({ isPreviewOpen, activeRow, labels, workTitle, workMeta }) => {
   const [variantIdx, setVariantIdx] = useState(0);
@@ -14,7 +15,7 @@ const BulkSidebar = ({ isPreviewOpen, activeRow, labels, workTitle, workMeta }) 
   if (!activeRow) {
     return (
       <aside className={`bulk-sidebar ${!isPreviewOpen ? 'sidebarClosed' : ''}`}>
-        <div className="previewHeader">✨ 실시간 뷰어</div>
+        <div className="previewHeader" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}><IconEye size={16} /> 실시간 뷰어</div>
         <div className="previewContent" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '14px', lineHeight: '1.6' }}>
             우측 표의 입력칸을 클릭하시면<br/><br/>캐릭터 카드가 실시간으로<br/>렌더링됩니다.
@@ -27,6 +28,7 @@ const BulkSidebar = ({ isPreviewOpen, activeRow, labels, workTitle, workMeta }) 
   const title = activeRow.name ? activeRow.name.trim() : "이름 없음";
   const themeColor = activeRow.themeColor || "var(--primary-color)";
   const cExt = workMeta?.charExt || "png";
+  const imgX = activeRow.cardImgX !== undefined ? activeRow.cardImgX : 50;
   const imgY = activeRow.cardImgY !== undefined ? activeRow.cardImgY : 50;
 
   const variants = workMeta?.imgVariants || [];
@@ -71,7 +73,7 @@ const BulkSidebar = ({ isPreviewOpen, activeRow, labels, workTitle, workMeta }) 
 
   return (
     <aside className={`bulk-sidebar ${!isPreviewOpen ? 'sidebarClosed' : ''}`}>
-      <div className="previewHeader">✨ 실시간 뷰어</div>
+      <div className="previewHeader" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}><IconEye size={16} /> 실시간 뷰어</div>
       <div className="previewContent">
         
         {/* 실제 작품 페이지 캐릭터 카드 레이아웃 완벽 동기화 */}
@@ -86,14 +88,11 @@ const BulkSidebar = ({ isPreviewOpen, activeRow, labels, workTitle, workMeta }) 
                   이미지 없음
                 </div>
                 {/* 2. 실제 이미지는 zIndex: 1로 텍스트를 덮고 있으며, 엑스박스 발생 시 innerHTML 훼손 없이 본인만 조용히 숨깁니다. */}
-                <img 
-                  src={imgSrc} 
-                  onClick={(e) => {
-                    console.log(`[BulkSidebar] 일괄 수정 스튜디오 썸네일 이미지 클릭 이벤트 감지. 대상: ${title}`);
-                    handleImageClick(e);
-                  }}
+                <img
+                  src={imgSrc}
+                  onClick={handleImageClick}
                   title="Shift+클릭하여 바리에이션 변경"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: `center ${imgY}%`, cursor: 'pointer', position: 'relative', zIndex: 1 }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: `${imgX}% ${imgY}%`, cursor: 'pointer', position: 'relative', zIndex: 1 }}
                   onError={(e) => { 
                     console.warn(`[BulkSidebar] 썸네일 이미지 로드 실패(404). React DOM 충돌 방지를 위해 요소 자체를 숨김 처리합니다. 경로: ${imgSrc}`);
                     e.target.onerror = null; // 무한 루프 방지

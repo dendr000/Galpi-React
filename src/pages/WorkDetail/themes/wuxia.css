@@ -7,7 +7,7 @@
    undefined가 되어버려서(실제로 겪은 버그), 어쩔 수 없이
    WorkDetail.module.css 안에 함께 있어야 한다. */
 
-[data-genre-theme="wuxia"] {
+[data-genre-theme="wuxia"], [data-footer-theme="wuxia"] {
   --wx-ground: #ded4bc; --wx-paper: #f1e9d4; --wx-ink: #221f19; --wx-ink-soft: #746b58;
   --wx-vermillion: #b3312c; --wx-line: #d6c8a0;
   --wx-rod: #4a3018; --wx-rod-hi: #8a6438; --wx-finial: #c9a24a; --wx-finial-hi: #f0d98a;
@@ -18,7 +18,7 @@
      폰트로 대체되던 버그가 있었다 — 한글 지원 폴백을 이어 붙였다. */
   --wx-font-mono: 'IBM Plex Mono', 'Nanum Gothic Coding', monospace;
 }
-[data-theme="dark"] [data-genre-theme="wuxia"] {
+[data-theme="dark"] [data-genre-theme="wuxia"], [data-theme="dark"][data-footer-theme="wuxia"] {
   --wx-ground: #14100a; --wx-paper: #241f15; --wx-ink: #ece5d4; --wx-ink-soft: #a89b7f;
   --wx-vermillion: #d9695f; --wx-line: #3c3527;
   --wx-rod: #2a1c0e; --wx-rod-hi: #5c4222; --wx-finial: #a9812f; --wx-finial-hi: #d8bd75;
@@ -122,13 +122,15 @@
 
 /* 우측 인포박스 — 캐릭터별 테마색은 세피아 톤으로 눌러서 한지 위에서도 튀지 않게 */
 [data-genre-theme="wuxia"] .gt-infobox { background: var(--wx-paper) !important; border-color: var(--wx-line) !important; border-top: 4px solid var(--wx-vermillion) !important; }
-[data-genre-theme="wuxia"] .gt-infobox-title { font-family: var(--wx-font-display); filter: sepia(0.35) saturate(0.75) brightness(0.9); }
+[data-genre-theme="wuxia"] .gt-infobox-title { font-family: var(--wx-font-display); filter: sepia(0.35) saturate(0.75) brightness(0.9); background: var(--wx-vermillion) !important; }
+[data-footer-theme="wuxia"] .gt-footer { background: var(--wx-paper) !important; border-top: 1px solid var(--wx-vermillion) !important; }
+[data-footer-theme="wuxia"] .gt-footer-btn:hover { color: var(--wx-vermillion) !important; }
 [data-genre-theme="wuxia"] .gt-infobox-image { border-bottom-color: var(--wx-line) !important; }
-[data-genre-theme="wuxia"] .gt-infobox-table th { background: var(--wx-scroll-paper) !important; color: var(--wx-scroll-ink-soft) !important; border-color: var(--wx-line) !important; font-family: var(--wx-font-mono); font-weight: 500 !important; }
-[data-genre-theme="wuxia"] .gt-infobox-table td { color: var(--wx-ink) !important; border-color: var(--wx-line) !important; font-family: var(--wx-font-body); }
+[data-genre-theme="wuxia"] .gt-infobox-table th, [data-genre-theme="wuxia"] .gt-table th { background: var(--wx-scroll-paper) !important; color: var(--wx-scroll-ink-soft) !important; border-color: var(--wx-line) !important; font-family: var(--wx-font-mono); font-weight: 500 !important; }
+[data-genre-theme="wuxia"] .gt-infobox-table td, [data-genre-theme="wuxia"] .gt-table td { color: var(--wx-ink) !important; border-color: var(--wx-line) !important; font-family: var(--wx-font-body); }
 [data-genre-theme="wuxia"] .gt-infobox-desc { background: var(--wx-paper) !important; color: var(--wx-ink-soft) !important; border-top-color: var(--wx-line) !important; }
-[data-genre-theme="wuxia"] .gt-btn-edit { border-color: var(--wx-vermillion) !important; color: var(--wx-vermillion) !important; }
-[data-genre-theme="wuxia"] .gt-btn-del { border-color: var(--wx-ink-soft) !important; color: var(--wx-ink-soft) !important; }
+[data-genre-theme="wuxia"] .gt-btn-edit { border-color: var(--wx-vermillion) !important; color: var(--wx-vermillion) !important; background: transparent !important; }
+[data-genre-theme="wuxia"] .gt-btn-del { border-color: var(--wx-ink-soft) !important; color: var(--wx-ink-soft) !important; background: transparent !important; }
 
 /* 본문 마크다운 박스 (개요/설정/캐릭터 상세) */
 [data-genre-theme="wuxia"] .md-box { background: var(--wx-paper) !important; border-color: var(--wx-line) !important; }
@@ -198,3 +200,4 @@
   border-radius: 50%;
 }
 
+[data-genre-theme="wuxia"] .gt-table { background: var(--wx-paper) !important; box-shadow: 0 0 0 1px var(--wx-line) !important; }

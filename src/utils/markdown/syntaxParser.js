@@ -48,18 +48,20 @@ export const parseWikiText = (text) => {
             if (inQuote) { newLines.push(`\n<div class="galpi-ext-quote">${quoteBuffer.join('<br>')}</div>\n`); inQuote = false; quoteBuffer = []; }
             if (!inTable) { 
                 inTable = true; 
-                tableBuffer.push('<div style="overflow-x:auto; margin: 15px 0;"><table style="width:100%; border-collapse:collapse; background:var(--surface-color); font-size:13px; border-radius:8px; border-style:hidden; box-shadow:0 0 0 1px var(--border-color), 0 2px 8px rgba(0,0,0,0.02);"><tbody>'); 
+                tableBuffer.push('<div style="overflow-x:auto; margin: 15px 0;"><table class="gt-table" style="width:100%; border-collapse:collapse; background:var(--surface-color); font-size:13px; border-radius:8px; border-style:hidden; box-shadow:0 0 0 1px var(--border-color), 0 2px 8px rgba(0,0,0,0.02);"><tbody>');
             }
             let cells = trimmed.substring(2, trimmed.length - 2).split('||');
-            let isHeader = tableBuffer.length === 1;
+            let isHeaderRow = tableBuffer.length === 1;
             tableBuffer.push('<tr style="border-bottom: 1px solid var(--border-color); transition: background 0.2s;">');
-            
+
             cells.forEach(cell => {
                 let cellContent = cell.trim();
-                let align = isHeader ? 'center' : 'left'; // 헤더는 중앙, 내용은 좌측을 기본값으로 지정
+                let align = isHeaderRow ? 'center' : 'left'; // 헤더는 중앙, 내용은 좌측을 기본값으로 지정
                 let colSpan = 1;
                 let rowSpan = 1;
-                
+                let headCol = false;
+                let noRowHeader = false;
+
                 let match = cellContent.match(/^<([a-z0-9,\-|]+)>/i);
                 if (match) {
                     let isValid = false;
@@ -68,12 +70,28 @@ export const parseWikiText = (text) => {
                         if (['left', 'center', 'right'].includes(t)) { align = t; isValid = true; }
                         else if (t.startsWith('-') && !isNaN(parseInt(t.substring(1)))) { colSpan = parseInt(t.substring(1)); isValid = true; }
                         else if (t.startsWith('|') && !isNaN(parseInt(t.substring(1)))) { rowSpan = parseInt(t.substring(1)); isValid = true; }
+                        else if (t === 'h') { headCol = true; isValid = true; }
+                        else if (t === 'nr') { noRowHeader = true; isValid = true; }
                     });
                     if (isValid) cellContent = cellContent.substring(match[0].length).trim();
                 }
 
-                let bg = isHeader ? 'background:var(--table-bg-alt); font-weight:900; color:var(--primary-color);' : 'color:var(--text-primary);';
-                let tag = isHeader ? 'th' : 'td';
+                // 표 편집기(TableEditor)에서 "열 헤더" 토글로 지정한 열은 0번 행이 아니어도
+                // th로 렌더링한다 — 0번 행(isHeaderRow)과는 독립적인, 별도의 열 기준 헤더 지정.
+                // 반대로 <nr> 태그가 붙은 0번 행 셀은 "행 헤더 끄기"로 옵트아웃된 것이므로
+                // 위치만 보고 무조건 th로 되돌리지 않는다.
+                let isHeaderCell = (isHeaderRow && !noRowHeader) || headCol;
+
+                // ★ 표 매크로 에디터(markdownTableParser.js)가 굵게를 ~내용~ 으로 저장하는데,
+                // 여기서 이 기호를 처리하지 않아 렌더링 시 물결표가 그대로 노출되던 버그를 수정.
+                // 셀 전체를 감싼 경우뿐 아니라 문장 중 일부만 감싼 경우도 똑같이 처리한다.
+                // 굵게(바깥) → 기울임 → 취소선(안쪽) 순으로 풀어야 에디터가 중첩 저장한 순서와 맞는다.
+                cellContent = cellContent.replace(/~(.+?)~/g, '<strong>$1</strong>');
+                cellContent = cellContent.replace(/_(.+?)_/g, '<em>$1</em>');
+                cellContent = cellContent.replace(/--(.+?)--/g, '<del style="opacity:0.6;">$1</del>');
+
+                let bg = isHeaderCell ? 'background:var(--table-bg-alt); font-weight:900; color:var(--primary-color);' : 'color:var(--text-primary);';
+                let tag = isHeaderCell ? 'th' : 'td';
                 
                 let attrs = '';
                 if (colSpan > 1) attrs += ` colspan="${colSpan}"`;

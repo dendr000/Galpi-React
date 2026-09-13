@@ -79,9 +79,24 @@ export const usePageTab = ({ memos, setMemos, currentFolder }) => {
     setSplitDirection(prev => prev === 'vertical' ? 'horizontal' : 'vertical');
   };
 
+  // ★ 신규: 탭이 가리키는 메모 id를 바꿔치기한다. 두 가지 상황에서 쓰인다 —
+  // (1) 새 메모(local_xxx)를 처음 저장해서 진짜 DB id를 받았을 때
+  // (2) 에디터 안에서 다른 메모로의 내부 링크를 클릭해 같은 탭에서 그 메모로 갈아탈 때
+  // activeTabId/splitTabId뿐 아니라 탭 목록 배열 안의 id도 같이 바꿔야 탭 하이라이트와
+  // "탭 닫기"가 계속 올바르게 매칭된다.
+  const renameTabId = (oldId, newId, paneType = 'main') => {
+    if (paneType === 'main') {
+      setMainTabs(prev => prev.map(t => String(t.id) === String(oldId) ? { ...t, id: newId } : t));
+      setActiveTabId(prev => String(prev) === String(oldId) ? newId : prev);
+    } else {
+      setSplitTabs(prev => prev.map(t => String(t.id) === String(oldId) ? { ...t, id: newId } : t));
+      setSplitTabId(prev => String(prev) === String(oldId) ? newId : prev);
+    }
+  };
+
   return {
     mainTabs, splitTabs, activeTabId, setActiveTabId, splitTabId, setSplitTabId,
     isSplitMode, toggleSplitMode, handleOpenTab, handleCloseTab,
-    splitDirection, toggleSplitDirection
+    splitDirection, toggleSplitDirection, renameTabId
   };
 };

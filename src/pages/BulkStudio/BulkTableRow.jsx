@@ -2,6 +2,8 @@
 // 기능 요약: React 가상화 테이블의 개별 행(Row)을 렌더링하며 고정(Sticky) 셀의 투명도 중첩을 방지하는 모듈
 
 import React from 'react';
+import { IconPen, IconPlus } from '../../components/common/icons/DomainIcons';
+import { ENUM_COLUMNS } from './useBulkStudioData';
 
 const BulkTableRow = ({ 
   row, rIdx, columns, 
@@ -17,7 +19,11 @@ const BulkTableRow = ({
   return (
     <tr className={rowClass} style={{ background: bgCol }}>
       <td className="sticky-check" style={{ background: bgCol }}>
-        <input type="checkbox" checked={row._checked} onChange={e => toggleRowCheck(e, rIdx)} />
+        {/* onChange이 아니라 onClick을 쓴다 — 체크박스의 React onChange 합성 이벤트는
+            shiftKey를 실어 나르지 않아서(원래부터 있던 버그), shift+클릭 범위선택이
+            항상 조건을 못 타고 단일 토글로만 빠졌었다. onClick의 네이티브 MouseEvent는
+            shiftKey를 정상적으로 갖고 있다. */}
+        <input type="checkbox" checked={row._checked} onChange={() => {}} onClick={e => toggleRowCheck(e, rIdx)} />
       </td>
       <td className="sticky-delete" style={{ background: bgCol }}>
         <button onClick={() => removeRow(rIdx)} style={{ color: '#e53e3e', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>✖</button>
@@ -37,17 +43,35 @@ const BulkTableRow = ({
       </td>
       
       {columns.map(col => {
+        const enumConf = ENUM_COLUMNS[col];
+        if (enumConf) {
+          return (
+            <td key={col}>
+              <select
+                className="input b-prop"
+                data-row={rIdx}
+                data-col={col}
+                value={row[col] || enumConf.fallback}
+                onChange={e => handleCellChange(rIdx, col, e.target.value)}
+                onFocus={() => setActiveRowIdx(rIdx)}
+                onKeyDown={e => handleKeyDown(e, rIdx, col)}
+              >
+                {enumConf.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+              </select>
+            </td>
+          );
+        }
         let ph = (col === "나이" || col === "신장" || col === "키" || col === "신체") ? "숫자만" : (col === "부제목" ? "영문/별명 입력" : "");
         return (
           <td key={col}>
-            <input 
-              type="text" 
-              className="input b-prop" 
-              data-row={rIdx} 
+            <input
+              type="text"
+              className="input b-prop"
+              data-row={rIdx}
               data-col={col}
               list={`dl-${col}`}
-              value={row[col] || ''} 
-              onChange={e => handleCellChange(rIdx, col, e.target.value)} 
+              value={row[col] || ''}
+              onChange={e => handleCellChange(rIdx, col, e.target.value)}
               onFocus={() => setActiveRowIdx(rIdx)}
               onKeyDown={e => handleKeyDown(e, rIdx, col)}
               placeholder={ph}
@@ -58,8 +82,9 @@ const BulkTableRow = ({
       })}
       
       <td className="sticky-body" style={{ background: bgCol }} onClick={() => { setActiveRowIdx(rIdx); setBodyModal({ isOpen: true, rowIdx: rIdx, text: row.pageBodyRaw }); }}>
-        <span style={{ color: row.pageBodyRaw ? 'var(--primary-color)' : 'var(--text-secondary)', fontWeight: row.pageBodyRaw ? 900 : 'bold', fontSize: '13px', cursor: 'pointer' }}>
-          {row.pageBodyRaw ? '📝 편집' : '➕ 내용 작성'}
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: row.pageBodyRaw ? 'var(--primary-color)' : 'var(--text-secondary)', fontWeight: row.pageBodyRaw ? 900 : 'bold', fontSize: '13px', cursor: 'pointer' }}>
+          {row.pageBodyRaw ? <IconPen size={13} /> : <IconPlus size={13} />}
+          {row.pageBodyRaw ? '편집' : '내용 작성'}
         </span>
       </td>
     </tr>

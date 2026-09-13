@@ -204,7 +204,6 @@ export const useMemoEvents = ({
                     
                     const parsedId = isNaN(Number(memoId)) ? memoId : Number(memoId);
                     setActiveMemoId(parsedId);
-                    console.log(`[useMemoEvents] 내부 링크 클릭 캡처 - 메모 ${parsedId}번으로 스위칭`);
                 } else if (navigate) {
                     if (closeLinkPopover) closeLinkPopover();
                     navigate(href);

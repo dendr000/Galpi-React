@@ -147,6 +147,44 @@ export const createTimelineHtml = (innerText) => {
   return validCount > 0 ? html : "";
 };
 
+export const createLogTabHtml = (activeTab, innerText) => {
+  const tabs = [
+    { name: '내용', color: '#495057', bg: '#f8f9fa', border: '#ced4da' },
+    { name: '파랑', color: '#1864ab', bg: '#e7f5ff', border: '#74c0fc' },
+    { name: '초록', color: '#2b8a3e', bg: '#ebfbee', border: '#63e6be' },
+    { name: '노랑', color: '#e67700', bg: '#fff9db', border: '#fcc419' },
+    { name: '빨강', color: '#c92a2a', bg: '#fff5f5', border: '#ffa8a8' },
+    { name: '사전', color: '#862e9c', bg: '#f8f0fc', border: '#eebefa' },
+    { name: '설정', color: '#087f5b', bg: '#e6fcf5', border: '#63e6be' },
+    { name: '기록', color: '#d9480f', bg: '#fff0f6', border: '#ffc078' }
+  ];
+
+  const active = tabs.find(t => t.name === activeTab) || tabs[0];
+
+  let tabsHtml = `<div style="display:flex; border-bottom: 2px solid ${active.border}; margin-bottom: 0; overflow-x: auto; white-space: nowrap; scrollbar-width: none;">`;
+  tabs.forEach(t => {
+    const isActive = t.name === activeTab;
+    const chromeClass = isActive ? 'gt-macro-ink' : 'gt-macro-box gt-macro-ink-soft';
+    tabsHtml += `
+      <div class="${chromeClass}" style="padding: 6px 14px; font-size: 13px; font-weight: 900; cursor: default;
+        border: 1px solid ${isActive ? active.border : 'var(--border-color)'};
+        border-bottom: none; border-radius: 6px 6px 0 0;
+        background: ${isActive ? active.bg : 'var(--surface-color)'};
+        color: ${isActive ? active.color : 'var(--text-secondary)'};
+        margin-right: 4px; position: relative; top: 2px;
+        ${isActive ? 'z-index: 2;' : 'z-index: 1;'}">
+        ${t.name}
+      </div>
+    `;
+  });
+  tabsHtml += `</div>`;
+
+  const contentFormatted = innerText.trim().replace(/\n/g, '<br>');
+  let contentHtml = `<div class="gt-macro-ink" style="border: 2px solid ${active.border}; border-top: none; background: ${active.bg}20; padding: 20px; border-radius: 0 0 8px 8px; font-size: 14px; line-height: 1.7; color: var(--text-primary); margin-bottom: 25px; box-shadow: var(--shadow-sm);">${contentFormatted}</div>`;
+
+  return `<div class="galpi-log-tab-wrapper" style="margin: 25px 0;">${tabsHtml}${contentHtml}</div>`;
+};
+
 export const createRelationGraphHtml = (innerText) => {
   let graphData = { nodes: [], edges: [] };
   try {

@@ -12,6 +12,7 @@ import DictModal from '../../domains/fabTools/dict/DictModal';
 import SearchModal from '../../domains/fabTools/SearchModal';
 import RecentModal from '../../domains/fabTools/RecentModal';
 import MemoModal from '../../domains/memo/fab/FabMemoModal';
+import { seedDictIfNeeded, resolveCycleReplacement } from '../../utils/dictLocalDb';
 
 // 상용구 모듈 인젝션
 import BoilerplateModal from '../../domains/fabTools/boilerplate/BoilerplateModal';
@@ -31,8 +32,7 @@ const FabMenu = () => {
   const searchParams = new URLSearchParams(location.search);
   const currentWorkId = searchParams.get('workId') || searchParams.get('id') || location.pathname.match(/\/work\/(\d+)/)?.[1] || 'global';
 
-  const [globalDictList, setGlobalDictList] = useState([]);
-  const [globalBpList, setGlobalBpList] = useState([]); 
+  const [globalBpList, setGlobalBpList] = useState([]);
   const [toastMsg, setToastMsg] = useState('');
 
   const showToast = (msg) => {
@@ -40,25 +40,15 @@ const FabMenu = () => {
     setTimeout(() => setToastMsg(''), 2000);
   };
 
-  // ★ Alt+H 실시간 순환 치환용으로 "현재 작품에 등록된" 사전만 불러옴.
-  // 예전엔 workId=global 전체(19만 건 이상)를 무조건 통째로 로딩해서 백엔드 OOM/브라우저 크래시의
-  // 실제 원인이었음 — 전역 사전은 이제 DictModal 검색 API(서버사이드, 키워드+결과수 제한)로만 조회한다.
+  // ★ Alt+H 실시간 순환 치환용 사전은 이제 작품별로 나뉘지 않는다 — IndexedDB 로컬 캐시에
+  // 전체(10만 건+)를 최초 1회만 적재해두고(dictLocalDb.seedDictIfNeeded, 재방문 시엔 즉시
+  // 반환), 이후 매 키 입력마다 배열 전체를 순회하는 대신 인덱스로 조회한다. 예전엔 이 전체
+  // 사전을 매번 API로 통째로 받아와 배열에 담던 게 백엔드 OOM/브라우저 크래시의 실제 원인이라
+  // 작품별로 잘라서 받아오는 방식으로 우회했었는데, 그 우회가 "등록한 작품이 아니면 사전 검색이
+  // 안 되는" 혼란을 낳아 이 방식으로 다시 바꿨다.
   useEffect(() => {
-    const fetchDictionaries = async () => {
-      if (!currentWorkId || currentWorkId === 'global') {
-        setGlobalDictList([]);
-        return;
-      }
-      try {
-        const localRes = await api.get(`/api/dicts?workId=${currentWorkId}`);
-        setGlobalDictList(localRes.data);
-      } catch (e) {
-        console.error("사전 데이터 로드 실패", e);
-      }
-    };
-
-    fetchDictionaries();
-  }, [currentWorkId]);
+    seedDictIfNeeded(api);
+  }, []);
 
   // 상용구 동기화 (실시간 핑 수신 대기)
   useEffect(() => {
@@ -90,66 +80,38 @@ const FabMenu = () => {
       }
       
       // Alt + H 고유명사 한자 실시간 다중 순환 치환 연산 (한자 단독 출력 제거)
+      // IndexedDB 인덱스 조회라 비동기다 — 커서 앞 텍스트/위치를 미리 캡처해두고, 조회가 끝난
+      // 뒤 그 사이 커서나 내용이 바뀌지 않았을 때만 적용한다(빠르게 연타해도 엉뚱한 자리에
+      // 치환이 끼어드는 걸 방지).
       if (e.altKey && e.key.toLowerCase() === 'h' && e.target.tagName.match(/INPUT|TEXTAREA/)) {
         e.preventDefault(); e.stopPropagation();
         const input = e.target;
         const text = input.value;
         const cursor = input.selectionStart;
         const textBefore = text.substring(0, cursor);
-        
-        // 중복된 원문을 하나로 묶어 긴 단어부터 스캔 방어망 구축
-        const uniqueKeys = [...new Set(globalDictList.map(d => d.word))].sort((a, b) => b.length - a.length);
-        
-        for (let k of uniqueKeys) {
-          // 해당 원문에 등록된 모든 치환 데이터(다중 한자)를 긁어옴
-          const matchingDicts = globalDictList.filter(d => d.word === k);
-          
-          // 동적 순환 배열 생성: [ "뇌극", "뇌극(雷極)", "뇌극(雷戟)" ... ]
-          const cycleList = [k];
-          matchingDicts.forEach(dict => {
-            const trans = dict.translation;
-            const pureVal = trans.match(/\((.*?)\)/) ? trans.match(/\((.*?)\)/)[1] : trans.replace(k, '').replace(/[\(\)]/g, '');
-            cycleList.push(`${k}(${pureVal})`);
-          });
 
-          let matchIndex = -1;
-          let matchLength = 0;
+        resolveCycleReplacement(textBefore).then(result => {
+          if (!result) return;
+          if (input.value !== text || input.selectionStart !== cursor) return; // 그 사이 변경됐으면 적용하지 않음
 
-          // 가장 긴 문자열(원문(한자))부터 매칭하여 짧은 단어가 덮어쓰는 오류 방지
-          const sortedCycleList = [...cycleList].map((val, idx) => ({val, idx})).sort((a, b) => b.val.length - a.val.length);
-
-          for (let item of sortedCycleList) {
-            if (textBefore.endsWith(item.val)) {
-              matchIndex = item.idx;
-              matchLength = item.val.length;
-              break;
-            }
-          }
-
-          if (matchIndex !== -1) {
-            // 현재 매칭된 인덱스에서 다음 인덱스로 이동, 배열 끝이면 다시 0번(원문 단독)으로 복귀
-            const nextIndex = (matchIndex + 1) % cycleList.length;
-            const rep = cycleList[nextIndex];
-
-            input.value = text.substring(0, cursor - matchLength) + rep + text.substring(cursor);
-            input.selectionStart = input.selectionEnd = cursor - matchLength + rep.length;
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-            break;
-          }
-        }
+          const { matchLength, replacement } = result;
+          input.value = text.substring(0, cursor - matchLength) + replacement + text.substring(cursor);
+          input.selectionStart = input.selectionEnd = cursor - matchLength + replacement.length;
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+        });
       }
     };
-    
+
     document.addEventListener('copy', handleCopy);
     document.addEventListener('cut', handleCopy);
     document.addEventListener('keydown', handleKey, true);
-    
+
     return () => {
       document.removeEventListener('copy', handleCopy);
       document.removeEventListener('cut', handleCopy);
       document.removeEventListener('keydown', handleKey, true);
     };
-  }, [addClipboard, openModal, closeModal, globalDictList]);
+  }, [addClipboard, openModal, closeModal]);
 
   const btnSty = { width: '48px', height: '48px', borderRadius: '50%', padding: '0', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--surface-color)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', cursor: 'pointer', transition: '0.2s', outline: 'none' };
 
@@ -176,7 +138,7 @@ const FabMenu = () => {
         <div className="galpi-fab-menu" style={{ display: 'flex', flexDirection: 'column-reverse', gap: '12px', opacity: isOpen ? 1 : 0, pointerEvents: isOpen ? 'auto' : 'none', transform: isOpen ? 'translateY(0)' : 'translateY(20px)', transition: '0.3s' }}>
           <button className="galpi-fab-item" onClick={() => { setIsOpen(false); navigate(`/bulk?workId=${currentWorkId}`); }} style={btnSty} title="일괄 수정"><img src="/img/svg/character.svg" alt="일괄수정" style={{width:'100%', height:'100%', objectFit:'contain'}}/></button>
           <button className="galpi-fab-item" onClick={() => { setIsOpen(false); openModal('memo'); }} style={btnSty} title="가상 메모장"><img src="/img/svg/memo.svg" alt="메모" style={{width:'100%', height:'100%', objectFit:'contain'}}/></button>
-          {currentWorkId && currentWorkId !== 'global' && <button className="galpi-fab-item" onClick={() => openModal('search')} style={btnSty} title="현재 작품 캐릭터 검색"><img src="/img/svg/search.svg" alt="검색" style={{width:'100%', height:'100%', objectFit:'contain'}}/></button>}
+          <button className="galpi-fab-item" onClick={() => openModal('search')} style={btnSty} title="전역 인물 검색"><img src="/img/svg/search.svg" alt="검색" style={{width:'100%', height:'100%', objectFit:'contain'}}/></button>
           <button className="galpi-fab-item" onClick={() => openModal('dict')} style={btnSty} title="고유명사 사전 (Alt+H)"><img src="/img/svg/dictionary.svg" alt="사전" style={{width:'100%', height:'100%', objectFit:'contain'}}/></button>
           <button className="galpi-fab-item" onClick={() => openModal('boilerplate')} style={btnSty} title="스마트 상용구"><img src="/img/svg/boilerplate.svg" alt="상용구" style={{width:'100%', height:'100%', objectFit:'contain'}}/></button>
           <button className="galpi-fab-item" onClick={() => openModal('clipboard')} style={btnSty} title="클립보드 내역 (Ctrl+Shift+V)"><img src="/img/svg/clipboard.svg" alt="클립보드" style={{width:'100%', height:'100%', objectFit:'contain'}}/></button>
@@ -193,11 +155,11 @@ const FabMenu = () => {
 
       {/* ★ 변경: activeModal뿐만 아니라 subModal 상태일 때도 렌더링되도록 스마트 허용 로직 적용 */}
       {isModalOpen('clipboard') && <ClipboardModal showToast={showToast} />}
-      {isModalOpen('dict') && <DictModal currentWorkId={currentWorkId} showToast={showToast} />}
+      {isModalOpen('dict') && <DictModal showToast={showToast} />}
       {isModalOpen('boilerplate') && <BoilerplateModal showToast={showToast} />}
       {isModalOpen('search') && <SearchModal currentWorkId={currentWorkId} />}
       {isModalOpen('recent') && <RecentModal />}
-      {isModalOpen('memo') && <MemoModal />}
+      {isModalOpen('memo') && <MemoModal bpCore={bpCore} globalBpList={globalBpList} />}
     </>
   );
 };

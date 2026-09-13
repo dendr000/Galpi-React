@@ -2,7 +2,7 @@
 // 기능 요약: Drag & Drop 노드 정렬 기능이 탑재된 연대기 및 사건 타임라인 에디터
 // 버전: v2.0.0
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import styles from '../MacroToolbar.module.css';
 
@@ -28,6 +28,33 @@ export const TimelineEditor = ({ selectedText, onInsert, onCancel }) => {
     if (initialList.length === 0) initialList.push({ id: `tl-${Date.now()}`, date: '', title: '', desc: '' });
     return initialList;
   });
+
+  // 기능: '사건 상세 내용' 칸에서 Tab을 누르면 (기본 탭 순서상 바로 다음인 이 행의 삭제(✖)
+  // 버튼을 건너뛰고) 다음 사건의 '날짜' 칸으로 곧장 이동한다. 마지막 사건이면 새 사건을 하나
+  // 만들고 그 '날짜' 칸으로 이동한다 — 새로 추가된 행은 다음 렌더링이 끝나야 실제 DOM에
+  // 생기므로, 포커스는 formList가 갱신된 뒤 useEffect에서 처리한다.
+  const dateInputRefs = useRef([]);
+  const pendingFocusIndexRef = useRef(null);
+
+  useEffect(() => {
+    if (pendingFocusIndexRef.current !== null) {
+      const idx = pendingFocusIndexRef.current;
+      pendingFocusIndexRef.current = null;
+      dateInputRefs.current[idx]?.focus();
+    }
+  }, [formList]);
+
+  const handleDescTab = (e, i) => {
+    if (e.key !== 'Tab' || e.shiftKey) return;
+    e.preventDefault();
+    if (i === formList.length - 1) {
+      const newRow = { id: `tl-${Date.now()}`, date: '', title: '', desc: '' };
+      pendingFocusIndexRef.current = formList.length;
+      setFormList([...formList, newRow]);
+    } else {
+      dateInputRefs.current[i + 1]?.focus();
+    }
+  };
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
@@ -59,20 +86,20 @@ export const TimelineEditor = ({ selectedText, onInsert, onCancel }) => {
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="timeline-list">
             {(provided) => (
-              <div {...provided.droppableProps} ref={provided.innerRef} style={{ maxHeight: '400px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', paddingRight: '5px', marginBottom: '15px' }}>
+              <div {...provided.droppableProps} ref={provided.innerRef} style={{ maxHeight: '400px', overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', gap: '10px', paddingRight: '5px', marginBottom: '15px' }}>
                 {formList.map((f, i) => (
                   <Draggable key={f.id} draggableId={f.id} index={i}>
                     {(provided, snapshot) => (
                       <div ref={provided.innerRef} {...provided.draggableProps} style={{ ...provided.draggableProps.style, display: 'flex', gap: '10px', background: 'var(--bg-color)', padding: '12px', border: '1px solid var(--border-color)', borderRadius: '8px', alignItems: 'flex-start', boxShadow: snapshot.isDragging ? '0 5px 15px rgba(0,0,0,0.1)' : 'none', opacity: snapshot.isDragging ? 0.9 : 1 }}>
-                        <div {...provided.dragHandleProps} style={{ fontSize: '20px', color: 'var(--text-secondary)', cursor: 'grab', paddingTop: '5px' }}>☰</div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+                        <div {...provided.dragHandleProps} style={{ fontSize: '20px', color: 'var(--text-secondary)', cursor: 'grab', paddingTop: '5px', flexShrink: 0 }}>☰</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, minWidth: 0 }}>
                           <div style={{ display: 'flex', gap: '8px' }}>
-                            <input className={styles.toolInput} style={{ width: '140px', flex: 'none', fontWeight: 'bold' }} value={f.date} onChange={(e) => { const n = [...formList]; n[i].date = e.target.value; setFormList(n); }} placeholder="날짜 (예: 2026.06.27)" />
-                            <input className={styles.toolInput} style={{ flex: 1, fontWeight: 'bold' }} value={f.title} onChange={(e) => { const n = [...formList]; n[i].title = e.target.value; setFormList(n); }} placeholder="사건 제목" />
+                            <input ref={el => dateInputRefs.current[i] = el} className={styles.toolInput} style={{ width: '140px', flex: 'none', fontWeight: 'bold' }} value={f.date} onChange={(e) => { const n = [...formList]; n[i].date = e.target.value; setFormList(n); }} placeholder="날짜 (예: 2026.06.27)" />
+                            <input className={styles.toolInput} style={{ flex: 1, fontWeight: 'bold', minWidth: 0 }} value={f.title} onChange={(e) => { const n = [...formList]; n[i].title = e.target.value; setFormList(n); }} placeholder="사건 제목" />
                           </div>
-                          <textarea className={styles.toolInput} style={{ resize: 'vertical', minHeight: '40px' }} value={f.desc} onChange={(e) => { const n = [...formList]; n[i].desc = e.target.value; setFormList(n); }} placeholder="사건 상세 내용" />
+                          <textarea className={styles.toolInput} style={{ resize: 'vertical', minHeight: '40px', width: '100%', boxSizing: 'border-box' }} value={f.desc} onChange={(e) => { const n = [...formList]; n[i].desc = e.target.value; setFormList(n); }} onKeyDown={(e) => handleDescTab(e, i)} placeholder="사건 상세 내용" />
                         </div>
-                        <button style={{ border: 'none', background: 'transparent', color: '#e53e3e', fontSize: '16px', cursor: 'pointer', padding: '5px' }} onClick={() => { const n = [...formList]; n.splice(i, 1); setFormList(n); }}>✖</button>
+                        <button style={{ border: 'none', background: 'transparent', color: '#e53e3e', fontSize: '16px', cursor: 'pointer', padding: '5px', flexShrink: 0 }} onClick={() => { const n = [...formList]; n.splice(i, 1); setFormList(n); }}>✖</button>
                       </div>
                     )}
                   </Draggable>

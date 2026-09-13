@@ -88,10 +88,20 @@ export const useEditorSave = ({
             const char = res.data.find(c => String(c.id) === String(targetId));
             if (char && char.dynamicProperties) {
               originalChar = JSON.parse(char.dynamicProperties);
+              dp.cardImgX = originalChar.cardImgX !== undefined ? originalChar.cardImgX : 50;
               dp.cardImgY = originalChar.cardImgY !== undefined ? originalChar.cardImgY : 50;
               dp.cardImgScale = originalChar.cardImgScale !== undefined ? originalChar.cardImgScale : 1;
               if (originalChar._groupSortOrders) {
                 dp._groupSortOrders = originalChar._groupSortOrders;
+              }
+              // ★ _groupSortOrders(그룹별 드래그 순서)만 옮겨 담고 정작 그 default 폴백으로
+              // 쓰이는 dp.sortOrder 자체는 새로 만드는 dp 객체에 안 옮겨서, 캐릭터를 수정하고
+              // 저장할 때마다 sortOrder가 통째로 사라지는 버그가 있었다 — 작품 페이지 정렬이
+              // dp._groupSortOrders?.[그룹] ?? dp.sortOrder ?? 999 순으로 폴백하는데, 없어진
+              // sortOrder는 999로 떨어지고, 다른 캐릭터들은 이미 999보다 큰 값들을 쓰고 있어서
+              // 수정한 캐릭터만 목록 맨 앞으로 튀어 올라갔다.
+              if (originalChar.sortOrder !== undefined) {
+                dp.sortOrder = originalChar.sortOrder;
               }
             }
           }
@@ -125,16 +135,6 @@ export const useEditorSave = ({
         payload.imageCode = `${workContext?.title || '불명'}_${title}.${cExt}`;
         dp._isHidden = isHidden;
         payload.dynamicProperties = JSON.stringify(dp);
-
-        if (originalChar.sortOrder !== undefined) {
-          payload.sortOrder = originalChar.sortOrder;
-        } else if (docAction === 'edit' && targetId) {
-          try {
-            const res = await api.get(`/api/characters?workId=${targetWorkId}`);
-            const char = res.data.find(c => String(c.id) === String(targetId));
-            if (char && char.sortOrder !== undefined) payload.sortOrder = char.sortOrder;
-          } catch (e) { }
-        }
 
         if (docAction === 'edit') {
           await api.put(`/api/characters/${targetId}`, { ...payload, id: targetId });

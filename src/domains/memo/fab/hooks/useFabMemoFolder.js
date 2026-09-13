@@ -3,23 +3,68 @@ import api from '../../../../api/axiosCore';
 
 export const useFabMemoFolder = ({ memoData, setMemoData, memoFolders, setMemoFolders, currentFolder, setCurrentFolder }) => {
   
-  const handleAddFolder = (parentPath = '') => {
-    const promptMsg = parentPath 
-      ? `[${parentPath}] 하위에 생성할 폴더명:` 
+  // ★ "웹툰" 바로 밑에 새 작품 폴더를 만들 때마다, 그 밑에 "등장인물"/"사전"/"주인공" 폴더와 항상
+  // 손으로 똑같이 만들던 초기 메모들("00 ", "01 파랑"... / "정보" / "능력", "아이템")까지
+  // 한 번에 자동 생성한다.
+  const createWebtoonScaffold = async (basePath) => {
+    const charFolder = `${basePath}/등장인물`;
+    const dictFolder = `${basePath}/사전`;
+    const heroFolder = `${basePath}/주인공`;
+
+    const newFolders = [...memoFolders, basePath, charFolder, dictFolder, heroFolder];
+    setMemoFolders(newFolders);
+    localStorage.setItem('galpi-memo-folders', JSON.stringify(newFolders));
+
+    const scaffold = [
+      ...['00 ', '01 파랑', '02 초록', '03 노랑', '04 빨강'].map(title => ({ folder: charFolder, title })),
+      ...['정보'].map(title => ({ folder: dictFolder, title })),
+      ...['능력', '아이템'].map(title => ({ folder: heroFolder, title })),
+    ];
+    const baseTime = Date.now();
+
+    const created = await Promise.all(scaffold.map(async ({ folder, title }, i) => {
+      const memoPayload = {
+        title, content: '', folder,
+        updatedAt: baseTime + i, sortOrder: -1,
+        canvasX: 2500, canvasY: 2500,
+        themeColor: 'var(--surface-color)', tags: ''
+      };
+      try {
+        const res = await api.post('/api/memos', memoPayload);
+        return { ...memoPayload, id: res.data?.id ?? `local_${baseTime}_${i}` };
+      } catch (e) {
+        console.error('[useFabMemoFolder] 웹툰 초기 메모 자동 생성 실패:', e);
+        return { ...memoPayload, id: `local_${baseTime}_${i}` };
+      }
+    }));
+
+    const updatedMemoData = [...created, ...memoData];
+    setMemoData(updatedMemoData);
+    localStorage.setItem('galpi-memos', JSON.stringify(updatedMemoData));
+    setCurrentFolder(charFolder);
+  };
+
+  const handleAddFolder = async (parentPath = '') => {
+    const promptMsg = parentPath
+      ? `[${parentPath}] 하위에 생성할 폴더명:`
       : "새로운 최상위 폴더 이름을 입력하세요:";
-      
+
     const name = prompt(promptMsg);
-    
+
     if (name && name.trim()) {
       const newPath = parentPath ? `${parentPath}/${name.trim()}` : name.trim();
-      
-      if (!memoFolders.includes(newPath)) {
+
+      if (memoFolders.includes(newPath)) {
+        return alert("이미 존재하는 경로입니다.");
+      }
+
+      if (parentPath === '웹툰') {
+        await createWebtoonScaffold(newPath);
+      } else {
         const newFolders = [...memoFolders, newPath];
         setMemoFolders(newFolders);
         localStorage.setItem('galpi-memo-folders', JSON.stringify(newFolders));
         setCurrentFolder(newPath);
-      } else {
-        alert("이미 존재하는 경로입니다.");
       }
     }
   };

@@ -18,8 +18,14 @@ const FabMemoFormatBar = (props) => {
       {/* 1. 기본 서식 및 템플릿 제어 메인 툴바 */}
       <MemoFormatMainBar {...props} />
 
-      {/* 2. 표(Table) 제어 패널 */}
-      {props.tableCtrlVisible && <MemoTableControlBar {...props} />}
+      {/* 2. 표(Table) 제어 패널 — 표가 있으면 자리를 항상 미리 확보해두고(visibility만 토글)
+          처음 표 칸 클릭 시 컨트롤바 마운트로 인한 레이아웃 시프트(한글 조합 깨짐 버그의 원인)를
+          막는다. 자세한 배경은 useTableFocus.js 참고. */}
+      {props.hasTable && (
+        <div style={{ visibility: props.tableCtrlVisible ? 'visible' : 'hidden' }}>
+          <MemoTableControlBar {...props} />
+        </div>
+      )}
 
       {/* 3. 찾아 바꾸기 패널 */}
       {props.findReplaceVisible && <MemoFindReplaceBar {...props} />}

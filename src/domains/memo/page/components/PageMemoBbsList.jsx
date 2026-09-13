@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../PageMemo.module.css';
-import { LockIcon, PinIcon, EditIcon, TrashIcon } from '../../shared/components/MemoIcons';
+import { LockIcon, PinIcon, EditIcon, TrashIcon, FolderIcon } from '../../shared/components/MemoIcons';
 import { formatRelativeTime } from '../../../../utils/dateUtils'; // ★ 상대 시간 유틸 임포트
 
 const PageMemoBbsList = ({
@@ -52,7 +52,7 @@ const PageMemoBbsList = ({
   };
 
   return (
-    <div style={{ padding: '30px', maxWidth: '1200px', margin: '0 auto', width: '100%', overflowY: 'auto' }} className="galpi-sidebar-scroll">
+    <div style={{ padding: '30px', maxWidth: '1200px', margin: '0 auto', width: '100%', boxSizing: 'border-box', overflowY: 'auto' }} className="galpi-sidebar-scroll">
       
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
         <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 'bold' }}>
@@ -77,12 +77,15 @@ const PageMemoBbsList = ({
             {checkedMemoIds.length}개 선택됨
           </span>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <select className={styles.bbsSelect} onChange={executeBatchMove} style={{ borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}>
-              <option value="">📂 폴더 이동...</option>
-              {folders.filter(f => f !== '전체 메모').map(f => <option key={f} value={f}>{f}</option>)}
-            </select>
-            <button className="wiki-btn" onClick={executeBatchDelete} style={{ background: '#e53e3e', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', fontWeight: 'bold', fontSize: '12px' }}>
-              🗑️ 일괄 삭제
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--primary-color)' }}>
+              <FolderIcon />
+              <select className={styles.bbsSelect} onChange={executeBatchMove} style={{ borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}>
+                <option value="">폴더 이동...</option>
+                {folders.filter(f => f !== '전체 메모').map(f => <option key={f} value={f}>{f}</option>)}
+              </select>
+            </div>
+            <button className="wiki-btn" onClick={executeBatchDelete} style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#e53e3e', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px' }}>
+              <TrashIcon /> 일괄 삭제
             </button>
           </div>
         </div>
@@ -101,8 +104,18 @@ const PageMemoBbsList = ({
         {filteredMemos.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '50px', color: 'var(--text-secondary)' }}>조회된 메모가 없습니다.</div>
         ) : (
-          paginatedMemos.map(m => (
-            <div key={m.id} className={styles.bbsRow} onClick={() => handleOpenTab(m, 'main')} style={{ borderLeft: `4px solid ${m.themeColor || 'transparent'}`, opacity: m.isTrash ? 0.6 : 1, background: checkedMemoIds.includes(m.id) ? 'rgba(59, 91, 219, 0.05)' : '' }}>
+          paginatedMemos.map((m, i) => (
+            <div
+              key={m.id}
+              className={styles.bbsRow}
+              onClick={() => handleOpenTab(m, 'main')}
+              style={{
+                borderLeft: `4px solid ${m.themeColor || 'transparent'}`,
+                opacity: m.isTrash ? 0.6 : 1,
+                background: checkedMemoIds.includes(m.id) ? 'rgba(59, 91, 219, 0.05)' : '',
+                animationDelay: `${Math.min(i, 20) * 0.015}s`
+              }}
+            >
               
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={(e) => e.stopPropagation()}>
                 <input type="checkbox" checked={checkedMemoIds.includes(m.id)} onChange={(e) => handleCheckSingle(e, m.id)} style={{ cursor: 'pointer' }} />

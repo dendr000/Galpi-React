@@ -1,0 +1,158 @@
+/* 파일 위치: src/pages/WorkDetail/themes/joseon-lantern.css */
+/* 동양판타지(요괴·주술·퇴마) 방향 C — 저승길. 이승과 저승 사이, 청사초롱이 밝히는 밤길.
+   무협-혈로(핏빛 섬광)와 겹치지 않도록 폭력적인 붉음 대신 등불의 따뜻한 주황만 쓴다.
+   [data-genre-theme="joseon-lantern"] 속성 선택자만으로 단독 동작한다. */
+
+[data-genre-theme="joseon-lantern"], [data-footer-theme="joseon-lantern"] {
+  --jl-bg1: #0a0e1a; --jl-bg2: #05060d;
+  --jl-ink: #f3ecdd; --jl-ink-soft: #8b8a9c;
+  --jl-amber: #ffb96a; --jl-ember: #ff9a44;
+  --jl-panel: rgba(18,18,30,0.85); --jl-panel-line: rgba(255,185,106,0.2);
+  --jl-font-display: 'Nanum Myeongjo', serif;
+  --jl-font-label: 'Rajdhani', 'Gothic A1', sans-serif;
+  --jl-font-mono: 'IBM Plex Mono', 'Nanum Gothic Coding', monospace;
+}
+/* 이 테마는 항상 밤길 하나로 고정 — 라이트/다크 토글과 무관하게 동일하게 보인다 */
+
+[data-genre-theme="joseon-lantern"] {
+  position: relative;
+  background: radial-gradient(ellipse at 50% 100%, rgba(255,180,90,.1), transparent 50%), linear-gradient(180deg, var(--jl-bg1) 0%, var(--jl-bg2) 100%) !important;
+  border-radius: 6px;
+  padding: 24px !important;
+  clip-path: inset(0 round 6px);
+}
+/* 저 멀리 이어지는 길 + 등불 두 점 */
+[data-genre-theme="joseon-lantern"]::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(circle 90px at 14% 22%, rgba(255,154,68,.22), transparent 70%),
+    radial-gradient(circle 70px at 85% 42%, rgba(255,154,68,.16), transparent 70%),
+    radial-gradient(circle 50px at 30% 68%, rgba(255,154,68,.1), transparent 70%);
+  animation: jlLanternFlicker 3.4s ease-in-out infinite;
+}
+@keyframes jlLanternFlicker { 0%,100% { opacity: 1; } 50% { opacity: .82; } }
+/* 낡은 결 특유의 그레인(잡티) 텍스처 */
+[data-genre-theme="joseon-lantern"]::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 130px 130px; opacity: .09; mix-blend-mode: overlay;
+}
+[data-genre-theme="joseon-lantern"] > * { position: relative; z-index: 1; }
+
+/* ============================================================
+   컴포넌트 배선 (전부 .gt-* 순수 전역 hook 클래스 타겟)
+   ============================================================ */
+[data-genre-theme="joseon-lantern"] .gt-hero { border-color: var(--jl-panel-line) !important; box-shadow: 0 0 30px rgba(255,185,106,.12) !important; }
+[data-genre-theme="joseon-lantern"] .gt-hero-title {
+  font-family: var(--jl-font-display) !important; font-weight: 600; letter-spacing: .02em;
+  color: var(--jl-ink) !important;
+  /* 등불이 켜지듯 서서히 밝아진다 */
+  opacity: 0; animation: jlIgnite 1.6s ease both;
+}
+@keyframes jlIgnite {
+  0% { opacity: 0; text-shadow: 0 0 0 rgba(255,185,106,0); }
+  100% { opacity: 1; text-shadow: 0 0 24px rgba(255,185,106,.45), 0 0 50px rgba(255,185,106,.2); }
+}
+
+/* 커버 이미지가 없을 때의 제목 영역 — 초롱불 걸린 처마 밑처럼 감싼다 */
+[data-genre-theme="joseon-lantern"] .gt-hero-fallback {
+  background: var(--jl-panel) !important;
+  border: 1px solid var(--jl-panel-line) !important;
+  border-left: 3px solid var(--jl-amber) !important;
+  border-radius: 3px;
+  padding: 22px 28px !important;
+  box-shadow: 0 0 24px rgba(255,185,106,.1) !important;
+}
+[data-genre-theme="joseon-lantern"] .gt-hero-fallback .wiki-btn {
+  border-color: var(--jl-amber) !important; color: var(--jl-amber) !important; background: transparent !important;
+}
+
+[data-genre-theme="joseon-lantern"] .gt-category { background: var(--jl-panel) !important; border-color: var(--jl-panel-line) !important; }
+[data-genre-theme="joseon-lantern"] .gt-category > :first-child { background: var(--jl-panel) !important; color: var(--jl-ink) !important; }
+[data-genre-theme="joseon-lantern"] .gt-section-select { background: var(--jl-panel) !important; border-color: var(--jl-panel-line) !important; color: var(--jl-ink) !important; }
+[data-genre-theme="joseon-lantern"] .gt-tag {
+  background: rgba(255,185,106,.06) !important; border: 1px solid rgba(255,185,106,.3) !important; color: var(--jl-ink) !important;
+  font-family: var(--jl-font-mono) !important; font-weight: 600;
+  border-radius: 2px !important;
+}
+
+[data-genre-theme="joseon-lantern"] .gt-section-header { border-bottom-color: var(--jl-panel-line) !important; }
+[data-genre-theme="joseon-lantern"] .gt-section-title { font-family: var(--jl-font-display) !important; font-weight: 700; color: var(--jl-ink) !important; }
+
+[data-genre-theme="joseon-lantern"] .gt-relation-group { background: var(--jl-panel) !important; border-color: var(--jl-panel-line) !important; }
+[data-genre-theme="joseon-lantern"] .gt-relation-header { color: var(--jl-amber) !important; font-family: var(--jl-font-label); letter-spacing: .02em; text-shadow: 0 0 8px rgba(255,185,106,.4); }
+
+/* 인물 카드 — 등불 하나씩 걸어둔 듯한 어두운 패널 */
+[data-genre-theme="joseon-lantern"] .gt-card {
+  background: linear-gradient(160deg, rgba(18,18,30,.85), rgba(5,5,12,.92)) !important;
+  border: 1px solid rgba(255,185,106,.18) !important;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+  height: auto !important;
+  position: relative;
+  overflow: hidden;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+[data-genre-theme="joseon-lantern"] .gt-card::before {
+  content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: linear-gradient(120deg, transparent 40%, rgba(255,185,106,.12) 50%, transparent 60%);
+  background-size: 220% 220%; background-position: -120% -120%; transition: background-position .6s ease;
+}
+[data-genre-theme="joseon-lantern"] .gt-card:hover { transform: translateY(-4px); box-shadow: 0 10px 26px rgba(255,185,106,.14) !important; border-color: var(--jl-amber) !important; }
+[data-genre-theme="joseon-lantern"] .gt-card:hover::before { background-position: 120% 120%; }
+[data-genre-theme="joseon-lantern"] .gt-card-img { border-radius: 1px !important; box-shadow: 0 0 0 1px var(--jl-panel-line) !important; }
+[data-genre-theme="joseon-lantern"] .gt-card h4 { font-family: var(--jl-font-display) !important; font-weight: 700; color: var(--jl-ink) !important; font-size: 14px !important; }
+[data-genre-theme="joseon-lantern"] .gt-card h4 span { color: var(--jl-ink-soft) !important; }
+[data-genre-theme="joseon-lantern"] .gt-card > div:last-child > div span:first-child { color: var(--jl-ink-soft) !important; font-family: var(--jl-font-mono); font-size: 10.5px; }
+[data-genre-theme="joseon-lantern"] .gt-card > div:last-child > div span:last-child { color: var(--jl-amber) !important; font-family: var(--jl-font-label); font-weight: 700 !important; }
+
+[data-genre-theme="joseon-lantern"] .gt-infobox { background: var(--jl-panel) !important; border-color: var(--jl-panel-line) !important; box-shadow: 0 0 24px rgba(255,185,106,.1) !important; }
+[data-genre-theme="joseon-lantern"] .gt-infobox-title { font-family: var(--jl-font-display) !important; font-weight: 700; background: var(--jl-panel) !important; border-bottom: 3px solid var(--jl-amber) !important; }
+[data-footer-theme="joseon-lantern"] .gt-footer { background: var(--jl-panel) !important; border-top: 1px solid var(--jl-amber) !important; }
+[data-footer-theme="joseon-lantern"] .gt-footer-btn:hover { color: var(--jl-amber) !important; }
+[data-genre-theme="joseon-lantern"] .gt-infobox-image { border-bottom-color: var(--jl-panel-line) !important; }
+[data-genre-theme="joseon-lantern"] .gt-infobox-table th, [data-genre-theme="joseon-lantern"] .gt-table th { background: rgba(255,185,106,.06) !important; color: var(--jl-ink-soft) !important; border-color: var(--jl-panel-line) !important; font-family: var(--jl-font-mono); font-weight: 500 !important; }
+[data-genre-theme="joseon-lantern"] .gt-infobox-table td, [data-genre-theme="joseon-lantern"] .gt-table td { color: var(--jl-ink) !important; border-color: var(--jl-panel-line) !important; font-family: var(--jl-font-label); }
+[data-genre-theme="joseon-lantern"] .gt-infobox-desc { background: var(--jl-panel) !important; color: var(--jl-ink-soft) !important; border-top-color: var(--jl-panel-line) !important; }
+[data-genre-theme="joseon-lantern"] .gt-btn-edit { border-color: var(--jl-amber) !important; color: var(--jl-amber) !important; background: transparent !important; }
+[data-genre-theme="joseon-lantern"] .gt-btn-del { border-color: #ff6b6b !important; color: #ff8080 !important; background: transparent !important; }
+
+[data-genre-theme="joseon-lantern"] .md-box { background: var(--jl-panel) !important; border-color: var(--jl-panel-line) !important; }
+[data-genre-theme="joseon-lantern"] .markdown-body { color: var(--jl-ink); }
+[data-genre-theme="joseon-lantern"] .markdown-body h1,
+[data-genre-theme="joseon-lantern"] .markdown-body h2 { font-family: var(--jl-font-display) !important; font-weight: 700; color: var(--jl-amber) !important; border-color: var(--jl-panel-line) !important; }
+[data-genre-theme="joseon-lantern"] .md-h1 { border-color: var(--jl-amber) !important; color: var(--jl-amber) !important; }
+
+[data-genre-theme="joseon-lantern"] .gt-quicknav { background: var(--jl-panel) !important; border-color: var(--jl-panel-line) !important; }
+[data-genre-theme="joseon-lantern"] .gt-quicknav-btn { font-family: var(--jl-font-label); border-color: var(--jl-amber) !important; }
+
+/* 하위 문서 목록 */
+[data-genre-theme="joseon-lantern"] .gt-page-count { color: var(--jl-ink-soft) !important; font-family: var(--jl-font-mono); }
+[data-genre-theme="joseon-lantern"] .gt-page-card { background: linear-gradient(160deg, rgba(18,18,30,.85), rgba(5,5,12,.92)) !important; border-color: rgba(255,185,106,.18) !important; }
+[data-genre-theme="joseon-lantern"] .gt-page-card:hover { border-color: var(--jl-amber) !important; box-shadow: 0 10px 26px rgba(255,185,106,.14) !important; }
+[data-genre-theme="joseon-lantern"] .gt-page-title { font-family: var(--jl-font-display) !important; font-weight: 700; color: var(--jl-ink) !important; }
+[data-genre-theme="joseon-lantern"] .gt-page-desc { color: var(--jl-ink-soft) !important; font-family: var(--jl-font-label) !important; }
+[data-genre-theme="joseon-lantern"] .gt-page-empty { background: var(--jl-panel) !important; border-color: var(--jl-panel-line) !important; color: var(--jl-ink-soft) !important; }
+
+/* 매크로 위젯(스탯/게이지/타임라인/관계도 등) — 문자열로 즉시 조립되는 위젯이라
+   인라인 style="var(--...)"가 이미 박혀 있다. plain 전역 클래스(.gt-macro-*)로 !important 덮어쓴다 */
+[data-genre-theme="joseon-lantern"] .gt-macro-box { background: var(--jl-panel) !important; border-color: var(--jl-panel-line) !important; fill: var(--jl-panel) !important; }
+[data-genre-theme="joseon-lantern"] .gt-macro-line { stroke: var(--jl-panel-line) !important; border-color: var(--jl-panel-line) !important; }
+[data-genre-theme="joseon-lantern"] .gt-macro-ink { color: var(--jl-ink) !important; fill: var(--jl-ink) !important; font-family: var(--jl-font-label); }
+[data-genre-theme="joseon-lantern"] .gt-macro-ink-soft { color: var(--jl-ink-soft) !important; fill: var(--jl-ink-soft) !important; stroke: var(--jl-ink-soft) !important; font-family: var(--jl-font-mono); }
+[data-genre-theme="joseon-lantern"] .gt-macro-accent { color: var(--jl-amber) !important; fill: var(--jl-amber) !important; stroke: var(--jl-amber) !important; border-color: var(--jl-amber) !important; }
+[data-genre-theme="joseon-lantern"] .gt-macro-accent-bg { background: var(--jl-amber) !important; color: var(--jl-bg2) !important; }
+[data-genre-theme="joseon-lantern"] .gt-macro-accent-dot { fill: var(--jl-amber) !important; }
+[data-genre-theme="joseon-lantern"] .gt-macro-accent-stroke { stroke: var(--jl-amber) !important; }
+[data-genre-theme="joseon-lantern"] .gt-macro-inksoft-stroke { stroke: var(--jl-ink-soft) !important; }
+[data-genre-theme="joseon-lantern"] .gt-macro-subheader { background: rgba(255,185,106,.06) !important; }
+[data-genre-theme="joseon-lantern"] .gt-macro-track { background: rgba(255,185,106,.1) !important; }
+[data-genre-theme="joseon-lantern"] .tl-dot { border-color: var(--jl-bg2) !important; }
+
+[data-genre-theme="joseon-lantern"] .galpi-ext-quote {
+  border: none !important; border-top: 1px solid var(--jl-amber) !important; border-bottom: 1px solid var(--jl-amber) !important;
+  background: var(--jl-panel) !important; color: var(--jl-ink) !important; font-family: var(--jl-font-display) !important;
+  text-align: center !important; box-shadow: none !important; text-shadow: 0 0 10px rgba(255,185,106,.3);
+}
+
+[data-genre-theme="joseon-lantern"] .gt-table { background: var(--jl-panel) !important; box-shadow: 0 0 0 1px var(--jl-panel-line) !important; }

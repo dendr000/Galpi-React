@@ -164,7 +164,7 @@ export const useBoilerplateListener = ({ globalBpList, bpCore, showToast }) => {
 
       if (isManual || isAuto) {
         let currentLine = getCurrentLineText(editor, isContentEditable);
-        
+
         currentLine = currentLine.replace(/[\u200B-\u200D\uFEFF\u2060]/g, '').trimEnd();
 
         const activeCat = localStorage.getItem('galpi-bp-active-folder') || '전체';

@@ -1,55 +1,61 @@
 /* src/domains/memo/page/PageMemo.module.css */
 
-.memoTopBar { height: 60px; background: var(--surface-color); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-sizing: border-box; z-index: 1000; position: relative; }
-.viewToggleWrap { display: flex; background: var(--table-bg-alt); border-radius: 8px; padding: 4px; border: 1px solid var(--border-color); }
-.viewToggleBtn { background: transparent; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; color: var(--text-secondary); cursor: pointer; transition: 0.2s; }
-.viewToggleBtn.active { background: var(--surface-color); color: var(--primary-color); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.memoTopBar {
+  height: 60px; background: var(--surface-color); border-bottom: 1px solid var(--border-color);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+  box-sizing: border-box; z-index: 1000; position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
 
 .memoWorkspaceContainer { display: flex; height: calc(100vh - 60px); position: relative; background: var(--bg-color); overflow: hidden; }
 
 .memoLeftTree { position: absolute; top: 20px; left: 0; z-index: 500; display: flex; align-items: flex-start; transform: translateX(0); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); height: calc(100% - 40px); }
 .memoLeftTree.closed { transform: translateX(calc(-100% + 32px)); }
-.treeContent { width: 250px; background: var(--surface-color); border: 1px solid var(--border-color); border-left: none; border-radius: 0 8px 8px 0; padding: 20px; box-shadow: 4px 4px 15px rgba(0,0,0,0.1); height: 100%; box-sizing: border-box; display: flex; flex-direction: column; }
-.treeHandle { width: 32px; background: var(--surface-color); border: 1px solid var(--border-color); border-left: none; border-radius: 0 8px 8px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px 0; gap: 4px; cursor: pointer; box-shadow: 2px 0 5px rgba(0,0,0,0.05); color: var(--text-secondary); }
-.folderItem { padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; color: var(--text-primary); transition: 0.2s; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-.folderItem:hover { background: var(--table-bg-alt); }
-.folderItem.active { background: rgba(59,91,219,0.1); color: var(--primary-color); }
+.treeContent {
+  width: 250px; background: var(--surface-color); border: 1px solid var(--border-color); border-left: none;
+  border-radius: 0 10px 10px 0; padding: 18px 16px; box-shadow: 6px 0 24px -8px rgba(20,30,70,0.14);
+  height: 100%; box-sizing: border-box; display: flex; flex-direction: column;
+  border-top: 3px solid var(--primary-color);
+}
+.treeHandle {
+  width: 30px; background: var(--surface-color); border: 1px solid var(--border-color); border-left: none;
+  border-radius: 0 10px 10px 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 16px 0; gap: 5px; cursor: pointer; box-shadow: 4px 0 12px -6px rgba(20,30,70,0.12);
+  color: var(--text-secondary); transition: color 0.2s, background 0.2s;
+}
+.treeHandle:hover { color: var(--primary-color); background: var(--table-bg-alt); }
 
 .memoViewport { flex: 1; position: relative; overflow: hidden; transition: padding-left 0.3s; }
-.memoViewPanel { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.3s; overflow-y: auto; }
-.memoViewPanel.active { opacity: 1; pointer-events: auto; }
-
-.memoGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 30px; }
-.memoCard { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; height: 200px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
-.memoCard:hover { border-color: var(--primary-color); transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
-.memoCardTitle { font-size: 15px; font-weight: 900; margin: 0 0 10px 0; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.memoCardPreview { flex: 1; font-size: 13px; color: var(--text-secondary); line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; word-break: break-all; }
-
-.canvasBoard { position: absolute; width: 5000px; height: 5000px; background: radial-gradient(circle, var(--border-color) 1px, transparent 1px); background-size: 25px 25px; transform-origin: 0 0; cursor: grab; }
-.canvasBoard:active { cursor: grabbing; }
-.canvasNode { position: absolute; width: 250px; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: default; user-select: none; }
-.canvasNode.dragging { opacity: 0.8; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 1000 !important; }
-.canvasNodeHeader { font-weight: 900; font-size: 14px; margin-bottom: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; cursor: move; }
 
 /* ==========================================
    진짜 게시판 (BBS) 뷰 스타일
 ========================================== */
 .bbsSelect {
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 5px 26px 5px 10px;
+  border-radius: 6px;
   border: 1px solid var(--border-color);
-  background: var(--surface-color);
+  background-color: var(--surface-color);
   color: var(--text-primary);
   font-size: 12px;
   font-weight: bold;
   outline: none;
   cursor: pointer;
+  transition: border-color 0.2s;
+  /* 네이티브 셀렉트 화살표가 배경/줌 배율에 따라 잘 안 보이는 경우가 있어, 직접 그린
+     화살표로 교체해서 어떤 환경에서도 항상 보이게 한다 */
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 7px center;
+  background-size: 11px;
 }
+.bbsSelect:hover { border-color: var(--primary-color); }
 
 .batchToolbar {
-  background: rgba(59, 91, 219, 0.05);
+  background: rgba(59, 91, 219, 0.06);
   border: 1px solid var(--primary-color);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 10px 20px;
   display: flex;
   justify-content: space-between;
@@ -63,12 +69,20 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* opacity는 애니메이션에 넣지 않는다 — 휴지통 메모(isTrash)는 인라인 opacity:0.6으로 계속
+   흐리게 표시돼야 하는데, fill-mode:both인 opacity 애니메이션이 끝난 뒤에도 그 인라인 값을
+   덮어써버리기 때문 */
+@keyframes bbsRowIn {
+  from { transform: translateY(4px); }
+  to { transform: translateY(0); }
+}
+
 .bbsWrap {
   background: var(--surface-color);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  box-shadow: 0 6px 20px -10px rgba(20,30,70,0.1);
 }
 
 .bbsHeader {
@@ -77,24 +91,26 @@
   padding: 12px 20px;
   background: var(--table-bg-alt);
   border-bottom: 2px solid var(--border-color);
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 900;
+  letter-spacing: 0.03em;
   color: var(--text-secondary);
 }
 
 .bbsRow {
   display: grid;
   grid-template-columns: 40px 5fr 1.5fr 1fr;
-  padding: 12px 20px;
+  padding: 14px 20px;
   border-bottom: 1px solid var(--border-color);
   align-items: center;
   cursor: pointer;
-  transition: background 0.1s;
+  transition: background 0.15s;
   position: relative; /* 호버 액션을 위한 기준점 */
+  animation: bbsRowIn 0.25s ease both;
 }
 
 .bbsRow:hover {
-  background: rgba(59, 91, 219, 0.04);
+  background: rgba(59, 91, 219, 0.05);
 }
 
 .bbsRow:last-child {
@@ -118,7 +134,7 @@
 }
 
 .bbsItemTitle {
-  font-weight: bold;
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -137,18 +153,19 @@
   color: var(--text-secondary);
   font-size: 10px;
   padding: 1px 6px;
-  border-radius: 4px;
+  border-radius: 999px;
   white-space: nowrap;
   transition: 0.2s;
 }
 .bbsTagPill:hover {
   background: var(--primary-color);
+  border-color: var(--primary-color);
   color: white;
 }
 
 .bbsColFolder {
-  font-size: 13px;
-  font-weight: bold;
+  font-size: 12.5px;
+  font-weight: 700;
   color: var(--primary-color);
   white-space: nowrap;
   overflow: hidden;
@@ -156,9 +173,10 @@
 }
 
 .bbsColDate {
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--text-secondary);
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 /* 호버 시 튀어나오는 퀵 액션 버튼 그룹 */
@@ -187,17 +205,18 @@
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
   padding: 6px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: 0.2s;
+  transition: 0.15s;
 }
 
 .bbsActionBtn:hover {
   color: var(--primary-color);
   border-color: var(--primary-color);
+  transform: translateY(-1px);
 }
 
 .bbsActionBtn.delete:hover {
@@ -220,15 +239,16 @@
   color: var(--text-primary);
   width: 32px;
   height: 32px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.2s;
+  transition: 0.15s;
 }
 
 .pageBtn:hover {
   background: var(--table-bg-alt);
+  border-color: var(--primary-color);
 }
 
 .pageBtn.activePage {

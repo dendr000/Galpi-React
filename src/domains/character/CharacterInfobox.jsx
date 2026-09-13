@@ -10,6 +10,9 @@ import styles from '../../pages/WorkDetail/WorkDetail.module.css';
 const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], setCharacters, setActiveCharId, characters, cardVariants, setCardVariants, formSwaps, setFormSwaps }) => {
   const navigate = useNavigate();
   const [variantIdx, setVariantIdx] = useState(0);
+  const [existingVariants, setExistingVariants] = useState(null); // null = 아직 확인 전
+
+  const fullVariants = ["", ...imgVariants.filter(v => v.trim() !== "")];
 
   useEffect(() => {
     // 폼 스위칭 시 바리에이션 인덱스 초기화 방지 로직 (현재 캐릭터의 바리에이션 상태를 유지)
@@ -19,6 +22,27 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
       setVariantIdx(0);
     }
   }, [char?.id, cardVariants]);
+
+  // ★ 작품 전체에 등록된 바리에이션(예: 사복/전투복)을 캐릭터마다 다 가지고 있는 건 아니다.
+  // 실제로 업로드된 이미지가 있는 바리에이션만 미리 확인해서, 없는 바리에이션은 쉬프트+클릭으로
+  // 아예 순환되지 않도록 한다(이미지가 하나도 없으면 클릭해도 무반응).
+  useEffect(() => {
+    if (!char) { setExistingVariants([]); return; }
+    const toCheck = imgVariants.filter(v => v.trim() !== "");
+    if (toCheck.length === 0) { setExistingVariants([]); return; }
+    let cancelled = false;
+    setExistingVariants(null);
+    Promise.all(toCheck.map(v => new Promise(resolve => {
+      const probe = new Image();
+      const name = `${workTitle}_${char.name}_${v}.${charExt.replace(/^\./, '')}`;
+      probe.onload = () => resolve(v);
+      probe.onerror = () => resolve(null);
+      probe.src = `/img/character/${encodeURIComponent(name)}`;
+    }))).then(results => {
+      if (!cancelled) setExistingVariants(results.filter(Boolean));
+    });
+    return () => { cancelled = true; };
+  }, [char?.id, char?.name, workTitle, charExt, imgVariants.join(',')]);
 
   if (!char) return null;
 
@@ -64,11 +88,10 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
   } catch (e) {}
 
   const themeColor = dp.themeColor || char.themeColor || 'var(--primary-color)';
+  const cardImgX = dp.cardImgX !== undefined ? dp.cardImgX : (char.cardImgX !== undefined ? char.cardImgX : 50);
   const cardImgY = dp.cardImgY !== undefined ? dp.cardImgY : (char.cardImgY !== undefined ? char.cardImgY : 50);
   const cardImgScale = dp.cardImgScale !== undefined ? dp.cardImgScale : (char.cardImgScale !== undefined ? char.cardImgScale : 1);
 
-  const fullVariants = ["", ...imgVariants.filter(v => v.trim() !== "")];
-  
   const handleImageClick = async (e) => {
     if (e.shiftKey) {
       e.preventDefault();
@@ -100,8 +123,15 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
       }
       
       // 스위칭 대상이 없는 일반 캐릭터라면 기존 바리에이션 순환 로직 수행
-      if (fullVariants.length <= 1) return;
-      const nextIdx = (variantIdx + 1) % fullVariants.length;
+      // ★ 작품에 등록된 바리에이션 중 이 캐릭터가 실제로 이미지를 가진 것만 순환 대상으로 삼는다
+      // (existingVariants가 아직 확인 전이면 안전하게 기본 이미지만 있는 것으로 취급한다).
+      const cyclableIndices = fullVariants.reduce((acc, v, i) => {
+        if (v === "" || (existingVariants && existingVariants.includes(v))) acc.push(i);
+        return acc;
+      }, []);
+      if (cyclableIndices.length <= 1) return; // 실제 존재하는 바리에이션이 없으면 아무 것도 안 함
+      const curPos = cyclableIndices.indexOf(variantIdx);
+      const nextIdx = cyclableIndices[((curPos === -1 ? 0 : curPos) + 1) % cyclableIndices.length];
       setVariantIdx(nextIdx);
       // 그리드와 상태를 동기화하기 위해 상위 훅의 cardVariants 상태 업데이트
       setCardVariants(prev => ({ ...prev, [char.id]: nextIdx }));
@@ -112,7 +142,20 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
   const suffix = currentVariant ? `_${currentVariant}` : "";
   const imgName = `${workTitle}_${char.name}${suffix}.${charExt.replace(/^\./, '')}`;
   const imgSrc = `/img/character/${encodeURIComponent(imgName)}`;
-  
+  const baseImgSrc = `/img/character/${encodeURIComponent(`${workTitle}_${char.name}.${charExt.replace(/^\./, '')}`)}`;
+
+  // ★ 쉬프트+클릭으로 순환한 바리에이션(예: "전투") 이미지 파일이 실제로는 업로드된 적 없어서
+  // 404가 나면, 그냥 빈칸(하얀 화면)으로 방치되던 버그 — 그 상태가 cardVariants에 그대로
+  // 저장돼 있어서 다시 들어와도 계속 빈칸이었다. 이제는 실패하면 기본(바리에이션 없음) 이미지로
+  // 즉시 되돌리고, 다음에도 안 헤매도록 저장된 바리에이션 인덱스도 0으로 리셋한다.
+  const handleImageError = (e) => {
+    if (suffix === "") { e.target.style.display = 'none'; return; } // 기본 이미지조차 없으면 그냥 빈칸
+    e.target.onerror = () => { e.target.style.display = 'none'; }; // 기본 이미지마저 없을 경우의 최종 방어선
+    e.target.src = baseImgSrc;
+    setVariantIdx(0);
+    setCardVariants(prev => ({ ...prev, [char.id]: 0 }));
+  };
+
   const propOrder = dp._propOrder || [];
   const mergedProps = { ...char, ...dp };
   if (char.age) mergedProps["나이"] = char.age;
@@ -125,7 +168,7 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
   for (let k in mergedProps) { if (!keysToRender.includes(k)) keysToRender.push(k); }
 
   const exclude = [
-      "id", "name", "imageCode", "pageBody", "themeColor", "cardImgY", "cardImgScale", "age", "birthday", 
+      "id", "name", "imageCode", "pageBody", "themeColor", "cardImgX", "cardImgY", "cardImgScale", "age", "birthday",
       "gender", "species", "_rawDynamic", "_propOrder", "작품명", "제작자", "sortOrder", 
       "_cardLabel1", "_cardLabel2", "_sortOrder", "_sortOrderNum", "workId", "부제목", 
       "pageBodyRaw", "isTrash", "dynamicProperties", "_switchTarget", "_isHidden", "_baseCharId"
@@ -144,7 +187,7 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
         <img 
           src={imgSrc} 
           style={{ 
-            objectPosition: `center ${cardImgY}%`, 
+            objectPosition: `${cardImgX}% ${cardImgY}%`,
             transform: `scale(${cardImgScale})`,
             transition: 'transform 0.2s ease, object-position 0.2s ease',
             cursor: 'default', // 마우스 커서를 뾰족한 화살표(기본 상태)로 강제 고정
@@ -156,12 +199,8 @@ const CharacterInfobox = ({ char, workId, workTitle, charExt, imgVariants = [], 
             console.log(`[CharacterInfobox] 이미지 클릭 이벤트 감지. 대상: ${char.name}`);
             handleImageClick(e);
           }}
-          onError={(e) => { 
-            console.warn(`[CharacterInfobox] 이미지 로드 실패. 빈칸 처리.`);
-            e.target.onerror = null; 
-            e.target.style.display = 'none'; 
-          }} 
-          alt={char.name} 
+          onError={handleImageError}
+          alt={char.name}
         />
       </div>
 

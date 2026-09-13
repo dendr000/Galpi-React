@@ -1,6 +1,6 @@
 // 파일 위치: src/domains/memo/page/components/PageMemoTreeRenderer.jsx
 import React from 'react';
-import { FolderIcon, FolderPlusIcon, EditIcon, TrashIcon } from '../../shared/components/MemoIcons';
+import { FolderIcon, FolderPlusIcon, EditIcon, TrashIcon, FoldIcon } from '../../shared/components/MemoIcons';
 
 const PageMemoTreeRenderer = ({ node, treeHooks, currentFolder, setCurrentFolder, handleAddFolder, handleEditFolder, handleDeleteFolder, memos }) => {
   const isRoot = node.depth === -1;
@@ -20,8 +20,9 @@ const PageMemoTreeRenderer = ({ node, treeHooks, currentFolder, setCurrentFolder
                 padding: '8px 12px', borderRadius: '6px', cursor: 'pointer',
                 background: isActive ? 'rgba(59,91,219,0.1)' : 'transparent',
                 color: isActive ? 'var(--primary-color)' : 'var(--text-primary)',
-                fontWeight: 'bold', fontSize: '13px', transition: 'all 0.2s',
-                marginBottom: '4px'
+                borderLeft: isActive ? '3px solid var(--primary-color)' : '3px solid transparent',
+                fontWeight: 'bold', fontSize: '13px', transition: 'all 0.15s',
+                marginBottom: '3px'
               }}
               onClick={() => {
                 treeHooks.toggleFolder(childNode.path);
@@ -29,8 +30,8 @@ const PageMemoTreeRenderer = ({ node, treeHooks, currentFolder, setCurrentFolder
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
-                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '16px', opacity: 0.7 }}>
-                  {isChildExpanded ? '▼' : '▶'}
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '16px', opacity: 0.6, transform: isChildExpanded ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.15s ease' }}>
+                  <FoldIcon />
                 </span>
                 <FolderIcon />
                 <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>

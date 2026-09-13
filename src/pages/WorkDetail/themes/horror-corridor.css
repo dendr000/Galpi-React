@@ -1,0 +1,174 @@
+/* 파일 위치: src/pages/WorkDetail/themes/horror-corridor.css */
+/* 괴담/이상현상/괴이 방향 C — 이면의 복도. 백룸(Backrooms) 특유의 누런 벽지 + 형광등 톤.
+   배경이 거의 못 느낄 속도로 서서히 확대·이동하고, 제목은 진입 2.6초 후 딱 한 번
+   (useGenreTitleGlitch.js)뿐인 0.12초짜리 번짐만 지나간다 — 그거 한 번뿐이라 더 이상하다.
+   실체(엔티티)는 일부러 안 넣었다 — 백룸 특유의 공포는 "아무것도 없이 똑같은 방이 끝없이
+   이어진다"는 공허함 자체라, 뭔가를 등장시키면 오히려 그 결이 옅어진다.
+   [data-genre-theme="horror-corridor"] 속성 선택자만으로 단독 동작한다.
+
+   주의: 이전 버전은 --hc-ink를 반투명(rgba(20,20,10,.75))으로 잡았었는데, 배경이 어두운
+   구간(그라디언트 하단)에서는 반투명이라 대비가 거의 안 남아 글자가 안 보이는 버그가 있었다
+   — 지금은 배경을 밝은 벽지색으로, 잉크를 불투명한 색으로 바꿔서 배경 밝기와 무관하게
+   대비가 항상 보장되게 했다. */
+
+[data-genre-theme="horror-corridor"], [data-footer-theme="horror-corridor"] {
+  --hc-bg1: #ddd08a; --hc-bg2: #cab971; --hc-bg3: #ab9a4f;
+  --hc-ink: #241f0c; --hc-ink-soft: #55501f;
+  --hc-panel: rgba(255,252,230,0.4); --hc-panel-line: rgba(40,35,15,0.25);
+  --hc-font-display: 'Gothic A1', sans-serif;
+  --hc-font-mono: 'IBM Plex Mono', 'Nanum Gothic Coding', monospace;
+}
+/* 이 테마는 항상 형광등 켜진 복도 하나로 고정 — 라이트/다크 토글과 무관하게 동일하게 보인다 */
+
+[data-genre-theme="horror-corridor"] {
+  position: relative;
+  background: linear-gradient(180deg, var(--hc-bg1) 0%, var(--hc-bg2) 45%, var(--hc-bg3) 100%) !important;
+  border-radius: 6px;
+  padding: 24px !important;
+  clip-path: inset(0 round 6px);
+}
+/* 벽지 이음매 세로줄 + 위쪽에서 쏟아지는 형광등 빛 */
+[data-genre-theme="horror-corridor"]::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, rgba(40,35,15,.1) 0 2px, transparent 2px 90px),
+    linear-gradient(180deg, rgba(255,255,245,.45) 0%, transparent 20%);
+}
+/* 거의 못 느낄 속도의 서서한 드리프트 — 뭔가 계속 다가오는 듯한 원초적 불안감 */
+[data-genre-theme="horror-corridor"]::after {
+  /* ★ inset:-5%는 컨테이닝 블록인 zone이 auto-height라서 그 순간 zone 높이 기준으로 top/bottom이
+     계산돼 zone보다 커지고 zone의 scrollHeight를 늘리는 문제가 있었다(apocalypse 계열과 같은
+     버그). 고정 px로 바꾸고, scale() 애니메이션이 도는 동안 바운딩박스가 커졌다 작아졌다 하며
+     조상 스크롤 오버플로에 계속 기여하지 않도록 contain:paint + will-change도 같이 건다. */
+  content: ""; position: absolute; inset: -30px; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 30%, rgba(255,255,240,.25), transparent 60%);
+  animation: hcDrift 18s ease-in-out infinite alternate;
+  contain: paint;
+  will-change: transform;
+}
+@keyframes hcDrift { from { transform: scale(1) translate(0,0); } to { transform: scale(1.08) translate(-1%,1%); } }
+[data-genre-theme="horror-corridor"] > * { position: relative; z-index: 1; }
+/* 무거운 비네트 — 화면 가장자리가 어둡게 죽어 시야가 좁아 보인다. 텍스트가 아니라
+   배경 위에만 얹는 순수 시각 효과라 대비 문제와는 무관하다. */
+[data-genre-theme="horror-corridor"] .gt-hero::after {
+  content: ""; position: absolute; inset: 0; z-index: 5; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 40%, transparent 40%, rgba(0,0,0,.45) 100%);
+}
+
+/* ============================================================
+   컴포넌트 배선 (전부 .gt-* 순수 전역 hook 클래스 타겟)
+   ============================================================ */
+[data-genre-theme="horror-corridor"] .gt-hero { border-color: var(--hc-panel-line) !important; box-shadow: none !important; position: relative; }
+[data-genre-theme="horror-corridor"] .gt-hero-title {
+  font-family: var(--hc-font-display) !important; font-weight: 900; letter-spacing: -.01em;
+  text-shadow: 0 2px 3px rgba(0,0,0,.4);
+  position: relative; display: inline-block;
+  opacity: 0; animation: hcTitleFadeIn 2s ease both;
+}
+@keyframes hcTitleFadeIn { to { opacity: 1; } }
+/* 커버 이미지 위 제목은 색을 안 건드린다 — 사진 아래 어두운 오버레이(.heroOverlay) 위에
+   얹히는 흰 글자라 여기서 짙은 잉크색으로 덮어쓰면 안 보이게 된다. 커버가 없을 때(밝은
+   벽지색 폴백 패널)만 짙게 덮어쓴다. */
+[data-genre-theme="horror-corridor"] .gt-hero-fallback .gt-hero-title { color: var(--hc-ink) !important; }
+/* 진입 2.6초 후 딱 한 번뿐인 0.12초짜리 번짐(useGenreTitleGlitch.js가 클래스를 토글) —
+   attr(data-title)로 실제 제목 텍스트를 그대로 복제한다 */
+[data-genre-theme="horror-corridor"] .gt-hero-title::before {
+  content: attr(data-title); position: absolute; inset: 0; opacity: 0; pointer-events: none;
+}
+[data-genre-theme="horror-corridor"] .gt-hero-title.gt-title-blip::before {
+  animation: hcBlip .12s steps(1) 1;
+}
+@keyframes hcBlip { 0% { opacity: .9; transform: translate(4px,0); } 100% { opacity: 0; } }
+
+/* 커버 이미지가 없을 때의 제목 영역 */
+[data-genre-theme="horror-corridor"] .gt-hero-fallback {
+  background: var(--hc-panel) !important;
+  border: 1px solid var(--hc-panel-line) !important;
+  border-radius: 3px;
+  padding: 20px 26px !important;
+}
+[data-genre-theme="horror-corridor"] .gt-hero-fallback .wiki-btn {
+  border-color: var(--hc-ink) !important; color: var(--hc-ink) !important; background: transparent !important;
+}
+
+[data-genre-theme="horror-corridor"] .gt-category { background: var(--hc-panel) !important; border-color: var(--hc-panel-line) !important; }
+[data-genre-theme="horror-corridor"] .gt-category > :first-child { background: transparent !important; color: var(--hc-ink) !important; }
+[data-genre-theme="horror-corridor"] .gt-section-select { background: var(--hc-panel) !important; border-color: var(--hc-panel-line) !important; color: var(--hc-ink) !important; }
+[data-genre-theme="horror-corridor"] .gt-tag {
+  background: rgba(255,255,245,.5) !important; border: 1px solid var(--hc-panel-line) !important; color: var(--hc-ink) !important;
+  font-family: var(--hc-font-mono) !important; font-weight: 500;
+  border-radius: 0 !important;
+}
+
+[data-genre-theme="horror-corridor"] .gt-section-header { border-bottom-color: var(--hc-panel-line) !important; }
+[data-genre-theme="horror-corridor"] .gt-section-title { font-family: var(--hc-font-display) !important; font-weight: 700; color: var(--hc-ink) !important; }
+
+[data-genre-theme="horror-corridor"] .gt-relation-group { background: var(--hc-panel) !important; border-color: var(--hc-panel-line) !important; }
+[data-genre-theme="horror-corridor"] .gt-relation-header { color: var(--hc-ink) !important; font-family: var(--hc-font-mono); letter-spacing: .02em; }
+
+/* 인물 카드 — 동행자 파일 */
+[data-genre-theme="horror-corridor"] .gt-card {
+  background: var(--hc-panel) !important;
+  border: 1px solid var(--hc-panel-line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  height: auto !important;
+  transition: border-color .2s;
+}
+[data-genre-theme="horror-corridor"] .gt-card:hover { border-color: var(--hc-ink) !important; }
+[data-genre-theme="horror-corridor"] .gt-card-img { border-radius: 0 !important; filter: saturate(.8); }
+[data-genre-theme="horror-corridor"] .gt-card h4 { font-family: var(--hc-font-display) !important; font-weight: 700; color: var(--hc-ink) !important; font-size: 14px !important; }
+[data-genre-theme="horror-corridor"] .gt-card h4 span { color: var(--hc-ink-soft) !important; }
+[data-genre-theme="horror-corridor"] .gt-card > div:last-child > div span:first-child { color: var(--hc-ink-soft) !important; font-family: var(--hc-font-mono); font-size: 10.5px; }
+[data-genre-theme="horror-corridor"] .gt-card > div:last-child > div span:last-child { color: var(--hc-ink) !important; font-family: var(--hc-font-mono); font-weight: 700 !important; }
+
+[data-genre-theme="horror-corridor"] .gt-infobox { background: var(--hc-panel) !important; border-color: var(--hc-panel-line) !important; }
+[data-genre-theme="horror-corridor"] .gt-infobox-title { font-family: var(--hc-font-display) !important; font-weight: 700; color: var(--hc-ink) !important; }
+[data-footer-theme="horror-corridor"] .gt-footer { background: var(--hc-panel) !important; border-top: 1px solid var(--hc-panel-line) !important; }
+[data-footer-theme="horror-corridor"] .gt-footer-btn:hover { color: var(--hc-ink) !important; }
+[data-genre-theme="horror-corridor"] .gt-infobox-image { border-bottom-color: var(--hc-panel-line) !important; filter: saturate(.8); }
+[data-genre-theme="horror-corridor"] .gt-infobox-table th, [data-genre-theme="horror-corridor"] .gt-table th { background: rgba(40,35,15,.06) !important; color: var(--hc-ink-soft) !important; border-color: var(--hc-panel-line) !important; font-family: var(--hc-font-mono); font-weight: 500 !important; }
+[data-genre-theme="horror-corridor"] .gt-infobox-table td, [data-genre-theme="horror-corridor"] .gt-table td { color: var(--hc-ink) !important; border-color: var(--hc-panel-line) !important; font-family: var(--hc-font-mono); }
+[data-genre-theme="horror-corridor"] .gt-infobox-desc { background: var(--hc-panel) !important; color: var(--hc-ink-soft) !important; border-top-color: var(--hc-panel-line) !important; }
+[data-genre-theme="horror-corridor"] .gt-btn-edit { border-color: var(--hc-ink) !important; color: var(--hc-ink) !important; background: transparent !important; }
+[data-genre-theme="horror-corridor"] .gt-btn-del { border-color: #8a3a3a !important; color: #6a2a2a !important; background: transparent !important; }
+
+[data-genre-theme="horror-corridor"] .md-box { background: var(--hc-panel) !important; border-color: var(--hc-panel-line) !important; }
+[data-genre-theme="horror-corridor"] .markdown-body { color: var(--hc-ink); }
+[data-genre-theme="horror-corridor"] .markdown-body h1,
+[data-genre-theme="horror-corridor"] .markdown-body h2 { font-family: var(--hc-font-display) !important; font-weight: 700; color: var(--hc-ink) !important; border-color: var(--hc-panel-line) !important; }
+[data-genre-theme="horror-corridor"] .md-h1 { border-color: var(--hc-ink) !important; color: var(--hc-ink) !important; }
+
+[data-genre-theme="horror-corridor"] .gt-quicknav { background: var(--hc-panel) !important; border-color: var(--hc-panel-line) !important; }
+[data-genre-theme="horror-corridor"] .gt-quicknav-btn { font-family: var(--hc-font-mono); border-color: var(--hc-ink) !important; border-radius: 0 !important; }
+
+/* 하위 문서 목록 */
+[data-genre-theme="horror-corridor"] .gt-page-count { color: var(--hc-ink-soft) !important; font-family: var(--hc-font-mono); }
+[data-genre-theme="horror-corridor"] .gt-page-card { background: var(--hc-panel) !important; border-color: var(--hc-panel-line) !important; }
+[data-genre-theme="horror-corridor"] .gt-page-card:hover { border-color: var(--hc-ink) !important; }
+[data-genre-theme="horror-corridor"] .gt-page-title { font-family: var(--hc-font-display) !important; font-weight: 700; color: var(--hc-ink) !important; }
+[data-genre-theme="horror-corridor"] .gt-page-desc { color: var(--hc-ink-soft) !important; font-family: var(--hc-font-mono) !important; }
+[data-genre-theme="horror-corridor"] .gt-page-empty { background: var(--hc-panel) !important; border-color: var(--hc-panel-line) !important; color: var(--hc-ink-soft) !important; }
+
+/* 매크로 위젯(스탯/게이지/타임라인/관계도 등) — 문자열로 즉시 조립되는 위젯이라
+   인라인 style="var(--...)"가 이미 박혀 있다. plain 전역 클래스(.gt-macro-*)로 !important 덮어쓴다 */
+[data-genre-theme="horror-corridor"] .gt-macro-box { background: var(--hc-panel) !important; border-color: var(--hc-panel-line) !important; fill: var(--hc-panel) !important; }
+[data-genre-theme="horror-corridor"] .gt-macro-line { stroke: var(--hc-panel-line) !important; border-color: var(--hc-panel-line) !important; }
+[data-genre-theme="horror-corridor"] .gt-macro-ink { color: var(--hc-ink) !important; fill: var(--hc-ink) !important; font-family: var(--hc-font-mono); }
+[data-genre-theme="horror-corridor"] .gt-macro-ink-soft { color: var(--hc-ink-soft) !important; fill: var(--hc-ink-soft) !important; stroke: var(--hc-ink-soft) !important; font-family: var(--hc-font-mono); }
+[data-genre-theme="horror-corridor"] .gt-macro-accent { color: var(--hc-ink) !important; fill: var(--hc-ink) !important; stroke: var(--hc-ink) !important; border-color: var(--hc-ink) !important; }
+[data-genre-theme="horror-corridor"] .gt-macro-accent-bg { background: var(--hc-ink) !important; color: var(--hc-bg1) !important; }
+[data-genre-theme="horror-corridor"] .gt-macro-accent-dot { fill: var(--hc-ink) !important; }
+[data-genre-theme="horror-corridor"] .gt-macro-accent-stroke { stroke: var(--hc-ink) !important; }
+[data-genre-theme="horror-corridor"] .gt-macro-inksoft-stroke { stroke: var(--hc-ink-soft) !important; }
+[data-genre-theme="horror-corridor"] .gt-macro-subheader { background: rgba(40,35,15,.06) !important; }
+[data-genre-theme="horror-corridor"] .gt-macro-track { background: rgba(40,35,15,.1) !important; }
+[data-genre-theme="horror-corridor"] .tl-dot { border-color: var(--hc-bg1) !important; }
+
+[data-genre-theme="horror-corridor"] .galpi-ext-quote {
+  border: none !important; border-top: 1px solid var(--hc-panel-line) !important; border-bottom: 1px solid var(--hc-panel-line) !important;
+  background: var(--hc-panel) !important; color: var(--hc-ink) !important; font-family: var(--hc-font-display) !important;
+  text-align: center !important; box-shadow: none !important;
+}
+
+[data-genre-theme="horror-corridor"] .gt-table { background: var(--hc-panel) !important; box-shadow: 0 0 0 1px var(--hc-panel-line) !important; }

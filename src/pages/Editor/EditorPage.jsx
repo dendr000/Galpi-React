@@ -58,8 +58,8 @@ const EditorPage = () => {
   return (
     <div className={styles.editorFullBleed} style={{ overflowX: 'hidden' }}>
 
-      <EditorSearch editorRef={editorRef} updatePreview={() => { }} />
-      <MacroToolbar editorRef={editorRef} onInsert={handleMacroInsert} />
+      <EditorSearch editorRef={editorRef} rawText={rawText} setRawText={setRawText} />
+      <MacroToolbar editorRef={editorRef} rawText={rawText} onInsert={handleMacroInsert} />
 
       <EditorHeader
         badgeText={badgeText}

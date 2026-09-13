@@ -5,7 +5,10 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 
 import { useBossKey } from './hooks/useBossKey';
 import { useHorizontalScroll } from './hooks/useHorizontalScroll';
+import { useGlobalModalFocusGuard } from './hooks/useGlobalModalFocusGuard';
 import useSettingStore from './store/useSettingStore';
+import useAuthStore from './store/useAuthStore';
+import LoginPage from './pages/Login/LoginPage';
 
 import Gnb from './components/layout/Gnb';
 import BossBlindLayer from './components/common/BossBlindLayer';
@@ -35,6 +38,13 @@ function App() {
   const isEditorMode = location.pathname.startsWith('/edit');
   const isMemoMode = location.pathname.startsWith('/memo');
 
+  // 시크릿 게이트 — 세션 토큰이 없으면(로그아웃 상태거나 만료돼서 axios 인터셉터가 지웠거나)
+  // 무슨 경로로 들어왔든 로그인 화면만 보여준다. 서버를 껐다 켜도, 브라우저를 새로 열어도
+  // 토큰이 로컬에 남아있는 한 이 체크를 그냥 통과하는 게 "자동 로그인"의 정체다.
+  // ★ 훅 규칙 때문에 이 값으로 분기하는 return은 아래 다른 훅들을 전부 호출한 다음에 해야 한다
+  // (로그인/로그아웃으로 token 유무가 바뀔 때마다 훅 호출 개수가 달라지면 안 되므로).
+  const token = useAuthStore((s) => s.token);
+
   useEffect(() => {
     console.log("[App] 오버스크롤 스와이프 네비게이션 방지 CSS 전역 주입 가동");
     document.documentElement.style.overscrollBehaviorX = 'none';
@@ -47,9 +57,12 @@ function App() {
 
   const [isSettingOpen, setIsSettingOpen] = useState(false);
   const { fontSize, layoutWidth, fontFamily, isStarryBackground } = useSettingStore();
-  
+
   useBossKey();
   useHorizontalScroll();
+  useGlobalModalFocusGuard();
+
+  if (!token) return <LoginPage />;
 
   return (
     <div 

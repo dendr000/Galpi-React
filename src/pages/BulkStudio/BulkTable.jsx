@@ -1,9 +1,10 @@
 // 파일 위치: src/pages/BulkStudio/BulkTable.jsx
 // 기능 요약: React Virtual 엔진과 네이티브 Datalist 자동완성 검색 드롭다운이 융합된 테이블 코어
 
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useCallback } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import BulkTableRow from './BulkTableRow';
+import { IconChevronLeft, IconChevronRight } from '../../components/common/icons/DomainIcons';
 
 const BulkTable = ({ 
   columns, rows, loading, tabMode, suggestions, 
@@ -46,20 +47,23 @@ const BulkTable = ({
     return lists;
   }, [columns, rows, suggestions]);
 
-  const handleKeyDown = (e, rowIdx, colName) => {
+  // BulkTableRow(React.memo)에 그대로 내려가는 콜백이라, tabMode가 안 바뀌는 한 항상 같은
+  // 참조를 유지해야 memo 비교가 의미가 있다.
+  const handleKeyDown = useCallback((e, rowIdx, colName) => {
     if (e.key === 'Tab' && tabMode === 'vertical') {
       e.preventDefault();
       const nextRowIdx = e.shiftKey ? rowIdx - 1 : rowIdx + 1;
-      const selector = colName === 'name' 
-        ? `.b-name[data-row="${nextRowIdx}"]` 
+      const selector = colName === 'name'
+        ? `.b-name[data-row="${nextRowIdx}"]`
         : `.b-prop[data-row="${nextRowIdx}"][data-col="${colName}"]`;
       const nextInput = document.querySelector(selector);
       if (nextInput) {
         nextInput.focus();
-        setTimeout(() => nextInput.select(), 10);
+        // 관계/성별처럼 <select>로 바뀐 칸엔 .select() 메서드가 없어서 그냥 두면 던진다.
+        if (typeof nextInput.select === 'function') setTimeout(() => nextInput.select(), 10);
       }
     }
-  };
+  }, [tabMode]);
 
   const allChecked = rows.length > 0 && rows.every(r => r._checked);
 
@@ -77,15 +81,40 @@ const BulkTable = ({
               </th>
               <th className="sticky-delete">삭제</th>
               <th className="sticky-name">이름 (필수)</th>
-              {columns.map((col, i) => (
-                <th key={col} style={{ width: '150px', minWidth: '150px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '5px', marginBottom: '5px' }}>
-                    <input type="number" value={i + 1} onChange={e => changeColOrder(i, parseInt(e.target.value))} className="bulk-col-order" style={{ width: '35px', textAlign: 'center' }} disabled={col === '부제목'} title="순서 이동" />
-                    <button type="button" onClick={() => removeColumn(col)} style={{ border: 'none', background: 'none', color: '#e53e3e', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', visibility: col === '부제목' ? 'hidden' : 'visible' }}>✖</button>
+              {columns.map((col, i) => {
+                const isFirst = col === '부제목';
+                const atLeft = i <= 1;
+                const atRight = i >= columns.length - 1;
+                return (
+                <th key={col} style={{ width: '150px', minWidth: '150px' }} className="colHeaderCell">
+                  {/* 화살표로 한 칸씩 옮기고, 속성 이름을 클릭하면 몇 번째로 옮길지 직접 입력할 수
+                      있다(멀리 옮길 때). 삭제(✖)는 늘 보이면 지저분해서 이 칸에 호버했을 때만
+                      나타나게 뺐다 — .colDeleteBtn의 opacity는 BulkStudio.module.css에서 처리. */}
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4px' }}>
+                    <button type="button" onClick={() => changeColOrder(i, i)} disabled={isFirst || atLeft} title="왼쪽으로 한 칸" style={{ border: 'none', background: 'none', color: 'var(--text-secondary)', cursor: (isFirst || atLeft) ? 'default' : 'pointer', opacity: (isFirst || atLeft) ? 0.25 : 1, display: 'flex', padding: '2px', flexShrink: 0 }}>
+                      <IconChevronLeft size={13} />
+                    </button>
+                    <span
+                      onClick={() => {
+                        if (isFirst) return;
+                        const target = prompt(`"${col}"을(를) 몇 번째 속성으로 옮길까요? (현재 ${i + 1}번째, 2~${columns.length}번째 중)`, i + 1);
+                        if (target === null) return;
+                        const n = parseInt(target, 10);
+                        if (!isNaN(n)) changeColOrder(i, n);
+                      }}
+                      title={isFirst ? '' : '클릭하면 몇 번째로 옮길지 바로 입력'}
+                      style={{ fontWeight: 900, cursor: isFirst ? 'default' : 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}
+                    >
+                      {col}
+                    </span>
+                    <button type="button" onClick={() => changeColOrder(i, i + 2)} disabled={isFirst || atRight} title="오른쪽으로 한 칸" style={{ border: 'none', background: 'none', color: 'var(--text-secondary)', cursor: (isFirst || atRight) ? 'default' : 'pointer', opacity: (isFirst || atRight) ? 0.25 : 1, display: 'flex', padding: '2px', flexShrink: 0 }}>
+                      <IconChevronRight size={13} />
+                    </button>
+                    <button type="button" onClick={() => removeColumn(col)} className="colDeleteBtn" title="속성 삭제" style={{ border: 'none', background: 'none', color: '#e53e3e', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', padding: '0 2px', flexShrink: 0, visibility: isFirst ? 'hidden' : 'visible' }}>✖</button>
                   </div>
-                  {col}
                 </th>
-              ))}
+                );
+              })}
               <th className="sticky-body">상세 본문 (모달)</th>
             </tr>
           </thead>

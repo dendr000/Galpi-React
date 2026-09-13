@@ -1,7 +1,7 @@
 /* 파일 위치: src/pages/WorkDetail/themes/cyberpunk-graffiti.css */
 /* 사이버펑크 방향 C — 크롬 그래피티. 아키라풍 폭동 포스터, 흑백+경고레드, 경고 테이프 마퀴. */
 
-[data-genre-theme="cyberpunk-graffiti"] {
+[data-genre-theme="cyberpunk-graffiti"], [data-footer-theme="cyberpunk-graffiti"] {
   --cp-bg: #0a0a0a; --cp-ink: #f5f5f5; --cp-ink-soft: #9a9a9a; --cp-red: #ff1f3d; --cp-cyan: #2be0ff;
   /* Anton은 한글 글리프가 없어 .gt-relation-header/.gt-card h4 등 한글 텍스트가 조용히
      시스템 기본 폰트로 대체되던 버그가 있었다 — 한글 지원 폴백을 이어 붙였다. */
@@ -19,18 +19,47 @@
   clip-path: inset(0 round 6px);
 }
 [data-genre-theme="cyberpunk-graffiti"]::before {
-  content: "";
-  display: block; position: relative; z-index: 1; height: 22px;
+  content: "WARNING — RESTRICTED SECTOR — WARNING — RESTRICTED SECTOR — WARNING — RESTRICTED SECTOR —\00a0";
+  display: block; position: relative; z-index: 1; height: 22px; overflow: hidden;
   background: repeating-linear-gradient(135deg, var(--cp-red) 0 20px, var(--cp-bg) 20px 40px);
   margin: -24px -24px 20px;
+  font-family: 'Anton', sans-serif; font-size: 13px; letter-spacing: 0.08em; color: var(--cp-bg);
+  white-space: nowrap; line-height: 22px; padding-left: 100%;
+  animation: cpMarquee 14s linear infinite;
 }
+@keyframes cpMarquee { from { transform: translateX(0); } to { transform: translateX(-60%); } }
 [data-genre-theme="cyberpunk-graffiti"] > * { position: relative; z-index: 1; }
 
 /* ============================================================
    컴포넌트 배선 — 흑백 고대비 + 경고레드, 거친 각진 카드
    ============================================================ */
 [data-genre-theme="cyberpunk-graffiti"] .gt-hero { border: none !important; box-shadow: none !important; filter: grayscale(0.6) contrast(1.15); }
-[data-genre-theme="cyberpunk-graffiti"] .gt-hero-title { font-family: var(--cp-font-display-kr) !important; color: var(--cp-ink) !important; letter-spacing: -0.01em; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-hero-title {
+  font-family: var(--cp-font-display-kr) !important; color: var(--cp-ink) !important; letter-spacing: -0.01em;
+  /* .heroTitleContainer가 pointer-events:none이라 제목에서 :hover가 안 잡혔다 — 글자에만
+     다시 켜서 찢어짐 글리치 호버가 동작하게 한다. */
+  position: relative; display: inline-block; pointer-events: auto;
+}
+[data-genre-theme="cyberpunk-graffiti"] .gt-hero-title::before,
+[data-genre-theme="cyberpunk-graffiti"] .gt-hero-title::after {
+  content: attr(data-title); position: absolute; inset: 0; opacity: 0; pointer-events: none; mix-blend-mode: screen;
+}
+[data-genre-theme="cyberpunk-graffiti"] .gt-hero-title:hover::before {
+  opacity: 0.85; color: var(--cp-red); animation: cpSliceR 0.4s steps(3) infinite;
+}
+[data-genre-theme="cyberpunk-graffiti"] .gt-hero-title:hover::after {
+  opacity: 0.85; color: var(--cp-cyan); animation: cpSliceC 0.35s steps(3) infinite;
+}
+@keyframes cpSliceR {
+  0% { clip-path: inset(0 0 80% 0); transform: translateX(-4px); }
+  50% { clip-path: inset(40% 0 40% 0); transform: translateX(3px); }
+  100% { clip-path: inset(80% 0 0 0); transform: translateX(-2px); }
+}
+@keyframes cpSliceC {
+  0% { clip-path: inset(20% 0 60% 0); transform: translateX(4px); }
+  50% { clip-path: inset(60% 0 10% 0); transform: translateX(-3px); }
+  100% { clip-path: inset(10% 0 70% 0); transform: translateX(2px); }
+}
 
 /* 커버 이미지가 없을 때의 제목 영역 — 경고 스탬프 블록처럼 감싼다 */
 [data-genre-theme="cyberpunk-graffiti"] .gt-hero-fallback {
@@ -73,13 +102,15 @@
 [data-genre-theme="cyberpunk-graffiti"] .gt-card > div:last-child > div span:last-child { color: var(--cp-red) !important; font-family: 'Gothic A1', sans-serif; font-weight: 900 !important; }
 
 [data-genre-theme="cyberpunk-graffiti"] .gt-infobox { background: #131313 !important; border: 2px solid var(--cp-ink) !important; border-radius: 0 !important; }
-[data-genre-theme="cyberpunk-graffiti"] .gt-infobox-title { font-family: var(--cp-font-display-kr) !important; filter: grayscale(0.4) contrast(1.1); }
+[data-genre-theme="cyberpunk-graffiti"] .gt-infobox-title { font-family: var(--cp-font-display-kr) !important; filter: grayscale(0.4) contrast(1.1); background: #131313 !important; border-bottom: 2px solid var(--cp-red) !important; }
+[data-footer-theme="cyberpunk-graffiti"] .gt-footer { background: #131313 !important; border-top: 1px solid var(--cp-red) !important; }
+[data-footer-theme="cyberpunk-graffiti"] .gt-footer-btn:hover { color: var(--cp-red) !important; }
 [data-genre-theme="cyberpunk-graffiti"] .gt-infobox-image { border-bottom: 2px solid var(--cp-ink) !important; filter: grayscale(0.7) contrast(1.2); }
-[data-genre-theme="cyberpunk-graffiti"] .gt-infobox-table th { background: #1c1c1c !important; color: var(--cp-ink-soft) !important; border-color: #2a2a2a !important; font-family: 'Gothic A1', sans-serif; font-weight: 900 !important; }
-[data-genre-theme="cyberpunk-graffiti"] .gt-infobox-table td { color: var(--cp-ink) !important; border-color: #2a2a2a !important; font-family: 'Gothic A1', sans-serif; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-infobox-table th, [data-genre-theme="cyberpunk-graffiti"] .gt-table th { background: #1c1c1c !important; color: var(--cp-ink-soft) !important; border-color: #2a2a2a !important; font-family: 'Gothic A1', sans-serif; font-weight: 900 !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-infobox-table td, [data-genre-theme="cyberpunk-graffiti"] .gt-table td { color: var(--cp-ink) !important; border-color: #2a2a2a !important; font-family: 'Gothic A1', sans-serif; }
 [data-genre-theme="cyberpunk-graffiti"] .gt-infobox-desc { background: #131313 !important; color: var(--cp-ink-soft) !important; border-top-color: #2a2a2a !important; }
-[data-genre-theme="cyberpunk-graffiti"] .gt-btn-edit { border-color: var(--cp-red) !important; color: var(--cp-red) !important; border-radius: 0 !important; }
-[data-genre-theme="cyberpunk-graffiti"] .gt-btn-del { border-color: var(--cp-ink-soft) !important; color: var(--cp-ink-soft) !important; border-radius: 0 !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-btn-edit { border-color: var(--cp-red) !important; color: var(--cp-red) !important; border-radius: 0 !important; background: transparent !important; }
+[data-genre-theme="cyberpunk-graffiti"] .gt-btn-del { border-color: var(--cp-ink-soft) !important; color: var(--cp-ink-soft) !important; border-radius: 0 !important; background: transparent !important; }
 
 [data-genre-theme="cyberpunk-graffiti"] .md-box { background: #131313 !important; border: 2px solid var(--cp-ink) !important; border-radius: 0 !important; }
 [data-genre-theme="cyberpunk-graffiti"] .markdown-body { color: var(--cp-ink); }
@@ -118,3 +149,5 @@
   font-family: var(--cp-font-display-kr) !important; font-style: normal !important; text-align: center !important;
   box-shadow: none !important; transform: rotate(-0.8deg);
 }
+
+[data-genre-theme="cyberpunk-graffiti"] .gt-table { background: #131313 !important; box-shadow: 0 0 0 1px var(--cp-ink) !important; }

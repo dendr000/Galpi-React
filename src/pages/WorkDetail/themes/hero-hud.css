@@ -2,7 +2,7 @@
 /* 히어로 방향 B — 홀로그래픽 파워슈트. 기동 HUD, 시안-마젠타 홀로그램. 사이버펑크
    계열처럼 라이트/다크 토글과 무관하게 항상 어두운 세계관으로 고정된다. */
 
-[data-genre-theme="hero-hud"] {
+[data-genre-theme="hero-hud"], [data-footer-theme="hero-hud"] {
   --hh-bg1: #0a0e1c; --hh-bg2: #050710; --hh-panel: rgba(30,42,74,.55); --hh-line: rgba(79,240,255,.35);
   --hh-ink: #eaf6ff; --hh-ink-soft: #93a9c8; --hh-cyan: #4ff0ff; --hh-magenta: #ff4fd8;
   --hh-font-display: 'Stylish', sans-serif;
@@ -80,13 +80,15 @@
 [data-genre-theme="hero-hud"] .gt-card > div:last-child > div span:last-child { color: var(--hh-cyan) !important; font-family: var(--hh-font-mono); font-weight: 700 !important; }
 
 [data-genre-theme="hero-hud"] .gt-infobox { background: var(--hh-panel) !important; backdrop-filter: blur(6px); border-color: var(--hh-line) !important; box-shadow: 0 0 24px rgba(79,240,255,.12) !important; }
-[data-genre-theme="hero-hud"] .gt-infobox-title { font-family: var(--hh-font-display); filter: saturate(1.2) brightness(1.05); }
+[data-genre-theme="hero-hud"] .gt-infobox-title { font-family: var(--hh-font-display); filter: saturate(1.2) brightness(1.05); background: var(--hh-panel) !important; border-bottom: 3px solid var(--hh-cyan) !important; }
+[data-footer-theme="hero-hud"] .gt-footer { background: var(--hh-panel) !important; border-top: 1px solid var(--hh-cyan) !important; }
+[data-footer-theme="hero-hud"] .gt-footer-btn:hover { color: var(--hh-cyan) !important; }
 [data-genre-theme="hero-hud"] .gt-infobox-image { border-bottom-color: var(--hh-line) !important; filter: contrast(1.08) saturate(1.05); }
-[data-genre-theme="hero-hud"] .gt-infobox-table th { background: rgba(79,240,255,.08) !important; color: var(--hh-ink-soft) !important; border-color: var(--hh-line) !important; font-family: var(--hh-font-mono); font-weight: 500 !important; }
-[data-genre-theme="hero-hud"] .gt-infobox-table td { color: var(--hh-ink) !important; border-color: var(--hh-line) !important; font-family: var(--hh-font-body); }
+[data-genre-theme="hero-hud"] .gt-infobox-table th, [data-genre-theme="hero-hud"] .gt-table th { background: rgba(79,240,255,.08) !important; color: var(--hh-ink-soft) !important; border-color: var(--hh-line) !important; font-family: var(--hh-font-mono); font-weight: 500 !important; }
+[data-genre-theme="hero-hud"] .gt-infobox-table td, [data-genre-theme="hero-hud"] .gt-table td { color: var(--hh-ink) !important; border-color: var(--hh-line) !important; font-family: var(--hh-font-body); }
 [data-genre-theme="hero-hud"] .gt-infobox-desc { background: var(--hh-panel) !important; color: var(--hh-ink-soft) !important; border-top-color: var(--hh-line) !important; }
-[data-genre-theme="hero-hud"] .gt-btn-edit { border-color: var(--hh-cyan) !important; color: var(--hh-cyan) !important; }
-[data-genre-theme="hero-hud"] .gt-btn-del { border-color: var(--hh-magenta) !important; color: var(--hh-magenta) !important; }
+[data-genre-theme="hero-hud"] .gt-btn-edit { border-color: var(--hh-cyan) !important; color: var(--hh-cyan) !important; background: transparent !important; }
+[data-genre-theme="hero-hud"] .gt-btn-del { border-color: var(--hh-magenta) !important; color: var(--hh-magenta) !important; background: transparent !important; }
 
 [data-genre-theme="hero-hud"] .md-box { background: var(--hh-panel) !important; border-color: var(--hh-line) !important; }
 [data-genre-theme="hero-hud"] .markdown-body { color: var(--hh-ink); }
@@ -124,3 +126,5 @@
 [data-genre-theme="hero-hud"] .gt-macro-subheader { background: rgba(79,240,255,.08) !important; }
 [data-genre-theme="hero-hud"] .gt-macro-track { background: rgba(79,240,255,.12) !important; }
 [data-genre-theme="hero-hud"] .tl-dot { border-color: var(--hh-bg2) !important; }
+
+[data-genre-theme="hero-hud"] .gt-table { background: var(--hh-panel) !important; box-shadow: 0 0 0 1px var(--hh-line) !important; }

@@ -10,8 +10,12 @@ import { extractMeta, buildMetaStr } from '../../utils/markdownParser';
 const GENRE_THEME_GROUPS = [
   { keywords: ['무협', '무림', '강호'], themes: ['wuxia', 'wuxia-ink', 'wuxia-blood', 'wuxia-ascend'] },
   { keywords: ['사이버펑크', '사펑', 'SF'], themes: ['cyberpunk-neon', 'cyberpunk-terminal', 'cyberpunk-graffiti'] },
-  { keywords: ['아포칼립스', '포스트아포칼립스', '좀비'], themes: ['apocalypse-rad', 'apocalypse-infect', 'apocalypse-camp'] },
+  { keywords: ['아포칼립스', '포스트아포칼립스', '좀비', '생존'], themes: ['apocalypse-rad', 'apocalypse-infect', 'apocalypse-camp'] },
   { keywords: ['히어로', '영웅'], themes: ['hero-comic', 'hero-hud', 'hero-urban'] },
+  { keywords: ['헌터', '초능력', '이능력', '현대판타지'], themes: ['hunter-gate', 'hunter-hologram'] },
+  // 괴담은 아직 뺐다 — 더 무서운 전용 변형을 나중에 따로 만들 예정이라 일부러 보류.
+  { keywords: ['요괴', '주술', '퇴마', '동양판타지', '귀신'], themes: ['joseon-talisman', 'joseon-shrine', 'joseon-lantern'] },
+  { keywords: ['괴담', '이상현상', '괴이'], themes: ['horror-archive', 'horror-store', 'horror-corridor'] },
 ];
 
 export const THEME_LABELS = {
@@ -29,6 +33,14 @@ export const THEME_LABELS = {
   'hero-comic': '히어로 · 코믹스 팝아트',
   'hero-hud': '히어로 · 홀로그래픽 파워슈트',
   'hero-urban': '히어로 · 도심의 히어로',
+  'hunter-gate': '헌터 · 게이트 시스템',
+  'hunter-hologram': '헌터 · 라이트 홀로그램',
+  'joseon-talisman': '조선 무속 · 부적당',
+  'joseon-shrine': '조선 무속 · 성황당',
+  'joseon-lantern': '조선 무속 · 저승길',
+  'horror-archive': '괴담 · 채록실',
+  'horror-store': '괴담 · 자정의 편의점',
+  'horror-corridor': '괴담 · 이면의 복도',
 };
 
 // 이 작품 분류에서 순환 가능한 테마 값 목록 ('auto' 포함, 매칭 없으면 빈 배열)

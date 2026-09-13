@@ -9,23 +9,26 @@ import { useMemoFindReplace } from '../../shared/hooks/useMemoFindReplace';
 import { useMemoLink } from '../../shared/hooks/useMemoLink';
 import { useMemoBlockDrag } from '../../shared/hooks/useMemoBlockDrag';
 import api from '../../../../api/axiosCore';
-import { useBoilerplateCore } from '../../../fabTools/boilerplate/hooks/useBoilerplateCore';
-import { useBoilerplateListener } from '../../../fabTools/boilerplate/hooks/useBoilerplateListener';
 import { useMemoAutoSave } from '../../shared/hooks/useMemoAutoSave';
 import { useMemoBookmark } from '../../shared/hooks/useMemoBookmark';
 import { useMemoDictListener } from '../../shared/hooks/useMemoDictListener';
 import { useModalStore } from '../../../../store/useModalStore';
+import { seedDictIfNeeded } from '../../../../utils/dictLocalDb';
 
-export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder, setActiveMemoId, navigate }) => {
+// ★ bpCore/globalBpList는 FabMenu.jsx가 만들어서 내려주는 걸 그대로 쓴다 — 예전엔 여기서
+// 똑같은 걸 하나 더 만들어서(useBoilerplateCore + useBoilerplateListener + 자체
+// /api/boilerplates 재조회) 문서 리스너가 이중 등록되고, 등록 순서상 항상 FabMenu 쪽이
+// 이겨서 여기서 만든 인스턴스는 사실상 죽은 채로 API만 낭비했다. 심지어 완전 무해한
+// 중복도 아니었다 — "템플릿 목록 열기" 버튼으로 여는 팝업은 이 로컬 bpCore 상태를 쓰는데,
+// 그 상태에서 숫자키로 항목 고르는 처리는 FabMenu의 전역 리스너가 몰라서 안 먹혔다.
+export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFolder, setActiveMemoId, navigate, bpCore, globalBpList }) => {
   const { openModal } = useModalStore();
   const editorRef = useRef(null);
   const titleRef = useRef(null);
   const activeCellRef = useRef(null);
-  
+
   const [charCount, setCharCount] = useState({ selected: 0, total: 0 });
   const [memoTags, setMemoTags] = useState("");
-  const [globalBpList, setGlobalBpList] = useState([]);
-  const [globalDictList, setGlobalDictList] = useState([]);
   const [fontList, setFontList] = useState([]);
 
   const [isAutoSnippet, setIsAutoSnippet] = useState(() => localStorage.getItem('galpi-bp-preview') !== 'false');
@@ -66,26 +69,11 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
   }, [activeMemo?.id]);
 
   useEffect(() => {
-    api.get('/api/boilerplates').then(res => setGlobalBpList(res.data)).catch(() => {});
-    
-    const searchParams = new URLSearchParams(window.location.search);
-    const currentWorkId = searchParams.get('workId') || searchParams.get('id') || window.location.pathname.match(/\/work\/(\d+)/)?.[1] || 'global';
-    
-    // ★ workId=global 전체(19만 건 이상) 통짜 로딩 제거 — 현재 작품 범위만 Alt+H 순환 치환용으로 로드
-    const fetchDictionaries = async () => {
-      if (!currentWorkId || currentWorkId === 'global') {
-        setGlobalDictList([]);
-        return;
-      }
-      try {
-        const localRes = await api.get(`/api/dicts?workId=${currentWorkId}`);
-        setGlobalDictList(localRes.data);
-      } catch (e) {
-        console.error("사전 데이터 로드 실패", e);
-      }
-    };
-    fetchDictionaries();
-    
+    // ★ Alt+H 치환용 사전은 IndexedDB 로컬 캐시(FabMenu.jsx가 최초 1회 적재)를 그대로 쓴다 —
+    // 여기서도 한 번 더 호출해두면(멱등, localStorage 플래그로 이미 있으면 즉시 반환) FabMenu가
+    // 아직 마운트/적재를 마치기 전에 이 에디터가 먼저 쓰이는 경우도 방어된다.
+    seedDictIfNeeded(api);
+
     api.get('/api/fonts').then(res => {
       if (res.data && res.data.length > 0) {
         const sortedFonts = res.data.sort((a, b) => a.displayName.localeCompare(b.displayName, 'ko-KR'));
@@ -131,10 +119,7 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
   useMemoBlockDrag({ editorRef, updateCharCount, saveMemo: saveHooks.saveMemo });
   const bookmarkHooks = useMemoBookmark({ editorRef, updateCharCount, saveMemo: saveHooks.saveMemo });
 
-  const bpCore = useBoilerplateCore();
-  useBoilerplateListener({ globalBpList, bpCore });
-  
-  useMemoDictListener({ editorRef, globalDictList });
+  useMemoDictListener({ editorRef });
 
   const openTemplateList = () => {
     bpCore.openTemplateList(globalBpList, editorRef.current);
@@ -196,10 +181,7 @@ export const useFabMemoEditor = ({ activeMemo, memoData, setMemoData, currentFol
     footnoteHooks,
     linkHooks,
     bookmarkHooks,
-    bpPopupState: bpCore.bpPopupState,
-    commitBpExpansion: bpCore.commitBpExpansion,
-    updatePopupState: bpCore.updatePopupState,
-    openTemplateList, 
+    openTemplateList,
     saveAsTemplate,
     saveToDict, // ★ 렌더링 컨테이너로 전달
     fontList,

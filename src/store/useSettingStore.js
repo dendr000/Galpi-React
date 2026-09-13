@@ -13,10 +13,7 @@ const useSettingStore = create(
       
       // --- 에디터 (Editor) ---
       autoSaveInterval: '0', bossKey: 'Alt+X', blindTheme: 'aurora',
-      
-      // --- 보안 (Security) ---
-      bootLock: false, hiddenCmd: '/unlock123',
-      
+
       isBlindActive: false, // 블라인드 모드 활성화 여부
       
       updateSetting: (key, value) => set({ [key]: value }),

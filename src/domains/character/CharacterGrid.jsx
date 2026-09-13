@@ -101,7 +101,18 @@ const CharacterGrid = ({
                   const suffix = fullVariants[vIdx] ? `_${fullVariants[vIdx]}` : "";
                   const workTitle = work?.title || "작품";
                   const cardImgSrc = `/img/character/${encodeURIComponent(workTitle + "_" + c.name + suffix + "." + charExt)}`;
-                  
+                  const cardBaseImgSrc = `/img/character/${encodeURIComponent(workTitle + "_" + c.name + "." + charExt)}`;
+
+                  // ★ 인포박스와 cardVariants를 공유하므로, 업로드된 적 없는 바리에이션 이미지가
+                  // 저장돼 있으면 카드도 똑같이 빈칸으로 방치되던 버그 — 기본 이미지로 되돌리고
+                  // 저장된 인덱스도 리셋한다.
+                  const handleCardImgError = (e) => {
+                    if (suffix === "") { e.target.style.display = 'none'; e.target.parentElement.style.background = 'var(--table-bg-alt)'; return; }
+                    e.target.onerror = () => { e.target.style.display = 'none'; e.target.parentElement.style.background = 'var(--table-bg-alt)'; };
+                    e.target.src = cardBaseImgSrc;
+                    setCardVariants(prev => ({ ...prev, [c.id]: 0 }));
+                  };
+
                   // ★ JSON 이중 파싱 에러 방지 및 속성 추출 로직
                   let dp = {};
                   try {
@@ -116,6 +127,7 @@ const CharacterGrid = ({
                   }
 
                   const themeColor = dp.themeColor || c.themeColor || 'var(--primary-color)';
+                  const cardImgX = dp.cardImgX !== undefined ? dp.cardImgX : (c.cardImgX !== undefined ? c.cardImgX : 50);
                   const cardImgY = dp.cardImgY !== undefined ? dp.cardImgY : (c.cardImgY !== undefined ? c.cardImgY : 50);
                   const cardImgScale = dp.cardImgScale !== undefined ? dp.cardImgScale : (c.cardImgScale !== undefined ? c.cardImgScale : 1);
 
@@ -135,9 +147,9 @@ const CharacterGrid = ({
                     
                     if (val === undefined || val === null || String(val).trim() === '') return null;
                     return (
-                      <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>{key}</span>
-                        <span style={{ fontWeight: 'bold', color: 'var(--text-primary)', textAlign: 'right' }}>{val}</span>
+                      <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ color: 'var(--text-secondary)', whiteSpace: 'nowrap', flexShrink: 0 }}>{key}</span>
+                        <span style={{ fontWeight: 'bold', color: 'var(--text-primary)', textAlign: 'right', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }} title={val}>{val}</span>
                       </div>
                     );
                   }).filter(Boolean);
@@ -172,15 +184,12 @@ const CharacterGrid = ({
                         <img 
                           src={cardImgSrc} 
                           style={{ 
-                            objectPosition: `center ${cardImgY}%`,
+                            objectPosition: `${cardImgX}% ${cardImgY}%`,
                             transform: `scale(${cardImgScale})`,
                             transition: 'transform 0.2s ease, object-position 0.2s ease'
                           }} 
-                          onError={(e) => { 
-                            e.target.style.display = 'none'; 
-                            e.target.parentElement.style.background = 'var(--table-bg-alt)'; 
-                          }} 
-                          alt={c.name} 
+                          onError={handleCardImgError}
+                          alt={c.name}
                         />
                       </div>
 

@@ -8,6 +8,8 @@ import React, { useRef } from 'react';
 import './GenreCursor.css';
 import { useGenreCursorMotion } from './useGenreCursorMotion';
 import { useGenreClickBurst } from './useGenreClickBurst';
+import { useGenreTitleBoot } from './useGenreTitleBoot';
+import { useGenreTitleGlitch } from './useGenreTitleGlitch';
 
 // 테마별 커서 없음(null)이면 아무것도 렌더링하지 않는다
 const CURSOR_KIND = {
@@ -23,6 +25,14 @@ const CURSOR_KIND = {
   'hero-comic': 'comicstar',
   'hero-hud': 'hudbracket',
   'hero-urban': 'beacon',
+  'hunter-gate': 'gatering',
+  'hunter-hologram': 'trackcross',
+  'joseon-talisman': 'talisman',
+  'joseon-shrine': 'ribbon',
+  'joseon-lantern': 'lantern',
+  'horror-archive': 'rec',
+  'horror-store': 'pricetag',
+  'horror-corridor': 'thinring',
 };
 
 const GenreCursor = ({ theme, zoneId }) => {
@@ -38,10 +48,15 @@ const GenreCursor = ({ theme, zoneId }) => {
     campfire: useRef(null),
     hudPos: useRef(null),
     hudReadout: useRef(null),
+    gatePos: useRef(null),
+    trackReadout: useRef(null),
+    recTimecode: useRef(null),
   };
 
   useGenreCursorMotion({ kind, zoneId, refs });
   useGenreClickBurst({ kind, zoneId });
+  useGenreTitleBoot({ theme, zoneId });
+  useGenreTitleGlitch({ theme, zoneId });
 
   if (!kind) return null;
 
@@ -123,6 +138,53 @@ const GenreCursor = ({ theme, zoneId }) => {
           <div className="gt-cursor-beacon-ping" />
           <div className="gt-cursor-beacon-core" />
         </div>
+      )}
+
+      {kind === 'gatering' && (
+        <div ref={refs.cursor} className="gt-cursor">
+          <div ref={refs.gatePos} className="gt-cursor-part gt-cursor-gate-wrap">
+            <div className="gt-cursor-gate-ring" />
+            <div className="gt-cursor-gate-dash" />
+          </div>
+        </div>
+      )}
+
+      {kind === 'trackcross' && (
+        <div ref={refs.cursor} className="gt-cursor gt-cursor-trackcross" style={{ ...cursorBaseStyle, left: 0, top: 0 }}>
+          <div ref={refs.trackReadout} className="gt-cursor-trackcross-readout">X0 Y0</div>
+        </div>
+      )}
+
+      {kind === 'talisman' && (
+        <div ref={refs.cursor} className="gt-cursor gt-cursor-talisman">
+          <div className="gt-cursor-talisman-glyph">令</div>
+        </div>
+      )}
+
+      {kind === 'ribbon' && (
+        <div ref={refs.cursor} className="gt-cursor gt-cursor-ribbon" />
+      )}
+
+      {kind === 'lantern' && (
+        <div ref={refs.cursor} className="gt-cursor gt-cursor-lantern">
+          <div className="gt-cursor-lantern-cap" />
+          <div className="gt-cursor-lantern-body" />
+        </div>
+      )}
+
+      {kind === 'rec' && (
+        <div ref={refs.cursor} className="gt-cursor gt-cursor-rec" style={{ ...cursorBaseStyle, left: 0, top: 0 }}>
+          <div className="gt-cursor-rec-dot" />
+          <div ref={refs.recTimecode} className="gt-cursor-rec-tc">00:00:00</div>
+        </div>
+      )}
+
+      {kind === 'pricetag' && (
+        <div ref={refs.cursor} className="gt-cursor gt-cursor-pricetag" style={{ ...cursorBaseStyle, left: 0, top: 0 }}>₩1,500</div>
+      )}
+
+      {kind === 'thinring' && (
+        <div ref={refs.cursor} className="gt-cursor gt-cursor-thinring" style={cursorBaseStyle} />
       )}
     </>
   );

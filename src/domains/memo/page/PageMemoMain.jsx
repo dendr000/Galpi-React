@@ -19,9 +19,9 @@ const PageMemoMain = () => {
     handleAddFolder, handleEditFolder, handleDeleteFolder,
     sortType, setSortType, itemsPerPage, setItemsPerPage,
     currentPage, setCurrentPage, totalPages,
-    mainTabs, splitTabs, activeTabId, setActiveTabId, splitTabId, setSplitTabId, 
+    mainTabs, splitTabs, activeTabId, setActiveTabId, splitTabId, setSplitTabId,
     isSplitMode, toggleSplitMode, handleOpenTab, handleCloseTab,
-    splitDirection, toggleSplitDirection,
+    splitDirection, toggleSplitDirection, renameTabId,
     checkedMemoIds, setCheckedMemoIds, handleTogglePin, handleDeleteMemo, 
     handleBatchMove, handleBatchDelete
   } = usePageMemoData();
@@ -53,6 +53,11 @@ const PageMemoMain = () => {
         .galpi-outer-select [contenteditable="false"] *::-moz-selection { background: transparent !important; color: inherit !important; }
         #memo-edit-content p { margin: 0.3em 0 !important; }
         #memo-edit-content div { margin-top: 0; margin-bottom: 0; }
+        /* ★ 표 무한 팽창 방지 및 강제 줄바꿈 족쇄 — FAB 에디터(MemoEditorBody.jsx)엔 있었는데
+           페이지 에디터(PageMemoEditorPane.jsx)는 별도 구현이라 이 방어막이 빠져있었다.
+           표에 내용이 많이 들어가면 줄바꿈 안 되고 오른쪽으로 뚫고 나가던 버그가 이것 때문. */
+        #memo-edit-content table { max-width: 100% !important; table-layout: auto !important; }
+        #memo-edit-content th, #memo-edit-content td { white-space: pre-wrap !important; word-break: break-word !important; }
         .galpi-tree-folder .folder-actions { opacity: 0; pointer-events: none; transition: opacity 0.1s; }
         .galpi-tree-folder:hover .folder-actions { opacity: 1; pointer-events: auto; }
         .galpi-tree-folder .folder-actions button:hover { background: var(--border-color) !important; border-radius: 4px; }
@@ -93,10 +98,11 @@ const PageMemoMain = () => {
             />
             
             {activeTabId ? (
-              <PageMemoEditorPane 
+              <PageMemoEditorPane
                 activeMemoId={activeTabId} editData={editData} setEditData={setEditData}
                 folders={folders} currentFolder={currentFolder} handleCloseTab={handleCloseTab}
-                memos={memos} setMemos={setMemos} paneType="main" 
+                memos={memos} setMemos={setMemos} paneType="main"
+                renameTabId={renameTabId} deleteMemo={handleDeleteMemo}
               />
             ) : (
               <PageMemoBbsList 
@@ -125,10 +131,11 @@ const PageMemoMain = () => {
                 splitDirection={splitDirection} toggleSplitDirection={toggleSplitDirection} paneType="split"
               />
               {splitTabId ? (
-                <PageMemoEditorPane 
+                <PageMemoEditorPane
                   activeMemoId={splitTabId} editData={splitEditData} setEditData={setSplitEditData}
                   folders={folders} currentFolder={currentFolder} handleCloseTab={handleCloseTab}
                   memos={memos} setMemos={setMemos} paneType="split"
+                  renameTabId={renameTabId} deleteMemo={handleDeleteMemo}
                 />
               ) : (
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-color)', color: 'var(--text-secondary)', fontWeight: 'bold' }}>
