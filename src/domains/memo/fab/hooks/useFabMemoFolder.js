@@ -3,10 +3,10 @@ import api from '../../../../api/axiosCore';
 
 export const useFabMemoFolder = ({ memoData, setMemoData, memoFolders, setMemoFolders, currentFolder, setCurrentFolder }) => {
   
-  // ★ "웹툰" 바로 밑에 새 작품 폴더를 만들 때마다, 그 밑에 "등장인물"/"사전"/"주인공" 폴더와 항상
+  // ★ "웹툰"/"소설" 바로 밑에 새 작품 폴더를 만들 때마다, 그 밑에 "등장인물"/"사전"/"주인공" 폴더와 항상
   // 손으로 똑같이 만들던 초기 메모들("00 ", "01 파랑"... / "정보" / "능력", "아이템")까지
   // 한 번에 자동 생성한다.
-  const createWebtoonScaffold = async (basePath) => {
+  const createWorkScaffold = async (basePath) => {
     const charFolder = `${basePath}/등장인물`;
     const dictFolder = `${basePath}/사전`;
     const heroFolder = `${basePath}/주인공`;
@@ -33,7 +33,7 @@ export const useFabMemoFolder = ({ memoData, setMemoData, memoFolders, setMemoFo
         const res = await api.post('/api/memos', memoPayload);
         return { ...memoPayload, id: res.data?.id ?? `local_${baseTime}_${i}` };
       } catch (e) {
-        console.error('[useFabMemoFolder] 웹툰 초기 메모 자동 생성 실패:', e);
+        console.error('[useFabMemoFolder] 작품 초기 메모 자동 생성 실패:', e);
         return { ...memoPayload, id: `local_${baseTime}_${i}` };
       }
     }));
@@ -58,8 +58,8 @@ export const useFabMemoFolder = ({ memoData, setMemoData, memoFolders, setMemoFo
         return alert("이미 존재하는 경로입니다.");
       }
 
-      if (parentPath === '웹툰') {
-        await createWebtoonScaffold(newPath);
+      if (parentPath === '웹툰' || parentPath === '소설') {
+        await createWorkScaffold(newPath);
       } else {
         const newFolders = [...memoFolders, newPath];
         setMemoFolders(newFolders);
