@@ -46,6 +46,10 @@ npm run dev             # http://localhost:9691
 - [docs/COMMIT_CONVENTION.md](docs/COMMIT_CONVENTION.md) — 커밋 컨벤션
 - 그 외 도메인별 문서는 [docs/README.md](docs/README.md)에 목록으로 정리되어 있습니다.
 
+## 라이선스
+
+[MIT](LICENSE) — 자유롭게 사용 · 수정 · 배포할 수 있습니다.
+
 ---
 
 개인 창작용으로 시작한 1인 개발 프로젝트입니다. 회원가입 없이 단일 패스프레이즈로 여는 개인 노트 앱이라, 인증을 비롯한 일부 구조는 멀티유저 서비스를 전제하지 않습니다.
